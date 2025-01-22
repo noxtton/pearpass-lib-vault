@@ -13,6 +13,6 @@
     "pearpass-lib-validator": "github:noxtton/pearpass-lib-validator#v0.0.2"
   },
   "devDependencies": {
-    "pearpass-eslint-config": "github:noxtton/pearpass-eslint-config#v0.0.1"
+    "pearpass-eslint-config": "github:noxtton/pearpass-eslint-config#v0.0.3"
   }
 }

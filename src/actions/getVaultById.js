@@ -102,7 +102,7 @@ export const getVaultById = createAsyncThunk(
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(vaultId ? MOCK_VAULT : null)
-      }, 0)
+      }, 3000)
     })
   }
 )
