@@ -9,8 +9,8 @@
   },
   "peerDependencies": {
     "@reduxjs/toolkit": "^2.5.0",
-    "react-redux": "^9.1.2",
-    "pearpass-lib-validator": "github:noxtton/pearpass-lib-validator#v0.0.2"
+    "pearpass-lib-validator": "github:noxtton/pearpass-lib-validator#v0.0.2",
+    "react-redux": "^9.1.2"
   },
   "devDependencies": {
     "pearpass-eslint-config": "github:noxtton/pearpass-eslint-config#v0.0.3"
