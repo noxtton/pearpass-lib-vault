@@ -15,6 +15,7 @@ import { selectRecords } from '../selectors/selectRecords'
  *        searchPattern: string
  *        type: string
  *        folder: string
+ *       isFavorite: boolean
  *    }
  *    sort: {
  *      field: string
@@ -36,7 +37,8 @@ export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
       filters: {
         searchPattern: variables?.filters?.searchPattern,
         type: variables?.filters?.type,
-        folder: variables?.filters?.folder
+        folder: variables?.filters?.folder,
+        isFavorite: variables?.filters?.isFavorite
       },
       sort: variables?.sort
     })

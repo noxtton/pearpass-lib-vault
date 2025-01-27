@@ -24,6 +24,13 @@ export const selectRecords =
           return false
         }
 
+        if (
+          typeof filters?.isFavorite === 'boolean' &&
+          !!record.isFavorite !== filters.isFavorite
+        ) {
+          return false
+        }
+
         return filters?.isFolder === true || !!record.data
       }) ?? []
 
