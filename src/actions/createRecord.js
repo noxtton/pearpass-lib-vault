@@ -17,8 +17,8 @@ export const createRecord = createAsyncThunk(
             vaultId: vaultId,
             data: payload.data,
             folder: payload.folder || null,
-            isPinned: false,
-            isFavorite: false,
+            isPinned: !!payload.isPinned,
+            isFavorite: !!payload.isFavorite,
             createdAt: Date.now(),
             updatedAt: Date.now()
           }
