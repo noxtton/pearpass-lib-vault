@@ -14,6 +14,12 @@ export const selectFolders = (filters) => (state) => {
       (acc, record) => {
         const folder = record.folder
 
+        if (record.isFavorite) {
+          acc.favorites.records.push(record)
+
+          return acc
+        }
+
         if (!folder) {
           acc.noFolder.records.push(record)
 
@@ -25,12 +31,6 @@ export const selectFolders = (filters) => (state) => {
             name: folder,
             records: []
           }
-        }
-
-        if (record.isFavorite) {
-          acc.favorites.records.push(record)
-
-          return acc
         }
 
         acc.customFolders[folder].records.push(record)
