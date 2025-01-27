@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   updateRecord as updateRecordAction,
   updateFolder as updateFolderAction,
-  updatePinnedState as updatePinnedStateAction
+  updatePinnedState as updatePinnedStateAction,
+  updateFavoriteState as updateFavoriteStateAction
 } from '../actions/updateRecord'
 import { selectVault } from '../selectors/selectVault'
 
@@ -16,6 +17,7 @@ import { selectVault } from '../selectors/selectVault'
  *    updateRecord: (record: any) => void
  *    updateFolder: (recordId: string, folder: string) => void
  *    updatePinnedState: (recordId: string, isPinned: boolean) => void
+ *   updateFavoriteState: (recordId: string, isFavorite: boolean) => void
  * }}
  */
 export const useUpdateRecord = ({ onCompleted } = {}) => {
@@ -51,5 +53,21 @@ export const useUpdateRecord = ({ onCompleted } = {}) => {
     }
   }
 
-  return { isLoading, updateRecord, updateFolder, updatePinnedState }
+  const updateFavoriteState = async (recordId, isFavorite) => {
+    const { error, payload } = await dispatch(
+      updateFavoriteStateAction(recordId, isFavorite)
+    )
+
+    if (!error) {
+      onCompleted?.(payload)
+    }
+  }
+
+  return {
+    isLoading,
+    updateRecord,
+    updateFolder,
+    updatePinnedState,
+    updateFavoriteState
+  }
 }

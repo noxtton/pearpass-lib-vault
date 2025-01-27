@@ -67,3 +67,21 @@ export const updateFolder = (recordId, folder) => (dispatch, getState) => {
 
   return dispatch(updateRecord(updatedPayload))
 }
+
+export const updateFavoriteState =
+  (recordId, isFavorite) => (dispatch, getState) => {
+    const { vault } = getState()
+    const record = vault.data.records.find((r) => r.id === recordId)
+
+    if (!record) {
+      console.error('Record not found')
+      return
+    }
+
+    const updatedPayload = {
+      ...record,
+      isFavorite
+    }
+
+    return dispatch(updateRecord(updatedPayload))
+  }
