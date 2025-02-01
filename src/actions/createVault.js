@@ -1,6 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { Validator } from 'pearpass-lib-validator'
 
+import { createVault as createVaultApi } from '../api/createVault'
+import { getVault as getVaultApi } from '../api/getVault'
+import { VERSION } from '../constants/version'
 import { generateUniqueId } from '../utils/generateUniqueId'
 
 const schema = Validator.object({
@@ -12,27 +15,21 @@ const schema = Validator.object({
 })
 
 export const createVault = createAsyncThunk('vault/createVault', async () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const vault = {
-        id: generateUniqueId(),
-        version: 1,
-        records: [],
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      }
+  const vault = {
+    id: generateUniqueId(),
+    version: VERSION.v1,
+    records: [],
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  }
 
-      const errors = schema.validate(vault)
+  const errors = schema.validate(vault)
 
-      if (errors) {
-        reject({
-          message: `Invalid vault data: ${JSON.stringify(errors, null, 2)}`
-        })
+  if (errors) {
+    throw new Error(`Invalid vault data: ${JSON.stringify(errors, null, 2)}`)
+  }
 
-        return
-      }
+  await createVaultApi(vault)
 
-      resolve(vault)
-    }, 1500)
-  })
+  return await getVaultApi(vault.id)
 })

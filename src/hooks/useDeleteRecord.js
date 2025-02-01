@@ -9,7 +9,7 @@ import { selectVault } from '../selectors/selectVault'
  * }} options
  * @returns {{
  *  isLoading: boolean
- *  deleteRecord: (recordId: string) => void
+ *  deleteRecord: (recordId: string, vaultId: string) => void
  *  }}
  */
 export const useDeleteRecord = ({ onCompleted } = {}) => {
@@ -17,8 +17,10 @@ export const useDeleteRecord = ({ onCompleted } = {}) => {
 
   const { isRecordLoading: isLoading } = useSelector(selectVault)
 
-  const deleteRecord = async (recordId) => {
-    const { error, payload } = await dispatch(deleteRecordAction(recordId))
+  const deleteRecord = async (recordId, vaultId) => {
+    const { error, payload } = await dispatch(
+      deleteRecordAction({ recordId, vaultId })
+    )
 
     if (!error) {
       onCompleted?.(payload)

@@ -5,10 +5,13 @@ import { createRecord } from './actions/createRecord'
 import { createVault } from './actions/createVault'
 import { deleteRecord } from './actions/deleteRecord'
 import { getVaultById } from './actions/getVaultById'
+import { initializeVaults } from './actions/initializeVaults'
 import { updateRecord } from './actions/updateRecord'
 
 const initialState = {
-  isLoading: true,
+  isInitialized: false,
+  isInitializing: false,
+  isLoading: false,
   isRecordLoading: false,
   isFolderLoading: false,
   data: null,
@@ -19,6 +22,19 @@ export const vaultSlice = createSlice({
   name: 'vault',
   initialState,
   extraReducers: (builder) => {
+    builder
+      .addCase(initializeVaults.pending, (state) => {
+        state.isInitializing = true
+      })
+      .addCase(initializeVaults.fulfilled, (state) => {
+        state.isInitializing = false
+        state.isInitialized = true
+      })
+      .addCase(initializeVaults.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.error
+      })
+
     builder
       .addCase(getVaultById.pending, (state) => {
         state.isLoading = true
