@@ -31,6 +31,8 @@ export const vaultSlice = createSlice({
         state.isInitialized = true
       })
       .addCase(initializeVaults.rejected, (state, action) => {
+        console.error(action.error)
+
         state.isLoading = false
         state.error = action.error
       })
@@ -44,6 +46,8 @@ export const vaultSlice = createSlice({
         state.data = action.payload
       })
       .addCase(getVaultById.rejected, (state, action) => {
+        console.error(action.error)
+
         state.isLoading = false
         state.error = action.error
       })
@@ -57,6 +61,8 @@ export const vaultSlice = createSlice({
         state.data = action.payload
       })
       .addCase(createVault.rejected, (state, action) => {
+        console.error(action.error)
+
         state.isLoading = false
         state.error = action.error
       })
@@ -70,6 +76,8 @@ export const vaultSlice = createSlice({
         state.data.records.push(action.payload)
       })
       .addCase(createRecord.rejected, (state, action) => {
+        console.error(action.error)
+
         state.isRecordLoading = false
         state.error = action.error
       })
@@ -86,6 +94,8 @@ export const vaultSlice = createSlice({
           ) ?? []
       })
       .addCase(updateRecord.rejected, (state, action) => {
+        console.error(action.error)
+
         state.isRecordLoading = false
         state.error = action.error
       })
@@ -101,6 +111,8 @@ export const vaultSlice = createSlice({
         )
       })
       .addCase(deleteRecord.rejected, (state, action) => {
+        console.error(action.error)
+
         state.isRecordLoading = false
         state.error = action.error
       })
@@ -114,6 +126,8 @@ export const vaultSlice = createSlice({
         state.data.records.push(action.payload)
       })
       .addCase(createFolder.rejected, (state, action) => {
+        console.error(action.error)
+
         state.isFolderLoading = false
         state.error = action.error
       })
