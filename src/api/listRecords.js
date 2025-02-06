@@ -1,4 +1,18 @@
+import {
+  activeVaultInstance,
+  isActiveVaultInitialized
+} from '../instances/vault'
 import { collectValuesByFilter } from './utils/collectValuesByFilter'
 
-export const listRecords = async (vaultId) =>
-  collectValuesByFilter((key) => key.startsWith(`record/${vaultId}/`))
+/**
+ * @returns {Promise<Array<any>>}
+ */
+export const listRecords = async () => {
+  if (!isActiveVaultInitialized) {
+    throw new Error('Vault not initialised')
+  }
+
+  return collectValuesByFilter(activeVaultInstance, (key) =>
+    key.startsWith(`record/`)
+  )
+}

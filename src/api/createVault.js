@@ -1,9 +1,20 @@
-import { initialised, pass } from './init'
+import { initActiveVaultInstance } from '../instances/vault'
+import { isVaultsInitialized, vaultsInstance } from '../instances/vaults'
 
+/**
+ * @param {{
+ *  id: string
+ * }} record
+ * @returns {Promise<void>}
+ */
 export const createVault = async (vault) => {
-  if (!initialised) {
-    throw new Error('Autopass not initialised')
+  if (!isVaultsInitialized) {
+    throw new Error('Vault not initialised')
   }
 
-  await pass.add(`vault/${vault.id}`, vault)
+  await vaultsInstance.add(`vault/${vault.id}`, vault)
+
+  const activeVaultInstance = await initActiveVaultInstance(vault.id)
+
+  await activeVaultInstance.add(`vault`, vault)
 }

@@ -10,5 +10,7 @@ export { useRecordCountsByType } from './hooks/useRecordCountsByType.js'
 export { useRecords } from './hooks/useRecords.js'
 export { useUpdateRecord } from './hooks/useUpdateRecord.js'
 export { useVault } from './hooks/useVault.js'
+export { useCreateInvite } from './hooks/useCreateInvite.js'
+export { usePair } from './hooks/usePair.js'
 
 export { VaultProvider } from './store.js'

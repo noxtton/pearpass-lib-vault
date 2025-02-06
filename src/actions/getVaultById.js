@@ -1,21 +1,22 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
+import { getVaultById as getVaultByIdApi } from '../api/getVaultById'
 import { listRecords } from '../api/listRecords'
-import { listVaults } from '../api/listVaults'
 
-export const getVaultById = createAsyncThunk('vault/getVault', async () => {
-  const vaults = await listVaults()
+export const getVaultById = createAsyncThunk(
+  'vault/getVault',
+  async (vaultId) => {
+    const vault = await getVaultByIdApi(vaultId)
 
-  const selectedVault = vaults?.[vaults.length - 1]
+    if (!vault) {
+      throw new Error('Vault not found')
+    }
 
-  let records = []
+    const records = (await listRecords(vault.id)) ?? []
 
-  if (selectedVault) {
-    records = await listRecords(selectedVault.id)
+    return {
+      ...vault,
+      records: records ?? []
+    }
   }
-
-  return {
-    ...selectedVault,
-    records: records ?? []
-  }
-})
+)

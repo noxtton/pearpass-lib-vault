@@ -1,7 +1,11 @@
-import { pass } from '../init'
-
-export const collectValuesByFilter = async (filterFn) => {
-  const stream = await pass.list()
+/**
+ *
+ * @param {import ('autopass').Autopass} instance
+ * @param {Function} filterFn
+ * @returns
+ */
+export const collectValuesByFilter = async (instance, filterFn) => {
+  const stream = await instance.list()
   const results = []
 
   return new Promise((resolve, reject) => {

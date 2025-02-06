@@ -17,10 +17,8 @@ export const useDeleteRecord = ({ onCompleted } = {}) => {
 
   const { isRecordLoading: isLoading } = useSelector(selectVault)
 
-  const deleteRecord = async (recordId, vaultId) => {
-    const { error, payload } = await dispatch(
-      deleteRecordAction({ recordId, vaultId })
-    )
+  const deleteRecord = async (recordId) => {
+    const { error, payload } = await dispatch(deleteRecordAction(recordId))
 
     if (!error) {
       onCompleted?.(payload)

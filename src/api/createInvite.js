@@ -4,14 +4,15 @@ import {
 } from '../instances/vault'
 
 /**
- * @param {string} recordId
  * @param {string} vaultId
- * @returns {Promise<void>}
+ * @returns {Promise<string>}
  */
-export const deleteRecord = async (recordId) => {
+export const createInvite = async (vaultId) => {
   if (!isActiveVaultInitialized) {
     throw new Error('Vault not initialised')
   }
 
-  await activeVaultInstance.remove(`record/${recordId}`)
+  const inviteCode = await activeVaultInstance.createInvite()
+
+  return `${vaultId}/${inviteCode}`
 }

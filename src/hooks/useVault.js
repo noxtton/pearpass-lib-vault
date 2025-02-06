@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
 import { initializeVaults } from '../actions/initializeVaults'
+import { initListener } from '../instances/vault'
 import { selectVault } from '../selectors/selectVault'
 
 /**
@@ -28,21 +29,30 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     useSelector(selectVault)
 
   const fetchVault = async (vaultId) => {
-    if (!isInitialized) {
-      return
-    }
+    const { payload: vault } = await dispatch(getVaultById(vaultId))
 
-    const { payload, error } = await dispatch(getVaultById(vaultId))
+    await initListener({
+      vaultId,
+      onUpdate: () => {
+        dispatch(getVaultById(vaultId))
+      }
+    })
 
-    if (!error) {
-      onCompleted?.(payload)
-    }
+    onCompleted?.(vault)
   }
 
   const initVaults = async (vaultId) => {
-    await dispatch(initializeVaults())
+    const { payload: vaults } = await dispatch(initializeVaults())
 
-    await fetchVault(vaultId)
+    const selectedVaultId = vaultId ?? vaults?.[0]?.id
+
+    if (!selectedVaultId) {
+      onCompleted?.()
+
+      return
+    }
+
+    await fetchVault(selectedVaultId)
   }
 
   const refetch = (vaultId) => {
@@ -53,11 +63,19 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     if (isInitializing || isInitialized) {
       return
     }
+
     initVaults(variables?.vaultId)
   }, [isInitializing, isInitialized, variables?.vaultId])
 
   useEffect(() => {
-    if (data || shouldSkip) {
+    if (
+      data ||
+      shouldSkip ||
+      !variables?.vaultId ||
+      !isInitialized ||
+      isLoading ||
+      isInitializing
+    ) {
       return
     }
 

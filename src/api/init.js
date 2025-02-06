@@ -1,15 +1,10 @@
-import Autopass from 'autopass'
-import Corestore from 'corestore'
+import { initVaultsInstance } from '../instances/vaults'
 
-export let pass
-export let initialised = false
-
+/**
+ * @returns {Promise<void>}
+ */
 export const init = async () => {
-  pass = new Autopass(new Corestore('./pass'))
-
-  await pass.ready()
-
-  initialised = true
+  await initVaultsInstance()
 
   return true
 }

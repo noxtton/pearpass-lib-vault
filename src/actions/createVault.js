@@ -2,7 +2,6 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import { Validator } from 'pearpass-lib-validator'
 
 import { createVault as createVaultApi } from '../api/createVault'
-import { getVault as getVaultApi } from '../api/getVault'
 import { VERSION } from '../constants/version'
 import { generateUniqueId } from '../utils/generateUniqueId'
 
@@ -31,5 +30,5 @@ export const createVault = createAsyncThunk('vault/createVault', async () => {
 
   await createVaultApi(vault)
 
-  return await getVaultApi(vault.id)
+  return vault
 })

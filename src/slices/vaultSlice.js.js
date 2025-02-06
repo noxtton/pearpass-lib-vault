@@ -1,12 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { createFolder } from './actions/createFolder'
-import { createRecord } from './actions/createRecord'
-import { createVault } from './actions/createVault'
-import { deleteRecord } from './actions/deleteRecord'
-import { getVaultById } from './actions/getVaultById'
-import { initializeVaults } from './actions/initializeVaults'
-import { updateRecord } from './actions/updateRecord'
+import { createFolder } from '../actions/createFolder'
+import { createRecord } from '../actions/createRecord'
+import { createVault } from '../actions/createVault'
+import { deleteRecord } from '../actions/deleteRecord'
+import { getVaultById } from '../actions/getVaultById'
+import { initializeVaults } from '../actions/initializeVaults'
+import { pair } from '../actions/pair'
+import { updateRecord } from '../actions/updateRecord'
 
 const initialState = {
   isInitialized: false,
@@ -20,7 +21,7 @@ const initialState = {
 
 export const vaultSlice = createSlice({
   name: 'vault',
-  initialState,
+  initialState: initialState,
   extraReducers: (builder) => {
     builder
       .addCase(initializeVaults.pending, (state) => {
@@ -31,7 +32,10 @@ export const vaultSlice = createSlice({
         state.isInitialized = true
       })
       .addCase(initializeVaults.rejected, (state, action) => {
-        console.error(action.error)
+        console.error(
+          `Action initializeVaults error:`,
+          JSON.stringify(action.error)
+        )
 
         state.isLoading = false
         state.error = action.error
@@ -46,7 +50,10 @@ export const vaultSlice = createSlice({
         state.data = action.payload
       })
       .addCase(getVaultById.rejected, (state, action) => {
-        console.error(action.error)
+        console.error(
+          `Action getVaultById error:`,
+          JSON.stringify(action.error)
+        )
 
         state.isLoading = false
         state.error = action.error
@@ -61,7 +68,7 @@ export const vaultSlice = createSlice({
         state.data = action.payload
       })
       .addCase(createVault.rejected, (state, action) => {
-        console.error(action.error)
+        console.error(`Action createVault error:`, JSON.stringify(action.error))
 
         state.isLoading = false
         state.error = action.error
@@ -76,7 +83,10 @@ export const vaultSlice = createSlice({
         state.data.records.push(action.payload)
       })
       .addCase(createRecord.rejected, (state, action) => {
-        console.error(action.error)
+        console.error(
+          `Action createRecord error:`,
+          JSON.stringify(action.error)
+        )
 
         state.isRecordLoading = false
         state.error = action.error
@@ -94,7 +104,10 @@ export const vaultSlice = createSlice({
           ) ?? []
       })
       .addCase(updateRecord.rejected, (state, action) => {
-        console.error(action.error)
+        console.error(
+          `Action updateRecord error:`,
+          JSON.stringify(action.error)
+        )
 
         state.isRecordLoading = false
         state.error = action.error
@@ -111,7 +124,10 @@ export const vaultSlice = createSlice({
         )
       })
       .addCase(deleteRecord.rejected, (state, action) => {
-        console.error(action.error)
+        console.error(
+          `Action deleteRecord error:`,
+          JSON.stringify(action.error)
+        )
 
         state.isRecordLoading = false
         state.error = action.error
@@ -126,9 +142,27 @@ export const vaultSlice = createSlice({
         state.data.records.push(action.payload)
       })
       .addCase(createFolder.rejected, (state, action) => {
-        console.error(action.error)
+        console.error(
+          `Action createFolder error:`,
+          JSON.stringify(action.error)
+        )
 
         state.isFolderLoading = false
+        state.error = action.error
+      })
+
+    builder
+      .addCase(pair.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(pair.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.data = action.payload
+      })
+      .addCase(pair.rejected, (state, action) => {
+        console.error(`Action pair error:`, JSON.stringify(action.error))
+
+        state.isLoading = false
         state.error = action.error
       })
   }
