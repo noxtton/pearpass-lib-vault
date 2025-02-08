@@ -13,4 +13,6 @@ export { useVault } from './hooks/useVault.js'
 export { useCreateInvite } from './hooks/useCreateInvite.js'
 export { usePair } from './hooks/usePair.js'
 
+export { setStoragePath } from './instances/utils/path.js'
+
 export { VaultProvider } from './store.js'
