@@ -8,10 +8,7 @@ import { buildPath } from './path'
  * @returns {Promise<Autopass>}
  */
 export const pairInstance = async (path, invite) => {
-  const pair = Autopass.pair(
-    new Corestore(buildPath(process.argv[2], path)),
-    invite
-  )
+  const pair = Autopass.pair(new Corestore(buildPath(path)), invite)
 
   const instance = await pair.finished()
 

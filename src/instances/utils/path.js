@@ -1,10 +1,9 @@
-export const extractBasePath = (input) => {
-  const regex = /^--user-data-dir=(.+)$/
-  const match = input.match(regex)
+const STORAGE_PATH = Pear.config.storage
 
-  return match[1]
-}
-
-export const buildPath = (input, path) => {
-  return extractBasePath(input) + '/' + path
+/**
+ * @param {string} path
+ * @returns {string}
+ */
+export const buildPath = (path) => {
+  return STORAGE_PATH + '/' + path
 }

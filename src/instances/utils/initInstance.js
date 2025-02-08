@@ -8,7 +8,7 @@ import { buildPath } from './path'
  * @returns {Promise<Autopass>}
  */
 export const initInstance = async (path) => {
-  const instance = new Autopass(new Corestore(buildPath(process.argv[2], path)))
+  const instance = new Autopass(new Corestore(buildPath(path)))
 
   await instance.ready()
 
