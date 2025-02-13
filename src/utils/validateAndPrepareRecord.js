@@ -13,7 +13,6 @@ export const recordSchema = Validator.object({
   type: Validator.string().required(),
   vaultId: Validator.string().required(),
   folder: Validator.string(),
-  isPinned: Validator.boolean().required(),
   isFavorite: Validator.boolean().required(),
   createdAt: Validator.number().required(),
   updatedAt: Validator.number().required()
@@ -49,7 +48,6 @@ export const validateAndPrepareRecord = (record) => {
     vaultId: record.vaultId,
     data: recordData,
     folder: record.folder || null,
-    isPinned: record.isPinned,
     isFavorite: record.isFavorite,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt

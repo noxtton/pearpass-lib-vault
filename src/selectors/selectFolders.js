@@ -18,7 +18,6 @@ export const selectFolders = (filters) =>
 
           if (record.isFavorite) {
             acc.favorites.records.push(record)
-            return acc
           }
 
           if (!folder) {
