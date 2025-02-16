@@ -5,7 +5,8 @@ import { RECORD_TYPES } from '../constants/recordTypes'
 export const selectRecordCountsByType = createSelector(
   (state) => state.vault,
   (vault) => {
-    const records = vault.data?.records ?? []
+    const records =
+      vault.data?.records.filter((record) => record.type !== undefined) ?? []
 
     const data = records.reduce(
       (acc, record) => {

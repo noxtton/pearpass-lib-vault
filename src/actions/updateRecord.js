@@ -12,7 +12,6 @@ export const updateRecord = createAsyncThunk(
       vaultId: payload.vaultId,
       data: payload.data,
       folder: payload.folder || null,
-      isPinned: payload.isPinned,
       isFavorite: payload.isFavorite,
       createdAt: payload.createdAt,
       updatedAt: Date.now()
@@ -25,24 +24,6 @@ export const updateRecord = createAsyncThunk(
     return newRecord
   }
 )
-
-export const updatePinnedState =
-  (recordId, isPinned) => (dispatch, getState) => {
-    const { vault } = getState()
-    const record = vault.data.records.find((r) => r.id === recordId)
-
-    if (!record) {
-      console.error('Record not found')
-      return
-    }
-
-    const updatedPayload = {
-      ...record,
-      isPinned
-    }
-
-    return dispatch(updateRecord(updatedPayload))
-  }
 
 export const updateFolder = (recordId, folder) => (dispatch, getState) => {
   const { vault } = getState()

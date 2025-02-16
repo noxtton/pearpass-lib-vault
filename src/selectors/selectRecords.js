@@ -38,7 +38,7 @@ export const selectRecords = ({ filters, sort } = {}) =>
         }) ?? []
 
       const sortedRecords = [...records].sort((a, b) => {
-        if (a.isPinned === b.isPinned) {
+        if (a.isFavorite === b.isFavorite) {
           if (sort?.key === 'updatedAt') {
             return sort?.direction === 'asc'
               ? a.updatedAt - b.updatedAt
@@ -51,7 +51,7 @@ export const selectRecords = ({ filters, sort } = {}) =>
           }
         }
 
-        return a.isPinned ? -1 : 1
+        return a.isFavorite ? -1 : 1
       })
 
       return {
