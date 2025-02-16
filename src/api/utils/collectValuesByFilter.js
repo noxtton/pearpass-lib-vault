@@ -1,6 +1,6 @@
 /**
  *
- * @param {import ('autopass').Autopass} instance
+ * @param {Autopass} instance
  * @param {Function} filterFn
  * @returns
  */

@@ -1,6 +1,5 @@
-import Autopass from 'autopass'
-import Corestore from 'corestore'
-
+import { AutoPassInstance } from './autoPass'
+import { CoreStoreInstance } from './coreStore'
 import { buildPath } from './path'
 
 /**
@@ -8,7 +7,18 @@ import { buildPath } from './path'
  * @returns {Promise<Autopass>}
  */
 export const pairInstance = async (path, invite) => {
-  const pair = Autopass.pair(new Corestore(buildPath(path)), invite)
+  if (!AutoPassInstance) {
+    throw new Error('AutoPassInstance is not initialized')
+  }
+
+  if (!CoreStoreInstance) {
+    throw new Error('CoreStoreInstance is not initialized')
+  }
+
+  const pair = AutoPassInstance.pair(
+    new CoreStoreInstance(buildPath(path)),
+    invite
+  )
 
   const instance = await pair.finished()
 

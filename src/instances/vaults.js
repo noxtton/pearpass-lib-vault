@@ -14,3 +14,10 @@ export const initVaultsInstance = async () => {
 
   isVaultsInitialized = true
 }
+
+/**
+ * @returns {Promise<void>}
+ */
+export const closeVaultsInstance = async () => {
+  await vaultsInstance?.close?.()
+}
