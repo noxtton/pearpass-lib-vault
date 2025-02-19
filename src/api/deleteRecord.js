@@ -1,7 +1,4 @@
-import {
-  activeVaultInstance,
-  isActiveVaultInitialized
-} from '../instances/vault'
+import { vaultManager } from '../instances'
 
 /**
  * @param {string} recordId
@@ -9,9 +6,5 @@ import {
  * @returns {Promise<void>}
  */
 export const deleteRecord = async (recordId) => {
-  if (!isActiveVaultInitialized) {
-    throw new Error('Vault not initialised')
-  }
-
-  await activeVaultInstance.remove(`record/${recordId}`)
+  await vaultManager.activeVaultRemove(`record/${recordId}`)
 }

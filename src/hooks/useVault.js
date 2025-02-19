@@ -31,12 +31,13 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   const fetchVault = async (vaultId) => {
     const { payload: vault } = await dispatch(getVaultById(vaultId))
 
-    await initListener({
-      vaultId,
-      onUpdate: () => {
-        dispatch(getVaultById(vaultId))
-      }
-    })
+    // TODO: Implement this
+    // await initListener({
+    //   vaultId,
+    //   onUpdate: () => {
+    //     dispatch(getVaultById(vaultId))
+    //   }
+    // })
 
     onCompleted?.(vault)
   }

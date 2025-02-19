@@ -1,15 +1,10 @@
-import { isVaultsInitialized, vaultsInstance } from '../instances/vaults'
-import { collectValuesByFilter } from './utils/collectValuesByFilter'
+import { vaultManager } from '../instances'
 
 /**
  * @returns {Promise<Array<any>>}
  */
 export const listVaults = async () => {
-  if (!isVaultsInitialized) {
-    throw new Error('Vaults not initialised')
-  }
+  const vaults = await vaultManager.vaultsList(`vault/`)
 
-  return collectValuesByFilter(vaultsInstance, (key) =>
-    key.startsWith('vault/')
-  )
+  return vaults
 }

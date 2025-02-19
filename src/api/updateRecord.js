@@ -1,7 +1,4 @@
-import {
-  activeVaultInstance,
-  isActiveVaultInitialized
-} from '../instances/vault'
+import { vaultManager } from '../instances'
 
 /**
  * @param {{
@@ -11,9 +8,5 @@ import {
  * @returns {Promise<void>}
  */
 export const updateRecord = async (record) => {
-  if (!isActiveVaultInitialized) {
-    throw new Error('Vault not initialised')
-  }
-
-  await activeVaultInstance.add(`record/${record.id}`, record)
+  await vaultManager.activeVaultAdd(`record/${record.id}`, record)
 }

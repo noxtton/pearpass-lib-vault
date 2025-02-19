@@ -1,5 +1,4 @@
-import { initActiveVaultInstance } from '../instances/vault'
-import { isVaultsInitialized, vaultsInstance } from '../instances/vaults'
+import { vaultManager } from '../instances'
 
 /**
  * @param {{
@@ -8,13 +7,9 @@ import { isVaultsInitialized, vaultsInstance } from '../instances/vaults'
  * @returns {Promise<void>}
  */
 export const createVault = async (vault) => {
-  if (!isVaultsInitialized) {
-    throw new Error('Vault not initialised')
-  }
+  await vaultManager.vaultsAdd(`vault/${vault.id}`, vault)
 
-  await vaultsInstance.add(`vault/${vault.id}`, vault)
+  await vaultManager.activeVaultInit(vault.id)
 
-  const activeVaultInstance = await initActiveVaultInstance(vault.id)
-
-  await activeVaultInstance.add(`vault`, vault)
+  await vaultManager.activeVaultAdd(`vault`, vault)
 }

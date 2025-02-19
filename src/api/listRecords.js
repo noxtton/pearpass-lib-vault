@@ -1,18 +1,10 @@
-import {
-  activeVaultInstance,
-  isActiveVaultInitialized
-} from '../instances/vault'
-import { collectValuesByFilter } from './utils/collectValuesByFilter'
+import { vaultManager } from '../instances'
 
 /**
  * @returns {Promise<Array<any>>}
  */
 export const listRecords = async () => {
-  if (!isActiveVaultInitialized) {
-    throw new Error('Vault not initialised')
-  }
+  const records = await vaultManager.activeVaultList(`record/`)
 
-  return collectValuesByFilter(activeVaultInstance, (key) =>
-    key.startsWith(`record/`)
-  )
+  return records
 }

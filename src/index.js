@@ -13,12 +13,6 @@ export { useVault } from './hooks/useVault'
 export { useCreateInvite } from './hooks/useCreateInvite'
 export { usePair } from './hooks/usePair'
 
-export { setStoragePath } from './instances/utils/path'
-
 export { VaultProvider } from './store'
 
-export { setAutoPassInstance } from './instances/utils/autoPass'
-export { setCoreStoreInstance } from './instances/utils/coreStore'
-
-export { closeVaultsInstance } from './instances/vaults'
-export { closeActiveVaultInstance } from './instances/vault'
+export { setVaultManager, setStoragePath } from './instances'

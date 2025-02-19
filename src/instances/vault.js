@@ -23,6 +23,9 @@ export const initListener = async ({ vaultId, onUpdate }) => {
   listeningVaultId = vaultId
 }
 
+/**
+ * @returns {Promise<void>}
+ */
 export const closeActiveVaultInstance = async () => {
   await activeVaultInstance?.close?.()
 

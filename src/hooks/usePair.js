@@ -18,12 +18,13 @@ export const usePair = ({ onCompleted } = {}) => {
   const pair = async (inviteCode) => {
     const { payload: vault } = await dispatch(pairAction(inviteCode))
 
-    await initListener({
-      vaultId: vault.id,
-      onUpdate: () => {
-        dispatch(getVaultById(vault.id))
-      }
-    })
+    // TODO: Implement this
+    // await initListener({
+    //   vaultId: vault.id,
+    //   onUpdate: () => {
+    //     dispatch(getVaultById(vault.id))
+    //   }
+    // })
 
     onCompleted?.(vault)
   }

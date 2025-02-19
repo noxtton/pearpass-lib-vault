@@ -1,39 +1,31 @@
+import { vaultManager } from '../instances'
 import { listVaults } from './listVaults'
-import {
-  activeVaultInstance,
-  closeActiveVaultInstance,
-  initActiveVaultInstance,
-  isActiveVaultInitialized
-} from '../instances/vault'
-import { isVaultsInitialized } from '../instances/vaults'
 
 /**
  * @param {string} vaultId
  * @returns {Promise<void>}
  */
 export const getVaultById = async (vaultId) => {
-  if (!isVaultsInitialized) {
-    throw new Error('Vault not initialised')
-  }
-
   const vaults = await listVaults()
 
   if (!vaults.some((vault) => vault.id === vaultId)) {
     throw new Error('Vault not found')
   }
 
-  if (!isActiveVaultInitialized) {
-    await initActiveVaultInstance(vaultId)
+  const res = await vaultManager.activeVaultGetStatus()
+
+  if (!res.status) {
+    await vaultManager.activeVaultInit(vaultId)
   }
 
-  const currentVault = await activeVaultInstance.get(`vault`)
+  const currentVault = await vaultManager.activeVaultGet(`vault`)
 
   if (currentVault && vaultId !== currentVault.id) {
-    await closeActiveVaultInstance()
+    await vaultManager.activeVaultClose()
 
-    await initActiveVaultInstance(vaultId)
+    await vaultManager.activeVaultInit(vaultId)
 
-    const newVault = await activeVaultInstance.get(`vault`)
+    const newVault = await vaultManager.activeVaultGet(`vault`)
 
     return newVault
   }

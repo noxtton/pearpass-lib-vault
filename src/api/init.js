@@ -1,10 +1,10 @@
-import { initVaultsInstance } from '../instances/vaults'
+import { vaultManager } from '../instances'
 
 /**
  * @returns {Promise<void>}
  */
 export const init = async () => {
-  await initVaultsInstance()
+  await vaultManager.vaultsInit()
 
   return true
 }
