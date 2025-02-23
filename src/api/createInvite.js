@@ -1,13 +1,11 @@
+import { vaultManager } from '../instances'
+
 /**
  * @param {string} vaultId
  * @returns {Promise<string>}
  */
 export const createInvite = async (vaultId) => {
-  // const inviteCode = await activeVaultInstance.createInvite()
+  const inviteCode = await vaultManager.activeVaultCreateInvite(vaultId)
 
-  // return `${vaultId}/${inviteCode}`
-
-  console.error('NOT IMPLEMENTED')
-
-  return vaultId
+  return inviteCode
 }

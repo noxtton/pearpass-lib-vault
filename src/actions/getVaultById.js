@@ -9,7 +9,7 @@ export const getVaultById = createAsyncThunk(
     const vault = await getVaultByIdApi(vaultId)
 
     if (!vault) {
-      throw new Error('Vault not found')
+      throw new Error('Vault not found ' + vaultId)
     }
 
     const records = (await listRecords(vault.id)) ?? []

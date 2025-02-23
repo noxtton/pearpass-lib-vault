@@ -16,3 +16,4 @@ export { usePair } from './hooks/usePair'
 export { VaultProvider } from './store'
 
 export { setVaultManager, setStoragePath } from './instances'
+export { closeAllInstances } from './api/closeAllInstances'
