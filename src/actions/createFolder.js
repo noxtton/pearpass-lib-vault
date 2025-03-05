@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { Validator } from 'pearpass-lib-validator'
+import { Validator } from 'pear-apps-utils-validator'
 
 import { createRecord as createRecordApi } from '../api/createRecord'
 import { generateUniqueId } from '../utils/generateUniqueId'

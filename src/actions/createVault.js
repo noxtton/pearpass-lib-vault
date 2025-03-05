@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { Validator } from 'pearpass-lib-validator'
+import { Validator } from 'pear-apps-utils-validator'
 
 import { createVault as createVaultApi } from '../api/createVault'
 import { VERSION } from '../constants/version'
