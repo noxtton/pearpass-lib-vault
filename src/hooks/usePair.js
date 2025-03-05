@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
 import { pair as pairAction } from '../actions/pair'
-import { initListener } from '../instances/vault'
+import { initListener } from '../api/initListener'
 
 /**
  * @param {{
@@ -18,13 +18,12 @@ export const usePair = ({ onCompleted } = {}) => {
   const pair = async (inviteCode) => {
     const { payload: vault } = await dispatch(pairAction(inviteCode))
 
-    // TODO: Implement this
-    // await initListener({
-    //   vaultId: vault.id,
-    //   onUpdate: () => {
-    //     dispatch(getVaultById(vault.id))
-    //   }
-    // })
+    await initListener({
+      vaultId: vault.id,
+      onUpdate: () => {
+        dispatch(getVaultById(vault.id))
+      }
+    })
 
     onCompleted?.(vault)
   }

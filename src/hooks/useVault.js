@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
 import { initializeVaults } from '../actions/initializeVaults'
-import { initListener } from '../instances/vault'
+import { initListener } from '../api/initListener'
 import { selectVault } from '../selectors/selectVault'
 
 /**
@@ -31,13 +31,12 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   const fetchVault = async (vaultId) => {
     const { payload: vault } = await dispatch(getVaultById(vaultId))
 
-    // TODO: Implement this
-    // await initListener({
-    //   vaultId,
-    //   onUpdate: () => {
-    //     dispatch(getVaultById(vaultId))
-    //   }
-    // })
+    await initListener({
+      vaultId: vaultId,
+      onUpdate: () => {
+        dispatch(getVaultById(vaultId))
+      }
+    })
 
     onCompleted?.(vault)
   }

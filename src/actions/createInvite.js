@@ -19,7 +19,11 @@ export const createInvite = createAsyncThunk(
   async (_, { getState }) => {
     const vaultId = getState().vault.data.id
 
-    const publicKey = await createInviteApi(vaultId)
+    const publicKey = await createInviteApi()
+
+    if (!publicKey) {
+      throw new Error('Failed to create invite')
+    }
 
     const invite = {
       id: generateUniqueId(),

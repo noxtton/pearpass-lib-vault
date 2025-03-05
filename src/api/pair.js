@@ -5,5 +5,7 @@ import { vaultManager } from '../instances'
  * @returns {Promise<void>}
  */
 export const pair = async (inviteCode) => {
-  await vaultManager.pair(inviteCode)
+  const vault = await vaultManager.pair(inviteCode)
+
+  return vault
 }
