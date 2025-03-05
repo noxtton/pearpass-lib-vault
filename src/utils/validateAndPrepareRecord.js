@@ -1,4 +1,4 @@
-import { Validator } from 'pearpass-lib-validator'
+import { Validator } from 'pear-apps-utils-validator'
 
 import { validateAndPrepareCreditCardData } from './validateAndPrepareCreditCardData'
 import { validateAndPrepareCustomData } from './validateAndPrepareCustomData'
