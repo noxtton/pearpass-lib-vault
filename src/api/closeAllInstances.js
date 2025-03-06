@@ -6,7 +6,7 @@ import { vaultManager } from '../instances'
 export const closeAllInstances = async () => {
   await vaultManager.activeVaultClose()
 
-  await vaultManager.vaultsInit()
+  await vaultManager.vaultsClose()
 
   return true
 }

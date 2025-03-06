@@ -27,8 +27,8 @@ export const useVaults = ({ onCompleted, shouldSkip } = {}) => {
     onCompleted?.(vaults)
   }
 
-  const refetch = () => {
-    fetchVaults()
+  const refetch = async () => {
+    await fetchVaults()
   }
 
   useEffect(() => {
