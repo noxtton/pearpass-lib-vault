@@ -60,12 +60,12 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   }
 
   useEffect(() => {
-    if (isInitializing || isInitialized) {
+    if (isInitializing || isInitialized || shouldSkip) {
       return
     }
 
     initVaults(variables?.vaultId)
-  }, [isInitializing, isInitialized, variables?.vaultId])
+  }, [isInitializing, isInitialized, variables?.vaultId, shouldSkip])
 
   useEffect(() => {
     if (

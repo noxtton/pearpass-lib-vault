@@ -4,7 +4,7 @@ import { vaultManager } from '../instances'
  * @returns {Promise<void>}
  */
 export const init = async () => {
-  const res = vaultManager.vaultsGetStatus()
+  const res = await vaultManager.vaultsGetStatus()
 
   if (res?.status) {
     return true
