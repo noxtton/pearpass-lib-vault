@@ -44,25 +44,24 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   const initVaults = async (vaultId) => {
     await dispatch(initializeVaults())
 
-    if (!vaultId) {
-      onCompleted?.()
-
-      return
-    }
-
     await fetchVault(vaultId)
   }
 
   const refetch = (vaultId) => {
-    fetchVault(vaultId || variables?.vaultId)
-  }
-
-  useEffect(() => {
-    if (isInitializing || isInitialized || shouldSkip) {
+    if (!vaultId && !variables?.vaultId) {
+      console.error('refetch: Vault ID is required')
       return
     }
 
-    initVaults(variables?.vaultId)
+    fetchVault(vaultId || variables.vaultId)
+  }
+
+  useEffect(() => {
+    if (isInitializing || isInitialized || shouldSkip || !variables?.vaultId) {
+      return
+    }
+
+    initVaults(variables.vaultId)
   }, [isInitializing, isInitialized, variables?.vaultId, shouldSkip])
 
   useEffect(() => {

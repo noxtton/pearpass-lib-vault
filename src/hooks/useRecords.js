@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
 import { selectRecords } from '../selectors/selectRecords'
+import { selectVault } from '../selectors/selectVault'
 
 /**
  * @param {{
@@ -32,6 +33,10 @@ import { selectRecords } from '../selectors/selectRecords'
 export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
   const dispatch = useDispatch()
 
+  const { data: vaultData } = useSelector(selectVault)
+
+  const providedVaultId = variables?.vaultId || vaultData?.id
+
   const { isLoading, data } = useSelector(
     selectRecords({
       filters: {
@@ -53,7 +58,7 @@ export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
   }
 
   const refetch = (vaultId) => {
-    fetchVault(vaultId || variables?.vaultId)
+    fetchVault(vaultId || providedVaultId)
   }
 
   useEffect(() => {
@@ -61,8 +66,8 @@ export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
       return
     }
 
-    fetchVault(variables?.vaultId)
-  }, [data, variables?.vaultId])
+    fetchVault(providedVaultId)
+  }, [data, providedVaultId])
 
   return { isLoading, data, refetch }
 }

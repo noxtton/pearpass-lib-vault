@@ -19,7 +19,8 @@ import { selectVaults } from '../selectors/selectVaults'
 export const useVaults = ({ onCompleted, shouldSkip } = {}) => {
   const dispatch = useDispatch()
 
-  const { isLoading, data } = useSelector(selectVaults)
+  const { isLoading, data, isInitialized, isInitializing } =
+    useSelector(selectVaults)
 
   const fetchVaults = async () => {
     const { payload: vaults } = await dispatch(initializeVaults())
@@ -32,12 +33,12 @@ export const useVaults = ({ onCompleted, shouldSkip } = {}) => {
   }
 
   useEffect(() => {
-    if (shouldSkip || isLoading) {
+    if (shouldSkip || isLoading || isInitialized || isInitializing) {
       return
     }
 
     fetchVaults()
-  }, [])
+  }, [shouldSkip, isLoading, isInitialized, isInitializing])
 
   return { isLoading, data, refetch }
 }

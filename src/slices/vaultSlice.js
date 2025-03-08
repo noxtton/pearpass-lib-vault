@@ -38,6 +38,7 @@ export const vaultSlice = createSlice({
         )
 
         state.isLoading = false
+        state.isInitializing = false
         state.error = action.error
       })
 

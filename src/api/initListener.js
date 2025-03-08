@@ -9,5 +9,7 @@ import { vaultManager } from '../instances'
 export const initListener = async ({ vaultId, onUpdate }) => {
   await vaultManager.initListener({ vaultId })
 
+  vaultManager.removeAllListeners()
+
   vaultManager.on('update', onUpdate)
 }

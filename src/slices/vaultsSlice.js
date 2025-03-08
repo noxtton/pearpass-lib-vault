@@ -3,6 +3,8 @@ import { createSlice } from '@reduxjs/toolkit'
 import { initializeVaults } from '../actions/initializeVaults'
 
 const initialState = {
+  isInitialized: false,
+  isInitializing: false,
   isLoading: false,
   data: null,
   error: null
@@ -15,10 +17,13 @@ export const vaultsSlice = createSlice({
     builder
       .addCase(initializeVaults.pending, (state) => {
         state.isLoading = true
+        state.isInitializing = true
       })
       .addCase(initializeVaults.fulfilled, (state, action) => {
         state.data = action.payload
         state.isLoading = false
+        state.isInitializing = false
+        state.isInitialized = true
       })
       .addCase(initializeVaults.rejected, (state, action) => {
         console.error(
@@ -27,6 +32,7 @@ export const vaultsSlice = createSlice({
         )
 
         state.isLoading = false
+        state.isInitializing = false
         state.error = action.error
       })
   }
