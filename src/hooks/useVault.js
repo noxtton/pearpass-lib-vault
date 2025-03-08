@@ -42,17 +42,15 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   }
 
   const initVaults = async (vaultId) => {
-    const { payload: vaults } = await dispatch(initializeVaults())
+    await dispatch(initializeVaults())
 
-    const selectedVaultId = vaultId ?? vaults?.[0]?.id
-
-    if (!selectedVaultId) {
+    if (!vaultId) {
       onCompleted?.()
 
       return
     }
 
-    await fetchVault(selectedVaultId)
+    await fetchVault(vaultId)
   }
 
   const refetch = (vaultId) => {
