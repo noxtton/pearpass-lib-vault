@@ -2,34 +2,43 @@ import { useEffect } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
+import { getVaults } from '../actions/getVaults'
 import { initializeVaults } from '../actions/initializeVaults'
 import { selectVaults } from '../selectors/selectVaults'
 
 /**
  *  @param {{
  *    onCompleted?: (payload: any) => void
+ *   onInitialize?: (payload: any) => void
  *    shouldSkip?: boolean
  *  }} options
  *   @returns {{
  *      isLoading: boolean
  *      data: any
- *    refetch: (vaultId: string) => void
+ *    refetch: () => Promise<void>
+ *    initVaults: (password: string) => Promise<void>
  *  }}
  */
-export const useVaults = ({ onCompleted, shouldSkip } = {}) => {
+export const useVaults = ({ onCompleted, onInitialize, shouldSkip } = {}) => {
   const dispatch = useDispatch()
 
   const { isLoading, data, isInitialized, isInitializing } =
     useSelector(selectVaults)
 
-  const fetchVaults = async (password) => {
+  const initVaults = async (password) => {
     const { payload: vaults } = await dispatch(initializeVaults(password))
+
+    onInitialize?.(vaults)
+  }
+
+  const fetchVaults = async () => {
+    const { payload: vaults } = await dispatch(getVaults())
 
     onCompleted?.(vaults)
   }
 
-  const refetch = async (password) => {
-    await fetchVaults(password)
+  const refetch = async () => {
+    await fetchVaults()
   }
 
   useEffect(() => {
@@ -37,8 +46,8 @@ export const useVaults = ({ onCompleted, shouldSkip } = {}) => {
       return
     }
 
-    fetchVaults()
+    initVaults()
   }, [shouldSkip, isLoading, isInitialized, isInitializing])
 
-  return { isLoading, data, refetch }
+  return { isLoading, data, refetch, initVaults }
 }

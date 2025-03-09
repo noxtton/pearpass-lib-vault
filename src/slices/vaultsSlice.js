@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+import { getVaults } from '../actions/getVaults'
 import { initializeVaults } from '../actions/initializeVaults'
 
 const initialState = {
@@ -33,6 +34,20 @@ export const vaultsSlice = createSlice({
 
         state.isLoading = false
         state.isInitializing = false
+        state.error = action.error
+      })
+
+    builder
+      .addCase(getVaults.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(getVaults.fulfilled, (state, action) => {
+        state.data = action.payload
+        state.isLoading = false
+      })
+      .addCase(getVaults.rejected, (state, action) => {
+        console.error(`Action getVaults error:`, JSON.stringify(action.error))
+
         state.error = action.error
       })
   }

@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
-import { initializeVaults } from '../actions/initializeVaults'
+import { getVaultEncryption } from '../api/getVaultEncryption'
 import { initListener } from '../api/initListener'
 import { selectVault } from '../selectors/selectVault'
 import { selectVaults } from '../selectors/selectVaults'
@@ -20,7 +20,8 @@ import { selectVaults } from '../selectors/selectVaults'
  *      isLoading: boolean
  *      isInitialized: boolean
  *      data: any
- *    refetch: (vaultId: string) => void
+ *    refetch: (vaultId: string) => Promise<void>
+ *    isVaultProtected: (vaultId: string) => Promise<boolean>
  *  }}
  */
 export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
@@ -36,8 +37,14 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
 
   const isLoading = isVaultsLoading || isVaultLoading
 
-  const fetchVault = async (vaultId) => {
-    const { payload: vault } = await dispatch(getVaultById(vaultId))
+  const isVaultProtected = async (vaultId) => {
+    const encryptionData = await getVaultEncryption(vaultId)
+
+    return !!encryptionData?.TESTpassword
+  }
+
+  const fetchVault = async (vaultId, password) => {
+    const { payload: vault } = await dispatch(getVaultById(vaultId, password))
 
     await initListener({
       vaultId: vaultId,
@@ -49,28 +56,14 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     onCompleted?.(vault)
   }
 
-  const initVaults = async (vaultId) => {
-    await dispatch(initializeVaults())
-
-    await fetchVault(vaultId)
-  }
-
-  const refetch = (vaultId) => {
+  const refetch = (vaultId, password) => {
     if (!vaultId && !variables?.vaultId) {
       console.error('refetch: Vault ID is required')
       return
     }
 
-    fetchVault(vaultId || variables.vaultId)
+    fetchVault(vaultId || variables.vaultId, password)
   }
-
-  useEffect(() => {
-    if (isInitializing || isInitialized || shouldSkip || !variables?.vaultId) {
-      return
-    }
-
-    initVaults(variables.vaultId)
-  }, [isInitializing, isInitialized, variables?.vaultId, shouldSkip])
 
   useEffect(() => {
     if (
@@ -87,5 +80,5 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     fetchVault(variables?.vaultId)
   }, [data, variables?.vaultId, isInitialized])
 
-  return { isLoading, data, isInitialized, refetch }
+  return { isLoading, data, isInitialized, refetch, isVaultProtected }
 }

@@ -35,7 +35,7 @@ export const useUserData = ({ onCompleted } = {}) => {
 
         const encryptionData = await getEncryption()
 
-        const hasPasswordSet = !!encryptionData
+        const hasPasswordSet = !!encryptionData?.TESTpassword
 
         setHasPasswordSet(hasPasswordSet)
 

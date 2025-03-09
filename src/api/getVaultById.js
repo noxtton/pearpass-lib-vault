@@ -5,7 +5,7 @@ import { listVaults } from './listVaults'
  * @param {string} vaultId
  * @returns {Promise<void>}
  */
-export const getVaultById = async (vaultId) => {
+export const getVaultById = async (vaultId, password) => {
   const vaults = await listVaults()
 
   if (!vaults.some((vault) => vault.id === vaultId)) {
@@ -15,7 +15,7 @@ export const getVaultById = async (vaultId) => {
   const res = await vaultManager.activeVaultGetStatus()
 
   if (!res.status) {
-    await vaultManager.activeVaultInit(vaultId)
+    await vaultManager.activeVaultInit(vaultId, password)
   }
 
   const currentVault = await vaultManager.activeVaultGet(`vault`)
@@ -23,7 +23,7 @@ export const getVaultById = async (vaultId) => {
   if (currentVault && vaultId !== currentVault.id) {
     await vaultManager.activeVaultClose()
 
-    await vaultManager.activeVaultInit(vaultId)
+    await vaultManager.activeVaultInit(vaultId, password)
 
     const newVault = await vaultManager.activeVaultGet(`vault`)
 

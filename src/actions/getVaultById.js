@@ -5,8 +5,8 @@ import { listRecords } from '../api/listRecords'
 
 export const getVaultById = createAsyncThunk(
   'vault/getVault',
-  async (vaultId) => {
-    const vault = await getVaultByIdApi(vaultId)
+  async (vaultId, password) => {
+    const vault = await getVaultByIdApi(vaultId, password)
 
     if (!vault) {
       throw new Error('Vault not found ' + vaultId)
