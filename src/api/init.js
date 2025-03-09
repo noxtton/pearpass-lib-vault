@@ -11,6 +11,10 @@ export const init = async (password) => {
     return true
   }
 
+  if (!password) {
+    throw new Error('Password is required')
+  }
+
   await vaultManager.encryptionAdd('encryptionData', { TESTpassword: password })
 
   await vaultManager.vaultsInit(password)
