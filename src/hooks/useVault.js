@@ -6,6 +6,7 @@ import { getVaultById } from '../actions/getVaultById'
 import { initializeVaults } from '../actions/initializeVaults'
 import { initListener } from '../api/initListener'
 import { selectVault } from '../selectors/selectVault'
+import { selectVaults } from '../selectors/selectVaults'
 
 /**
  *  @param {{
@@ -25,8 +26,15 @@ import { selectVault } from '../selectors/selectVault'
 export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   const dispatch = useDispatch()
 
-  const { isLoading, data, isInitialized, isInitializing } =
-    useSelector(selectVault)
+  const {
+    isLoading: isVaultsLoading,
+    isInitialized,
+    isInitializing
+  } = useSelector(selectVaults)
+
+  const { isLoading: isVaultLoading, data } = useSelector(selectVault)
+
+  const isLoading = isVaultsLoading || isVaultLoading
 
   const fetchVault = async (vaultId) => {
     const { payload: vault } = await dispatch(getVaultById(vaultId))

@@ -22,18 +22,18 @@ export const useVaults = ({ onCompleted, shouldSkip } = {}) => {
   const { isLoading, data, isInitialized, isInitializing } =
     useSelector(selectVaults)
 
-  const fetchVaults = async () => {
-    const { payload: vaults } = await dispatch(initializeVaults())
+  const fetchVaults = async (password) => {
+    const { payload: vaults } = await dispatch(initializeVaults(password))
 
     onCompleted?.(vaults)
   }
 
-  const refetch = async () => {
-    await fetchVaults()
+  const refetch = async (password) => {
+    await fetchVaults(password)
   }
 
   useEffect(() => {
-    if (shouldSkip || isLoading || isInitialized || isInitializing) {
+    if (shouldSkip || isLoading || isInitializing || isInitialized) {
       return
     }
 

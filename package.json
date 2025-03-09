@@ -10,6 +10,7 @@
   "peerDependencies": {
     "@reduxjs/toolkit": "^2.5.0",
     "pear-apps-utils-validator": "github:noxtton/pear-apps-utils-validator#v0.0.1",
+    "react": "18.3.1",
     "react-redux": "^9.1.2"
   },
   "devDependencies": {

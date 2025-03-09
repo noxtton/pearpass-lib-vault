@@ -13,6 +13,7 @@ export { useVaults } from './hooks/useVaults'
 export { useVault } from './hooks/useVault'
 export { useCreateInvite } from './hooks/useCreateInvite'
 export { usePair } from './hooks/usePair'
+export { useUserData } from './hooks/useUserData'
 
 export { VaultProvider } from './store'
 

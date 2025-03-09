@@ -4,9 +4,9 @@ import { init } from '../api/init'
 import { listVaults } from '../api/listVaults'
 
 export const initializeVaults = createAsyncThunk(
-  'vault/initializeVaults',
-  async () => {
-    await init()
+  'vaults/initializeVaults',
+  async (password) => {
+    await init(password)
 
     const vaults = await listVaults()
 
