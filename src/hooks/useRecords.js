@@ -16,7 +16,7 @@ import { selectVault } from '../selectors/selectVault'
  *        searchPattern: string
  *        type: string
  *        folder: string
- *       isFavorite: boolean
+ *        isFavorite: boolean
  *    }
  *    sort: {
  *      field: string

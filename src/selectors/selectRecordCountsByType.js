@@ -2,6 +2,14 @@ import { createSelector } from '@reduxjs/toolkit'
 
 import { RECORD_TYPES } from '../constants/recordTypes'
 
+/**
+ * @param {{
+ *   filters: {
+ *       folder: string
+ *       isFavorite: boolean
+ *   }
+ * }} options
+ */
 export const selectRecordCountsByType = ({ filters } = {}) =>
   createSelector(
     (state) => state.vault,
@@ -11,6 +19,13 @@ export const selectRecordCountsByType = ({ filters } = {}) =>
           if (
             (filters?.folder || filters?.folder === null) &&
             record.folder !== filters?.folder
+          ) {
+            return false
+          }
+
+          if (
+            typeof filters?.isFavorite === 'boolean' &&
+            !!record.isFavorite !== filters.isFavorite
           ) {
             return false
           }
