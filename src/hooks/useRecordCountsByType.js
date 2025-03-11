@@ -16,7 +16,7 @@ import { selectRecordCountsByType } from '../selectors/selectRecordCountsByType'
  *  data: any
  * }}
  */
-export const useRecordCountsByType = ({ variables }) => {
+export const useRecordCountsByType = ({ variables } = {}) => {
   const { isLoading, data } = useSelector(
     selectRecordCountsByType({ filters: variables?.filters })
   )
