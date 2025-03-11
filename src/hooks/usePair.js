@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { useDispatch } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
@@ -11,19 +13,24 @@ import { initListener } from '../api/initListener'
  * }} options
  * @returns {{
  *  pair: (inviteCode: string) => Promise<void>
+ *  isLoading: boolean
  *  }}
  */
 export const usePair = ({ onCompleted, onError } = {}) => {
   const dispatch = useDispatch()
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const pair = async (inviteCode) => {
     try {
+      setIsLoading(true)
+
       const pairPromise = dispatch(pairAction(inviteCode))
 
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(
           () => reject(new Error('Pairing timeout after 5 seconds')),
-          5000
+          10000
         )
       })
 
@@ -40,10 +47,14 @@ export const usePair = ({ onCompleted, onError } = {}) => {
       })
 
       onCompleted?.(vault)
+
+      setIsLoading(false)
     } catch (error) {
       onError?.(error)
+
+      setIsLoading(false)
     }
   }
 
-  return { pair }
+  return { pair, isLoading }
 }

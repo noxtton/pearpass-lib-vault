@@ -4,9 +4,23 @@ import { vaultManager } from '../instances'
  * @returns {Promise<void>}
  */
 export const closeAllInstances = async () => {
-  await vaultManager.activeVaultClose()
+  const activeVaultRes = await vaultManager.activeVaultGetStatus()
 
-  await vaultManager.vaultsClose()
+  if (activeVaultRes.status) {
+    await vaultManager.activeVaultClose()
+  }
+
+  const vaultsRes = await vaultManager.vaultsGetStatus()
+
+  if (vaultsRes.status) {
+    await vaultManager.vaultsClose()
+  }
+
+  const statusRes = await vaultManager.encryptionGetStatus()
+
+  if (statusRes?.status) {
+    await vaultManager.encryptionClose()
+  }
 
   return true
 }
