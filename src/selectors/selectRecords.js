@@ -17,6 +17,7 @@ export const selectRecords = ({ filters, sort } = {}) =>
 
           if (
             !!filters?.searchPattern?.length &&
+            !!record?.data &&
             !matchPatternToValue(filters.searchPattern, record.data.title) &&
             !matchPatternToValue(filters.searchPattern, record.folder)
           ) {
