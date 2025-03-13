@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+import { createVault } from '../actions/createVault'
 import { getVaults } from '../actions/getVaults'
 import { initializeVaults } from '../actions/initializeVaults'
 
@@ -50,6 +51,10 @@ export const vaultsSlice = createSlice({
 
         state.error = action.error
       })
+
+    builder.addCase(createVault.fulfilled, (state, action) => {
+      state.data.push(action.payload)
+    })
   }
 })
 
