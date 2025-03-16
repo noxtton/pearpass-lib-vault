@@ -1,10 +1,10 @@
-import { vaultManager } from '../instances'
+import { pearpassVaultClient } from '../instances'
 
 /**
  * @returns {Promise<Array<any>>}
  */
 export const listRecords = async () => {
-  const records = await vaultManager.activeVaultList(`record/`)
+  const records = await pearpassVaultClient.activeVaultList(`record/`)
 
   return records
 }

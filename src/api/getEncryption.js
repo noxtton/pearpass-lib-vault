@@ -1,16 +1,17 @@
-import { vaultManager } from '../instances'
+import { pearpassVaultClient } from '../instances'
 
 /**
  * @returns {Promise<any>}
  */
 export const getEncryption = async () => {
-  const statusRes = await vaultManager.encryptionGetStatus()
+  const statusRes = await pearpassVaultClient.encryptionGetStatus()
 
   if (!statusRes?.status) {
-    await vaultManager.encryptionInit()
+    await pearpassVaultClient.encryptionInit()
   }
 
-  const encryptionDataRes = await vaultManager.encryptionGet('encryptionData')
+  const encryptionDataRes =
+    await pearpassVaultClient.encryptionGet('encryptionData')
 
   return encryptionDataRes
 }

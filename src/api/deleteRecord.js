@@ -1,4 +1,4 @@
-import { vaultManager } from '../instances'
+import { pearpassVaultClient } from '../instances'
 
 /**
  * @param {string} recordId
@@ -6,5 +6,5 @@ import { vaultManager } from '../instances'
  * @returns {Promise<void>}
  */
 export const deleteRecord = async (recordId) => {
-  await vaultManager.activeVaultRemove(`record/${recordId}`)
+  await pearpassVaultClient.activeVaultRemove(`record/${recordId}`)
 }

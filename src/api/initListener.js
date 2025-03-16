@@ -1,4 +1,4 @@
-import { vaultManager } from '../instances'
+import { pearpassVaultClient } from '../instances'
 
 /**
  * @param {{
@@ -7,9 +7,9 @@ import { vaultManager } from '../instances'
  * }} options
  */
 export const initListener = async ({ vaultId, onUpdate }) => {
-  await vaultManager.initListener({ vaultId })
+  await pearpassVaultClient.initListener({ vaultId })
 
-  vaultManager.removeAllListeners()
+  pearpassVaultClient.removeAllListeners()
 
-  vaultManager.on('update', onUpdate)
+  pearpassVaultClient.on('update', onUpdate)
 }

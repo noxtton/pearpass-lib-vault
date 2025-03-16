@@ -1,4 +1,4 @@
-import { vaultManager } from '../instances'
+import { pearpassVaultClient } from '../instances'
 import { listVaults } from './listVaults'
 
 /**
@@ -12,20 +12,20 @@ export const getVaultById = async (vaultId, password) => {
     throw new Error('Vault not found')
   }
 
-  const res = await vaultManager.activeVaultGetStatus()
+  const res = await pearpassVaultClient.activeVaultGetStatus()
 
   if (!res.status) {
-    await vaultManager.activeVaultInit(vaultId, password)
+    await pearpassVaultClient.activeVaultInit(vaultId, password)
   }
 
-  const currentVault = await vaultManager.activeVaultGet(`vault`)
+  const currentVault = await pearpassVaultClient.activeVaultGet(`vault`)
 
   if (currentVault && vaultId !== currentVault.id) {
-    await vaultManager.activeVaultClose()
+    await pearpassVaultClient.activeVaultClose()
 
-    await vaultManager.activeVaultInit(vaultId, password)
+    await pearpassVaultClient.activeVaultInit(vaultId, password)
 
-    const newVault = await vaultManager.activeVaultGet(`vault`)
+    const newVault = await pearpassVaultClient.activeVaultGet(`vault`)
 
     return newVault
   }

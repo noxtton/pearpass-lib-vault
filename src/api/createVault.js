@@ -1,4 +1,4 @@
-import { vaultManager } from '../instances'
+import { pearpassVaultClient } from '../instances'
 
 /**
  * @param {{
@@ -7,15 +7,15 @@ import { vaultManager } from '../instances'
  * @returns {Promise<void>}
  */
 export const createVault = async (vault) => {
-  const activeVaultRes = await vaultManager.activeVaultGetStatus()
+  const activeVaultRes = await pearpassVaultClient.activeVaultGetStatus()
 
   if (activeVaultRes.status) {
-    await vaultManager.activeVaultClose()
+    await pearpassVaultClient.activeVaultClose()
   }
 
-  await vaultManager.vaultsAdd(`vault/${vault.id}`, vault)
+  await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, vault)
 
-  await vaultManager.activeVaultInit(vault.id)
+  await pearpassVaultClient.activeVaultInit(vault.id)
 
-  await vaultManager.activeVaultAdd(`vault`, vault)
+  await pearpassVaultClient.activeVaultAdd(`vault`, vault)
 }

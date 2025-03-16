@@ -1,25 +1,25 @@
-import { vaultManager } from '../instances'
+import { pearpassVaultClient } from '../instances'
 
 /**
  * @returns {Promise<void>}
  */
 export const closeAllInstances = async () => {
-  const activeVaultRes = await vaultManager.activeVaultGetStatus()
+  const activeVaultRes = await pearpassVaultClient.activeVaultGetStatus()
 
   if (activeVaultRes.status) {
-    await vaultManager.activeVaultClose()
+    await pearpassVaultClient.activeVaultClose()
   }
 
-  const vaultsRes = await vaultManager.vaultsGetStatus()
+  const vaultsRes = await pearpassVaultClient.vaultsGetStatus()
 
   if (vaultsRes.status) {
-    await vaultManager.vaultsClose()
+    await pearpassVaultClient.vaultsClose()
   }
 
-  const statusRes = await vaultManager.encryptionGetStatus()
+  const statusRes = await pearpassVaultClient.encryptionGetStatus()
 
   if (statusRes?.status) {
-    await vaultManager.encryptionClose()
+    await pearpassVaultClient.encryptionClose()
   }
 
   return true

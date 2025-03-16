@@ -1,11 +1,11 @@
-import { vaultManager } from '../instances'
+import { pearpassVaultClient } from '../instances'
 
 /**
  * @param {string} password
  * @returns {Promise<void>}
  */
 export const init = async (password) => {
-  const res = await vaultManager.vaultsGetStatus()
+  const res = await pearpassVaultClient.vaultsGetStatus()
 
   if (res?.status) {
     return true
@@ -15,9 +15,11 @@ export const init = async (password) => {
     throw new Error('Password is required')
   }
 
-  await vaultManager.encryptionAdd('encryptionData', { TESTpassword: password })
+  await pearpassVaultClient.encryptionAdd('encryptionData', {
+    TESTpassword: password
+  })
 
-  await vaultManager.vaultsInit(password)
+  await pearpassVaultClient.vaultsInit(password)
 
   return true
 }

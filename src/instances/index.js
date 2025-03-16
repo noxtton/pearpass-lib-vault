@@ -1,15 +1,15 @@
-export let vaultManager
+export let pearpassVaultClient
 
 /**
  * @param {Autopass} instance
  */
-export const setVaultManager = (instance) => {
-  vaultManager = instance
+export const setPearpassVaultClient = (instance) => {
+  pearpassVaultClient = instance
 }
 
 /**
  * @param {string} path
  */
 export const setStoragePath = async (path) => {
-  await vaultManager.setStoragePath(path)
+  await pearpassVaultClient.setStoragePath(path)
 }

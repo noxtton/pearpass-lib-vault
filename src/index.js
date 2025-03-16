@@ -17,5 +17,5 @@ export { useUserData } from './hooks/useUserData'
 
 export { VaultProvider } from './store'
 
-export { setVaultManager, setStoragePath } from './instances'
+export { setPearpassVaultClient, setStoragePath } from './instances'
 export { closeAllInstances } from './api/closeAllInstances'

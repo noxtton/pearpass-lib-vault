@@ -1,4 +1,4 @@
-import { vaultManager } from '../instances'
+import { pearpassVaultClient } from '../instances'
 
 /**
  * @param {{
@@ -8,5 +8,5 @@ import { vaultManager } from '../instances'
  * @returns {Promise<void>}
  */
 export const updateRecord = async (record) => {
-  await vaultManager.activeVaultAdd(`record/${record.id}`, record)
+  await pearpassVaultClient.activeVaultAdd(`record/${record.id}`, record)
 }
