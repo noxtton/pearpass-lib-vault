@@ -6,6 +6,7 @@ import { createVault } from '../actions/createVault'
 import { deleteRecord } from '../actions/deleteRecord'
 import { getVaultById } from '../actions/getVaultById'
 import { pair } from '../actions/pair'
+import { resetState } from '../actions/resetState'
 import { updateRecord } from '../actions/updateRecord'
 
 const initialState = {
@@ -144,6 +145,14 @@ export const vaultSlice = createSlice({
         state.isLoading = false
         state.error = action.error
       })
+
+    builder.addCase(resetState.fulfilled, (state) => {
+      state.data = initialState.data
+      state.error = initialState.error
+      state.isLoading = initialState.isLoading
+      state.isRecordLoading = initialState.isRecordLoading
+      state.isFolderLoading = initialState.isFolderLoading
+    })
   }
 })
 

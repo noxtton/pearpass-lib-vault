@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { getVaults } from '../actions/getVaults'
 import { initializeVaults } from '../actions/initializeVaults'
+import { resetState as resetStateAction } from '../actions/resetState'
 import { selectVaults } from '../selectors/selectVaults'
 
 /**
@@ -17,6 +18,7 @@ import { selectVaults } from '../selectors/selectVaults'
  *      data: any
  *    refetch: () => Promise<void>
  *    initVaults: (password: string) => Promise<void>
+ *    resetState: () => void
  *  }}
  */
 export const useVaults = ({ onCompleted, onInitialize, shouldSkip } = {}) => {
@@ -41,6 +43,10 @@ export const useVaults = ({ onCompleted, onInitialize, shouldSkip } = {}) => {
     await fetchVaults()
   }
 
+  const resetState = () => {
+    dispatch(resetStateAction())
+  }
+
   useEffect(() => {
     if (shouldSkip || isLoading || isInitializing || isInitialized) {
       return
@@ -49,5 +55,5 @@ export const useVaults = ({ onCompleted, onInitialize, shouldSkip } = {}) => {
     initVaults()
   }, [shouldSkip, isLoading, isInitialized, isInitializing])
 
-  return { isLoading, data, refetch, initVaults }
+  return { isLoading, data, refetch, initVaults, resetState }
 }

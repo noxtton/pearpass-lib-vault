@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
+import { resetState as resetStateAction } from '../actions/resetState'
 import { getVaultEncryption } from '../api/getVaultEncryption'
 import { initListener } from '../api/initListener'
 import { selectVault } from '../selectors/selectVault'
@@ -22,6 +23,7 @@ import { selectVaults } from '../selectors/selectVaults'
  *      data: any
  *    refetch: (vaultId: string) => Promise<void>
  *    isVaultProtected: (vaultId: string) => Promise<boolean>
+ *   resetState: () => void
  *  }}
  */
 export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
@@ -65,6 +67,10 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     fetchVault(vaultId || variables.vaultId, password)
   }
 
+  const resetState = () => {
+    dispatch(resetStateAction())
+  }
+
   useEffect(() => {
     if (
       data ||
@@ -80,5 +86,12 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     fetchVault(variables?.vaultId)
   }, [data, variables?.vaultId, isInitialized])
 
-  return { isLoading, data, isInitialized, refetch, isVaultProtected }
+  return {
+    isLoading,
+    data,
+    isInitialized,
+    refetch,
+    isVaultProtected,
+    resetState
+  }
 }
