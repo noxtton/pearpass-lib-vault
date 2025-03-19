@@ -1,3 +1,3 @@
-import sharedConfig from 'pearpass-eslint-config'
+import { eslintConfig } from 'tether-dev-docs'
 
-export default [...sharedConfig]
+export default [...eslintConfig]
