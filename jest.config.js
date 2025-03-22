@@ -3,5 +3,6 @@ export default {
   transform: {
     '^.+\\.[jt]sx?$': 'babel-jest'
   },
-  transformIgnorePatterns: ['node_modules/(?!(pear-apps-utils-validator)/)']
+  transformIgnorePatterns: ['node_modules/(?!(pear-apps-utils-validator)/)'],
+  setupFilesAfterEnv: ['./jest.setup.js']
 }

@@ -11,12 +11,15 @@
   "peerDependencies": {
     "@reduxjs/toolkit": "^2.5.0",
     "pear-apps-utils-validator": "github:noxtton/pear-apps-utils-validator#v0.0.4",
-    "react": "18.3.1",
+    "react": "^18.3.1",
     "react-redux": "^9.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^15.0.7",
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
