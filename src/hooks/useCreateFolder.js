@@ -17,9 +17,9 @@ import { selectVault } from '../selectors/selectVault'
 export const useCreateFolder = ({ onCompleted, onError } = {}) => {
   const dispatch = useDispatch()
 
-  const { data: foldersData } = useSelector(selectFolders())
-
   const { isFolderLoading: isLoading } = useSelector(selectVault)
+
+  const { data: foldersData } = useSelector(selectFolders)
 
   const createFolder = async (folderName) => {
     if (!folderName) {

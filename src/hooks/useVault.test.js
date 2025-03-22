@@ -1,0 +1,153 @@
+import { renderHook, act } from '@testing-library/react'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { useVault } from './useVault'
+import { getVaultById } from '../actions/getVaultById'
+import { resetState } from '../actions/resetState'
+import { getVaultEncryption } from '../api/getVaultEncryption'
+
+jest.mock('react-redux', () => ({
+  useDispatch: jest.fn(),
+  useSelector: jest.fn()
+}))
+
+jest.mock('../actions/getVaultById', () => ({
+  getVaultById: jest.fn()
+}))
+
+jest.mock('../actions/resetState', () => ({
+  resetState: jest.fn()
+}))
+
+jest.mock('../api/getVaultEncryption', () => ({
+  getVaultEncryption: jest.fn()
+}))
+
+jest.mock('../api/initListener', () => ({
+  initListener: jest.fn()
+}))
+
+describe('useVault', () => {
+  const mockDispatch = jest.fn()
+  const mockVault = { id: 'vault-123', name: 'Test Vault' }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    useDispatch.mockReturnValue(mockDispatch)
+    getVaultById.mockReturnValue({ type: 'GET_VAULT' })
+    mockDispatch.mockResolvedValue({ payload: mockVault })
+  })
+
+  test('should return initial state', () => {
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: null }
+    })
+
+    const { result } = renderHook(() => useVault())
+
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.data).toBeNull()
+    expect(result.current.isInitialized).toBe(true)
+    expect(typeof result.current.refetch).toBe('function')
+    expect(typeof result.current.isVaultProtected).toBe('function')
+    expect(typeof result.current.resetState).toBe('function')
+  })
+
+  test('should fetch vault when variables are provided and initialized', () => {
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: null }
+    })
+
+    renderHook(() => useVault({ variables: { vaultId: 'vault-123' } }))
+
+    expect(getVaultById).toHaveBeenCalledWith('vault-123', undefined)
+    expect(mockDispatch).toHaveBeenCalled()
+  })
+
+  test('should not fetch vault when shouldSkip is true', () => {
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: null }
+    })
+
+    renderHook(() =>
+      useVault({ variables: { vaultId: 'vault-123' }, shouldSkip: true })
+    )
+
+    expect(getVaultById).not.toHaveBeenCalled()
+  })
+
+  test('should call onCompleted when fetch completes', async () => {
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: null }
+    })
+
+    const mockOnCompleted = jest.fn()
+
+    renderHook(() =>
+      useVault({
+        variables: { vaultId: 'vault-123' },
+        onCompleted: mockOnCompleted
+      })
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(mockOnCompleted).toHaveBeenCalledWith(mockVault)
+  })
+
+  test('refetch should fetch vault with provided vaultId', async () => {
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: null }
+    })
+
+    const { result } = renderHook(() => useVault())
+
+    await act(async () => {
+      await result.current.refetch('new-vault-id', 'password123')
+    })
+
+    expect(getVaultById).toHaveBeenCalledWith('new-vault-id', 'password123')
+  })
+
+  test('isVaultProtected should return true for protected vaults', async () => {
+    getVaultEncryption.mockResolvedValue({ TESTpassword: 'hashedPassword' })
+
+    const { result } = renderHook(() => useVault())
+
+    let isProtected
+    await act(async () => {
+      isProtected = await result.current.isVaultProtected('vault-123')
+    })
+
+    expect(getVaultEncryption).toHaveBeenCalledWith('vault-123')
+    expect(isProtected).toBe(true)
+  })
+
+  test('resetState should dispatch resetState action', () => {
+    resetState.mockReturnValue({ type: 'RESET_STATE' })
+
+    const { result } = renderHook(() => useVault())
+
+    act(() => {
+      result.current.resetState()
+    })
+
+    expect(resetState).toHaveBeenCalled()
+    expect(mockDispatch).toHaveBeenCalledWith({ type: 'RESET_STATE' })
+  })
+})
