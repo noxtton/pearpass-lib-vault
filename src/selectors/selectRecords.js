@@ -1,6 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-
-import { matchPatternToValue } from '../utils/matchPatternToValue'
+import { matchPatternToValue } from 'pear-apps-utils-pattern-search'
 
 export const selectRecords = ({ filters, sort } = {}) =>
   createSelector(
