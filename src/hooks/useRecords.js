@@ -50,7 +50,7 @@ export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
   )
 
   const fetchVault = async (vaultId) => {
-    const { payload, error } = await dispatch(getVaultById(vaultId))
+    const { payload, error } = await dispatch(getVaultById({ vaultId }))
 
     if (!error) {
       onCompleted?.(payload)

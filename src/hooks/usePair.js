@@ -42,7 +42,7 @@ export const usePair = ({ onCompleted, onError } = {}) => {
       await initListener({
         vaultId: vault.id,
         onUpdate: () => {
-          dispatch(getVaultById(vault.id))
+          dispatch(getVaultById({ vaultId: vault.id }))
         }
       })
 

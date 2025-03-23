@@ -60,7 +60,7 @@ describe('useRecords', () => {
     )
 
     expect(mockDispatch).toHaveBeenCalledWith({ type: 'GET_VAULT_BY_ID' })
-    expect(getVaultById).toHaveBeenCalledWith(mockVaultId)
+    expect(getVaultById).toHaveBeenCalledWith({ vaultId: mockVaultId })
   })
 
   it('should not fetch vault data if shouldSkip is true', () => {

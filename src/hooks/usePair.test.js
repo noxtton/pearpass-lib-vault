@@ -125,7 +125,9 @@ describe('usePair', () => {
       onUpdateCallback()
     })
 
-    expect(getVaultById).toHaveBeenCalledWith(mockVault.id)
-    expect(mockDispatch).toHaveBeenCalledWith(getVaultById(mockVault.id))
+    expect(getVaultById).toHaveBeenCalledWith({ vaultId: mockVault.id })
+    expect(mockDispatch).toHaveBeenCalledWith(
+      getVaultById({ vaultId: mockVault.id })
+    )
   })
 })

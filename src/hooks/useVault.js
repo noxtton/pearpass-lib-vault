@@ -46,12 +46,14 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   }
 
   const fetchVault = async (vaultId, password) => {
-    const { payload: vault } = await dispatch(getVaultById(vaultId, password))
+    const { payload: vault } = await dispatch(
+      getVaultById({ vaultId: vaultId, password: password })
+    )
 
     await initListener({
       vaultId: vaultId,
       onUpdate: () => {
-        dispatch(getVaultById(vaultId))
+        dispatch(getVaultById({ vaultId }))
       }
     })
 

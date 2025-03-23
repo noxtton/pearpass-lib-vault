@@ -6,5 +6,9 @@ import { pearpassVaultClient } from '../instances'
  * @returns {Promise<void>}
  */
 export const deleteRecord = async (recordId) => {
+  if (!recordId) {
+    throw new Error('Record ID is required')
+  }
+
   await pearpassVaultClient.activeVaultRemove(`record/${recordId}`)
 }

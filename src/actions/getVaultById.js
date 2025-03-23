@@ -5,7 +5,11 @@ import { listRecords } from '../api/listRecords'
 
 export const getVaultById = createAsyncThunk(
   'vault/getVault',
-  async (vaultId, password) => {
+  async ({ vaultId, password } = {}) => {
+    if (!vaultId) {
+      throw new Error('Vault ID is required')
+    }
+
     const vault = await getVaultByIdApi(vaultId, password)
 
     if (!vault) {

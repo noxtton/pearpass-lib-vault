@@ -66,7 +66,10 @@ describe('useVault', () => {
 
     renderHook(() => useVault({ variables: { vaultId: 'vault-123' } }))
 
-    expect(getVaultById).toHaveBeenCalledWith('vault-123', undefined)
+    expect(getVaultById).toHaveBeenCalledWith({
+      vaultId: 'vault-123',
+      password: undefined
+    })
     expect(mockDispatch).toHaveBeenCalled()
   })
 
@@ -121,7 +124,10 @@ describe('useVault', () => {
       await result.current.refetch('new-vault-id', 'password123')
     })
 
-    expect(getVaultById).toHaveBeenCalledWith('new-vault-id', 'password123')
+    expect(getVaultById).toHaveBeenCalledWith({
+      vaultId: 'new-vault-id',
+      password: 'password123'
+    })
   })
 
   test('isVaultProtected should return true for protected vaults', async () => {

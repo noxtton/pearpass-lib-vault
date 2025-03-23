@@ -3,6 +3,7 @@ import { listVaults } from './listVaults'
 
 /**
  * @param {string} vaultId
+ * @param {string | undefined} password
  * @returns {Promise<void>}
  */
 export const getVaultById = async (vaultId, password) => {
