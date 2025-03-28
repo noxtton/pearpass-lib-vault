@@ -7,28 +7,33 @@ import { generateUniqueId } from '../utils/generateUniqueId'
 
 const schema = Validator.object({
   id: Validator.string().required(),
+  name: Validator.string().required(),
   version: Validator.number().required(),
   records: Validator.array().required(),
   createdAt: Validator.number().required(),
   updatedAt: Validator.number().required()
 })
 
-export const createVault = createAsyncThunk('vault/createVault', async () => {
-  const vault = {
-    id: generateUniqueId(),
-    version: VERSION.v1,
-    records: [],
-    createdAt: Date.now(),
-    updatedAt: Date.now()
+export const createVault = createAsyncThunk(
+  'vault/createVault',
+  async ({ name }) => {
+    const vault = {
+      id: generateUniqueId(),
+      name: name,
+      version: VERSION.v1,
+      records: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    }
+
+    const errors = schema.validate(vault)
+
+    if (errors) {
+      throw new Error(`Invalid vault data: ${JSON.stringify(errors, null, 2)}`)
+    }
+
+    await createVaultApi(vault)
+
+    return vault
   }
-
-  const errors = schema.validate(vault)
-
-  if (errors) {
-    throw new Error(`Invalid vault data: ${JSON.stringify(errors, null, 2)}`)
-  }
-
-  await createVaultApi(vault)
-
-  return vault
-})
+)
