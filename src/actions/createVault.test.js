@@ -14,6 +14,7 @@ jest.mock('../utils/generateUniqueId', () => ({
 describe('createVault', () => {
   const mockVaultId = 'vault-123'
   const mockDate = 1633000000000
+  const vaultName = 'vault1'
 
   let dispatch
   let getState
@@ -32,11 +33,12 @@ describe('createVault', () => {
   })
 
   it('should create a vault with correct properties', async () => {
-    const thunk = createVault()
+    const thunk = createVault({ name: vaultName })
     const result = await thunk(dispatch, getState)
 
     expect(result.payload).toEqual({
       id: mockVaultId,
+      name: vaultName,
       version: VERSION.v1,
       records: [],
       createdAt: mockDate,
@@ -45,11 +47,12 @@ describe('createVault', () => {
   })
 
   it('should call createVaultApi with correct parameters', async () => {
-    const thunk = createVault()
+    const thunk = createVault({ name: vaultName })
     await thunk(dispatch, getState)
 
     expect(createVaultApi).toHaveBeenCalledWith({
       id: mockVaultId,
+      name: vaultName,
       version: VERSION.v1,
       records: [],
       createdAt: mockDate,
@@ -58,7 +61,7 @@ describe('createVault', () => {
   })
 
   it('should generate a unique ID for the vault', async () => {
-    const thunk = createVault()
+    const thunk = createVault({ name: vaultName })
     await thunk(dispatch, getState)
 
     expect(generateUniqueId).toHaveBeenCalled()
@@ -67,7 +70,7 @@ describe('createVault', () => {
   it('should throw an error if validation fails', async () => {
     global.Date.now = jest.fn().mockReturnValue(undefined)
 
-    const thunk = createVault()
+    const thunk = createVault({ name: vaultName })
     const result = await thunk(dispatch, getState).catch((e) => e)
     expect(result.type).toBe(createVault.rejected.type)
     expect(result.error.message).toContain('Invalid vault data')
