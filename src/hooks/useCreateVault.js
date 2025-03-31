@@ -9,7 +9,7 @@ import { selectVault } from '../selectors/selectVault'
  * }} options
  * @returns {{
  *  isLoading: boolean
- *  createVault: (name: string) => void
+ *  createVault: ({name: string, password?: string}) => void
  *  }}
  */
 export const useCreateVault = ({ onCompleted } = {}) => {
@@ -17,8 +17,10 @@ export const useCreateVault = ({ onCompleted } = {}) => {
 
   const { isLoading } = useSelector(selectVault)
 
-  const createVault = async (name) => {
-    const { error, payload } = await dispatch(createVaultAction({ name }))
+  const createVault = async ({ name, password }) => {
+    const { error, payload } = await dispatch(
+      createVaultAction({ name, password })
+    )
 
     if (!error) {
       onCompleted?.(payload)

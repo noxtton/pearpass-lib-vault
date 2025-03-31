@@ -5,6 +5,7 @@ import { useVault } from './useVault'
 import { getVaultById } from '../actions/getVaultById'
 import { resetState } from '../actions/resetState'
 import { getVaultEncryption } from '../api/getVaultEncryption'
+import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 jest.mock('react-redux', () => ({
   useDispatch: jest.fn(),
@@ -25,6 +26,10 @@ jest.mock('../api/getVaultEncryption', () => ({
 
 jest.mock('../api/initListener', () => ({
   initListener: jest.fn()
+}))
+
+jest.mock('../utils/hasAllEncryptionData', () => ({
+  hasAllEncryptionData: jest.fn()
 }))
 
 describe('useVault', () => {
@@ -130,8 +135,31 @@ describe('useVault', () => {
     })
   })
 
+  test('refetch throw error if getVaultById returns error', async () => {
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: null }
+    })
+
+    getVaultById.mockReturnValue({ type: 'GET_VAULT', error: true })
+    mockDispatch.mockResolvedValue({ error: true })
+
+    const { result } = renderHook(() => useVault())
+
+    await expect(result.current.refetch('vault-123')).rejects.toThrow(
+      'Error fetching vault'
+    )
+  })
+
   test('isVaultProtected should return true for protected vaults', async () => {
-    getVaultEncryption.mockResolvedValue({ TESTpassword: 'hashedPassword' })
+    getVaultEncryption.mockResolvedValue({
+      ciphertext: 'encrypted-data',
+      nonce: 'nonce-value',
+      salt: 'salt-value'
+    })
+    hasAllEncryptionData.mockReturnValue(true)
 
     const { result } = renderHook(() => useVault())
 

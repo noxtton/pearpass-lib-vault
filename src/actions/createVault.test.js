@@ -46,6 +46,23 @@ describe('createVault', () => {
     })
   })
 
+  it('should create a vault with password', async () => {
+    const password = 'password123'
+
+    const thunk = createVault({ name: vaultName, password: password })
+    const result = await thunk(dispatch, getState)
+
+    expect(result.payload).toEqual({
+      id: mockVaultId,
+      name: vaultName,
+      password: password,
+      version: VERSION.v1,
+      records: [],
+      createdAt: mockDate,
+      updatedAt: mockDate
+    })
+  })
+
   it('should call createVaultApi with correct parameters', async () => {
     const thunk = createVault({ name: vaultName })
     await thunk(dispatch, getState)

@@ -8,6 +8,7 @@ import { generateUniqueId } from '../utils/generateUniqueId'
 const schema = Validator.object({
   id: Validator.string().required(),
   name: Validator.string().required(),
+  password: Validator.string(),
   version: Validator.number().required(),
   records: Validator.array().required(),
   createdAt: Validator.number().required(),
@@ -16,10 +17,11 @@ const schema = Validator.object({
 
 export const createVault = createAsyncThunk(
   'vault/createVault',
-  async ({ name }) => {
+  async ({ name, password }) => {
     const vault = {
       id: generateUniqueId(),
       name: name,
+      password: password,
       version: VERSION.v1,
       records: [],
       createdAt: Date.now(),

@@ -1,87 +1,121 @@
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { useUserData } from './useUserData'
-import { getEncryption } from '../api/getEncryption'
-import '@testing-library/jest-dom'
+import { checkPasswordCreated } from '../actions/checkPasswordCreated'
+import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
+import { init } from '../api/init'
+import { setLoading } from '../slices/userSlice'
 
-jest.mock('../api/getEncryption')
+jest.mock('react-redux', () => ({
+  useDispatch: jest.fn(),
+  useSelector: jest.fn()
+}))
+
+jest.mock('../actions/checkPasswordCreated', () => ({
+  checkPasswordCreated: jest.fn()
+}))
+
+jest.mock('../api/createMasterPassword', () => ({
+  createMasterPassword: jest.fn()
+}))
+
+jest.mock('../api/init', () => ({
+  init: jest.fn()
+}))
+
+jest.mock('../slices/userSlice', () => ({
+  setLoading: jest.fn()
+}))
 
 describe('useUserData', () => {
+  const dispatchMock = jest.fn()
+  const mockUserData = {
+    isLoading: false,
+    isInitialized: false,
+    data: {
+      hasPasswordSet: false
+    }
+  }
+
   beforeEach(() => {
     jest.clearAllMocks()
+    useDispatch.mockReturnValue(dispatchMock)
+    useSelector.mockReturnValue(mockUserData)
+    checkPasswordCreated.mockReturnValue({
+      type: 'checkPasswordCreated',
+      payload: true
+    })
+    dispatchMock.mockResolvedValue({
+      payload: true
+    })
   })
 
-  it('should initialize with default values', async () => {
-    getEncryption.mockResolvedValueOnce(null)
-
+  test('should return correct initial state', () => {
     const { result } = renderHook(() => useUserData())
 
-    expect(result.current.isLoading).toBe(true)
+    expect(result.current.isLoading).toBe(false)
     expect(result.current.hasPasswordSet).toBe(false)
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-      expect(result.current.hasPasswordSet).toBe(false)
-    })
+    expect(typeof result.current.logIn).toBe('function')
+    expect(typeof result.current.createMasterPassword).toBe('function')
   })
 
-  it('should detect when password is set', async () => {
-    getEncryption.mockResolvedValueOnce({ TESTpassword: 'password123' })
+  test('should check password state on mount', () => {
+    renderHook(() => useUserData())
 
+    expect(dispatchMock).toHaveBeenCalledWith(checkPasswordCreated())
+  })
+
+  test('should not check password state if shouldSkip is true', () => {
+    renderHook(() => useUserData({ shouldSkip: true }))
+
+    expect(dispatchMock).not.toHaveBeenCalled()
+  })
+
+  test('should not check password state if isInitialized is true', () => {
+    useSelector.mockReturnValue({
+      ...mockUserData,
+      isInitialized: true
+    })
+
+    renderHook(() => useUserData())
+
+    expect(dispatchMock).not.toHaveBeenCalled()
+  })
+
+  test('should call onCompleted with hasPasswordSet', async () => {
     const onCompletedMock = jest.fn()
-    const { result } = renderHook(() =>
-      useUserData({ onCompleted: onCompletedMock })
-    )
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-      expect(result.current.hasPasswordSet).toBe(true)
-      expect(onCompletedMock).toHaveBeenCalledWith({ hasPasswordSet: true })
+    renderHook(() => useUserData({ onCompleted: onCompletedMock }))
+
+    await act(async () => {
+      await Promise.resolve()
     })
+
+    expect(onCompletedMock).toHaveBeenCalledWith({ hasPasswordSet: true })
   })
 
-  it('should handle login with correct password', async () => {
-    getEncryption.mockResolvedValue({ TESTpassword: 'password123' })
-
+  test('logIn should call init and setLoading', async () => {
     const { result } = renderHook(() => useUserData())
 
-    await waitFor(async () => {
-      await act(async () => {
-        await result.current.logIn('password123')
-      })
-
-      expect(result.current.isLoading).toBe(false)
+    await act(async () => {
+      await result.current.logIn('password123')
     })
+
+    expect(setLoading).toHaveBeenCalledWith(true)
+    expect(init).toHaveBeenCalledWith('password123')
+    expect(setLoading).toHaveBeenCalledWith(false)
   })
 
-  it('should throw error on login with incorrect password', async () => {
-    getEncryption.mockResolvedValue({ TESTpassword: 'password123' })
-
+  test('createMasterPassword should call API and setLoading', async () => {
     const { result } = renderHook(() => useUserData())
 
-    await waitFor(async () => {
-      await expect(
-        act(async () => {
-          await result.current.logIn('wrongpassword')
-        })
-      ).rejects.toThrow('Invalid password')
+    await act(async () => {
+      await result.current.createMasterPassword('password123')
     })
-  })
 
-  it('should handle error during initial check', async () => {
-    const consoleErrorSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {})
-    const error = new Error('API error')
-    getEncryption.mockRejectedValueOnce(error)
-
-    const { result } = renderHook(() => useUserData())
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-      expect(consoleErrorSpy).toHaveBeenCalledWith(error)
-
-      consoleErrorSpy.mockRestore()
-    })
+    expect(setLoading).toHaveBeenCalledWith(true)
+    expect(createMasterPasswordApi).toHaveBeenCalledWith('password123')
+    expect(setLoading).toHaveBeenCalledWith(false)
   })
 })

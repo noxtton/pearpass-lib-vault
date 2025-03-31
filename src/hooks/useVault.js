@@ -8,6 +8,7 @@ import { getVaultEncryption } from '../api/getVaultEncryption'
 import { initListener } from '../api/initListener'
 import { selectVault } from '../selectors/selectVault'
 import { selectVaults } from '../selectors/selectVaults'
+import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 /**
  *  @param {{
@@ -21,9 +22,9 @@ import { selectVaults } from '../selectors/selectVaults'
  *      isLoading: boolean
  *      isInitialized: boolean
  *      data: any
- *    refetch: (vaultId: string) => Promise<void>
+ *    refetch: (vaultId: string, password?: string) => Promise<void>
  *    isVaultProtected: (vaultId: string) => Promise<boolean>
- *   resetState: () => void
+ *    resetState: () => void
  *  }}
  */
 export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
@@ -42,13 +43,17 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   const isVaultProtected = async (vaultId) => {
     const encryptionData = await getVaultEncryption(vaultId)
 
-    return !!encryptionData?.TESTpassword
+    return hasAllEncryptionData(encryptionData)
   }
 
   const fetchVault = async (vaultId, password) => {
-    const { payload: vault } = await dispatch(
+    const { payload: vault, error } = await dispatch(
       getVaultById({ vaultId: vaultId, password: password })
     )
+
+    if (error) {
+      throw new Error('Error fetching vault')
+    }
 
     await initListener({
       vaultId: vaultId,
@@ -60,13 +65,13 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     onCompleted?.(vault)
   }
 
-  const refetch = (vaultId, password) => {
+  const refetch = async (vaultId, password) => {
     if (!vaultId && !variables?.vaultId) {
       console.error('refetch: Vault ID is required')
       return
     }
 
-    fetchVault(vaultId || variables.vaultId, password)
+    await fetchVault(vaultId || variables.vaultId, password)
   }
 
   const resetState = () => {

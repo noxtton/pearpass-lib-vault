@@ -1,5 +1,7 @@
 import { pearpassVaultClient } from '../instances'
+import { getVaultEncryption } from './getVaultEncryption'
 import { listVaults } from './listVaults'
+import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 /**
  * @param {string} vaultId
@@ -13,10 +15,33 @@ export const getVaultById = async (vaultId, password) => {
     throw new Error('Vault not found')
   }
 
+  let encryptionKey
+
+  if (password) {
+    const vaultEncryptionres = await getVaultEncryption(vaultId)
+
+    if (!hasAllEncryptionData(vaultEncryptionres)) {
+      throw new Error('Vault encryption data does not exist')
+    }
+
+    const { ciphertext, nonce, salt } = vaultEncryptionres
+
+    encryptionKey = await pearpassVaultClient.decryptVaultKey({
+      password: password,
+      ciphertext,
+      nonce,
+      salt
+    })
+
+    if (!encryptionKey) {
+      throw new Error('Error decrypting vault key')
+    }
+  }
+
   const res = await pearpassVaultClient.activeVaultGetStatus()
 
   if (!res.status) {
-    await pearpassVaultClient.activeVaultInit(vaultId, password)
+    await pearpassVaultClient.activeVaultInit({ id: vaultId, encryptionKey })
   }
 
   const currentVault = await pearpassVaultClient.activeVaultGet(`vault`)
@@ -24,7 +49,7 @@ export const getVaultById = async (vaultId, password) => {
   if (currentVault && vaultId !== currentVault.id) {
     await pearpassVaultClient.activeVaultClose()
 
-    await pearpassVaultClient.activeVaultInit(vaultId, password)
+    await pearpassVaultClient.activeVaultInit({ id: vaultId, encryptionKey })
 
     const newVault = await pearpassVaultClient.activeVaultGet(`vault`)
 

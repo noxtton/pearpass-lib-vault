@@ -2,21 +2,20 @@ import { pearpassVaultClient } from '../instances'
 
 /**
  * @returns {Promise<{
- *  salt: string
  *  ciphertext: string
  *  nonce: string
+ *  salt: string
  * }>}
  */
-export const getVaultEncryption = async (vaultId) => {
+export const getMasterPasswordEncryption = async () => {
   const statusRes = await pearpassVaultClient.encryptionGetStatus()
 
   if (!statusRes?.status) {
     await pearpassVaultClient.encryptionInit()
   }
 
-  const encryptionDataRes = await pearpassVaultClient.encryptionGet(
-    `vault/${vaultId}`
-  )
+  const encryptionGetRes =
+    await pearpassVaultClient.encryptionGet('masterPassword')
 
-  return encryptionDataRes
+  return encryptionGetRes
 }
