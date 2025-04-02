@@ -1,9 +1,11 @@
 import { createVault } from './createVault'
 import { pearpassVaultClient } from '../instances'
-import { getVaultEncryption } from './getVaultEncryption'
+import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
 import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
-jest.mock('./getVaultEncryption')
+jest.mock('./getMasterPasswordEncryption', () => ({
+  getMasterPasswordEncryption: jest.fn()
+}))
 jest.mock('../utils/hasAllEncryptionData')
 jest.mock('../instances', () => ({
   pearpassVaultClient: {
@@ -21,12 +23,18 @@ jest.mock('../instances', () => ({
 describe('createVault', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    getVaultEncryption.mockResolvedValue({})
     hasAllEncryptionData.mockReturnValue(false)
   })
 
   it('should close active vault if one exists before creating new vault', async () => {
     pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({ status: true })
+    hasAllEncryptionData.mockReturnValue(true)
+    getMasterPasswordEncryption.mockResolvedValue({
+      ciphertext: 'ciphertext',
+      nonce: 'nonce',
+      salt: 'salt',
+      decryptionKey: 'decryptionKey'
+    })
 
     const vault = { id: 'test-vault-id' }
 
@@ -51,6 +59,13 @@ describe('createVault', () => {
   it('should not close active vault if none exists before creating new vault', async () => {
     pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({
       status: false
+    })
+    hasAllEncryptionData.mockReturnValue(true)
+    getMasterPasswordEncryption.mockResolvedValue({
+      ciphertext: 'ciphertext',
+      nonce: 'nonce',
+      salt: 'salt',
+      decryptionKey: 'decryptionKey'
     })
 
     const vault = { id: 'test-vault-id' }
@@ -77,6 +92,13 @@ describe('createVault', () => {
     pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({
       status: false
     })
+    hasAllEncryptionData.mockReturnValue(true)
+    getMasterPasswordEncryption.mockResolvedValue({
+      ciphertext: 'ciphertext',
+      nonce: 'nonce',
+      salt: 'salt',
+      decryptionKey: 'decryptionKey'
+    })
 
     const vault = { id: 'complex-vault-id', name: 'Test Vault' }
 
@@ -91,6 +113,13 @@ describe('createVault', () => {
   it('should handle encryption when vault has password', async () => {
     pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({
       status: false
+    })
+    hasAllEncryptionData.mockReturnValue(true)
+    getMasterPasswordEncryption.mockResolvedValue({
+      ciphertext: 'encrypted-data',
+      nonce: 'nonce-value',
+      salt: 'salt-value',
+      decryptionKey: 'decryptionKey'
     })
 
     const encryptVaultKeyResult = {
@@ -110,49 +139,14 @@ describe('createVault', () => {
 
     await createVault(vault)
 
-    expect(getVaultEncryption).toHaveBeenCalledWith(vault.id)
-    expect(pearpassVaultClient.encryptVaultKey).toHaveBeenCalledWith(
-      vault.password
-    )
     expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalledWith({
-      password: vault.password,
       ciphertext: encryptVaultKeyResult.ciphertext,
       nonce: encryptVaultKeyResult.nonce,
-      salt: encryptVaultKeyResult.salt
+      decryptionKey: 'decryptionKey'
     })
-    expect(pearpassVaultClient.encryptionAdd).toHaveBeenCalledWith(
-      `vault/${vault.id}`,
-      encryptVaultKeyResult
-    )
     expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
       id: vault.id,
       encryptionKey: 'decrypted-key'
     })
-  })
-
-  it('should throw error if vault already exists with encryption data', async () => {
-    const vault = { id: 'existing-vault-id', password: 'test-password' }
-
-    getVaultEncryption.mockResolvedValue({
-      ciphertext: 'data',
-      nonce: 'nonce',
-      salt: 'salt'
-    })
-    hasAllEncryptionData.mockReturnValue(true)
-
-    await expect(createVault(vault)).rejects.toThrow('Vault already exists')
-  })
-
-  it('should throw error if vault encryption fails', async () => {
-    const vault = { id: 'test-vault-id', password: 'test-password' }
-
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue({
-      ciphertext: 'data'
-    })
-    hasAllEncryptionData.mockReturnValueOnce(false).mockReturnValueOnce(false)
-
-    await expect(createVault(vault)).rejects.toThrow(
-      'Error encrypting vault key'
-    )
   })
 })

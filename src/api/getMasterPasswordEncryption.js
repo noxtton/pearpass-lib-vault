@@ -5,9 +5,19 @@ import { pearpassVaultClient } from '../instances'
  *  ciphertext: string
  *  nonce: string
  *  salt: string
+ *  decryptionKey?: string
  * }>}
  */
 export const getMasterPasswordEncryption = async () => {
+  const res = await pearpassVaultClient.vaultsGetStatus()
+
+  if (res?.status) {
+    const masterEncryption =
+      await pearpassVaultClient.vaultsGet('masterEncryption')
+
+    return masterEncryption
+  }
+
   const statusRes = await pearpassVaultClient.encryptionGetStatus()
 
   if (!statusRes?.status) {

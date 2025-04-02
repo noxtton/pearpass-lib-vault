@@ -25,10 +25,27 @@ describe('initializeVaults', () => {
 
   it('should initialize with the provided password', async () => {
     const password = 'test-password'
-    const thunk = initializeVaults(password)
+    const thunk = initializeVaults({ password })
     await thunk(dispatch, getState)
 
-    expect(init).toHaveBeenCalledWith(password)
+    expect(init).toHaveBeenCalledWith({ password })
+  })
+
+  it('should initialize with the provided encryption fields', async () => {
+    const ciphertext = 'test-ciphertext'
+    const nonce = 'test-nonce'
+    const salt = 'test-salt'
+    const decryptionKey = 'test-decryption-key'
+
+    const thunk = initializeVaults({ ciphertext, nonce, salt, decryptionKey })
+    await thunk(dispatch, getState)
+
+    expect(init).toHaveBeenCalledWith({
+      ciphertext,
+      nonce,
+      salt,
+      decryptionKey
+    })
   })
 
   it('should list vaults after initialization', async () => {

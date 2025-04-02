@@ -7,6 +7,10 @@ jest.mock('../api/createVault', () => ({
   createVault: jest.fn()
 }))
 
+jest.mock('../api/createProtectedVault', () => ({
+  createProtectedVault: jest.fn()
+}))
+
 jest.mock('../utils/generateUniqueId', () => ({
   generateUniqueId: jest.fn()
 }))
@@ -55,7 +59,6 @@ describe('createVault', () => {
     expect(result.payload).toEqual({
       id: mockVaultId,
       name: vaultName,
-      password: password,
       version: VERSION.v1,
       records: [],
       createdAt: mockDate,

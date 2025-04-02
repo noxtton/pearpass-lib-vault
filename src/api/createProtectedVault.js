@@ -1,5 +1,4 @@
 import { pearpassVaultClient } from '../instances'
-import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
 import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 /**
@@ -7,9 +6,10 @@ import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
  *  id: string
  *  name: string
  * }} vault
+ * @param {string} password
  * @returns {Promise<void>}
  */
-export const createVault = async (vault) => {
+export const createProtectedVault = async (vault, password) => {
   if (!vault?.id) {
     throw new Error('Vault id is required')
   }
@@ -20,16 +20,16 @@ export const createVault = async (vault) => {
     await pearpassVaultClient.activeVaultClose()
   }
 
-  const masterEncryption = await getMasterPasswordEncryption()
+  const vaultEncryption = await pearpassVaultClient.encryptVaultKey(password)
 
   if (
-    !hasAllEncryptionData(masterEncryption) ||
-    !masterEncryption.decryptionKey
+    !hasAllEncryptionData(vaultEncryption) ||
+    !vaultEncryption.decryptionKey
   ) {
-    throw new Error('Master password encryption data does not exist')
+    throw new Error('Error encrypting vault key')
   }
 
-  const { ciphertext, nonce, decryptionKey } = masterEncryption
+  const { ciphertext, nonce, salt, decryptionKey } = vaultEncryption
 
   const encryptionKey = await pearpassVaultClient.decryptVaultKey({
     decryptionKey,
@@ -37,11 +37,20 @@ export const createVault = async (vault) => {
     nonce
   })
 
-  await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, vault)
+  await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, {
+    ...vault,
+    encryption: {
+      ciphertext,
+      nonce,
+      salt,
+      decryptionKey
+    }
+  })
 
   await pearpassVaultClient.activeVaultInit({
     id: vault.id,
     encryptionKey
   })
+
   await pearpassVaultClient.activeVaultAdd(`vault`, vault)
 }

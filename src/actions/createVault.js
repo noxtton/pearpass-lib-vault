@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { Validator } from 'pear-apps-utils-validator'
 
+import { createProtectedVault } from '../api/createProtectedVault'
 import { createVault as createVaultApi } from '../api/createVault'
 import { VERSION } from '../constants/version'
 import { generateUniqueId } from '../utils/generateUniqueId'
@@ -8,7 +9,6 @@ import { generateUniqueId } from '../utils/generateUniqueId'
 const schema = Validator.object({
   id: Validator.string().required(),
   name: Validator.string().required(),
-  password: Validator.string(),
   version: Validator.number().required(),
   records: Validator.array().required(),
   createdAt: Validator.number().required(),
@@ -21,7 +21,6 @@ export const createVault = createAsyncThunk(
     const vault = {
       id: generateUniqueId(),
       name: name,
-      password: password,
       version: VERSION.v1,
       records: [],
       createdAt: Date.now(),
@@ -34,7 +33,11 @@ export const createVault = createAsyncThunk(
       throw new Error(`Invalid vault data: ${JSON.stringify(errors, null, 2)}`)
     }
 
-    await createVaultApi(vault)
+    if (password?.length) {
+      await createProtectedVault(vault, password)
+    } else {
+      await createVaultApi(vault)
+    }
 
     return vault
   }

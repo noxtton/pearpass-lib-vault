@@ -5,8 +5,14 @@ import { listVaults } from '../api/listVaults'
 
 export const initializeVaults = createAsyncThunk(
   'vaults/initializeVaults',
-  async (password) => {
-    await init(password)
+  async ({ ciphertext, nonce, salt, decryptionKey, password }) => {
+    await init({
+      ciphertext,
+      nonce,
+      salt,
+      decryptionKey,
+      password
+    })
 
     const vaults = await listVaults()
 

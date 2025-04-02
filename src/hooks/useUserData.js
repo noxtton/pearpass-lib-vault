@@ -16,18 +16,41 @@ import { setLoading } from '../slices/userSlice'
  * @returns {{
  *  isLoading: boolean
  *  hasPasswordSet: boolean
- *  logIn: (password: string) => Promise<void>
- *  createMasterPassword: (password: string) => Promise<void>
+ *  logIn: ({
+ *    ciphertext?: string
+ *    nonce?: string
+ *    salt?: string
+ *    decryptionKey?: string
+ *    password?: string
+ *  }) => Promise<void>
+ *  createMasterPassword: (password: string) => Promise<{
+ *   ciphertext: string
+ *   nonce: string
+ *   salt: string
+ *   decryptionKey: string
+ *    }>
  *  }}
  */
 export const useUserData = ({ onCompleted, shouldSkip } = {}) => {
   const { isLoading, isInitialized, data: userData } = useSelector(selectUser)
   const dispatch = useDispatch()
 
-  const logIn = async (password) => {
+  const logIn = async ({
+    ciphertext,
+    nonce,
+    salt,
+    decryptionKey,
+    password
+  }) => {
     setLoading(true)
 
-    await init(password)
+    await init({
+      ciphertext,
+      nonce,
+      salt,
+      decryptionKey,
+      password
+    })
 
     setLoading(false)
   }
@@ -35,9 +58,11 @@ export const useUserData = ({ onCompleted, shouldSkip } = {}) => {
   const createMasterPassword = async (password) => {
     setLoading(true)
 
-    await createMasterPasswordApi(password)
+    const result = await createMasterPasswordApi(password)
 
     setLoading(false)
+
+    return result
   }
 
   useEffect(() => {

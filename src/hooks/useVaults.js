@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-
 import { useDispatch, useSelector } from 'react-redux'
 
 import { getVaults } from '../actions/getVaults'
@@ -11,24 +9,47 @@ import { selectVaults } from '../selectors/selectVaults'
  *  @param {{
  *    onCompleted?: (payload: any) => void
  *   onInitialize?: (payload: any) => void
- *    shouldSkip?: boolean
  *  }} options
  *   @returns {{
  *      isLoading: boolean
  *      data: any
  *    refetch: () => Promise<void>
- *    initVaults: (password: string) => Promise<void>
+ *    initVaults: ({
+ *     ciphertext?: string
+ *     nonce?: string
+ *     salt?: string
+ *     decryptionKey?: string
+ *     password?: string
+ *   }) => Promise<void>
  *    resetState: () => void
  *  }}
  */
-export const useVaults = ({ onCompleted, onInitialize, shouldSkip } = {}) => {
+export const useVaults = ({ onCompleted, onInitialize } = {}) => {
   const dispatch = useDispatch()
 
   const { isLoading, data, isInitialized, isInitializing } =
     useSelector(selectVaults)
 
-  const initVaults = async (password) => {
-    const { payload: vaults } = await dispatch(initializeVaults(password))
+  const initVaults = async ({
+    ciphertext,
+    nonce,
+    salt,
+    decryptionKey,
+    password
+  }) => {
+    if (isInitialized || isInitializing) {
+      return
+    }
+
+    const { payload: vaults } = await dispatch(
+      initializeVaults({
+        ciphertext,
+        nonce,
+        salt,
+        decryptionKey,
+        password
+      })
+    )
 
     onInitialize?.(vaults)
   }
@@ -46,14 +67,6 @@ export const useVaults = ({ onCompleted, onInitialize, shouldSkip } = {}) => {
   const resetState = () => {
     dispatch(resetStateAction())
   }
-
-  useEffect(() => {
-    if (shouldSkip || isLoading || isInitializing || isInitialized) {
-      return
-    }
-
-    initVaults()
-  }, [shouldSkip, isLoading, isInitialized, isInitializing])
 
   return { isLoading, data, refetch, initVaults, resetState }
 }

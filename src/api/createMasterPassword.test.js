@@ -8,6 +8,12 @@ jest.mock('../instances', () => ({
     encryptionInit: jest.fn(),
     encryptionGet: jest.fn(),
     encryptVaultKey: jest.fn(),
+    encryptionAdd: jest.fn(),
+    vaultsGetStatus: jest.fn(),
+    decryptVaultKey: jest.fn(),
+    vaultsInit: jest.fn(),
+    vaultsAdd: jest.fn(),
+    vaultsClose: jest.fn(),
     encryptionAdd: jest.fn()
   }
 }))
@@ -24,7 +30,10 @@ describe('createMasterPassword', () => {
   it('should initialize encryption if status is not available', async () => {
     pearpassVaultClient.encryptionGetStatus.mockResolvedValue({ status: null })
     pearpassVaultClient.encryptionGet.mockResolvedValue(null)
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue({ someData: 'value' })
+    pearpassVaultClient.encryptVaultKey.mockResolvedValue({
+      someData: 'value',
+      decryptionKey: 'key'
+    })
     hasAllEncryptionData.mockReturnValue(true)
 
     await createMasterPassword('testPassword')
@@ -34,10 +43,13 @@ describe('createMasterPassword', () => {
 
   it('should not initialize encryption if status is available', async () => {
     pearpassVaultClient.encryptionGetStatus.mockResolvedValue({
-      status: 'active'
+      status: true
     })
     pearpassVaultClient.encryptionGet.mockResolvedValue(null)
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue({ someData: 'value' })
+    pearpassVaultClient.encryptVaultKey.mockResolvedValue({
+      someData: 'value',
+      decryptionKey: 'key'
+    })
     hasAllEncryptionData.mockReturnValue(true)
 
     await createMasterPassword('testPassword')
@@ -47,7 +59,7 @@ describe('createMasterPassword', () => {
 
   it('should throw error if master password already exists', async () => {
     pearpassVaultClient.encryptionGetStatus.mockResolvedValue({
-      status: 'active'
+      status: true
     })
     pearpassVaultClient.encryptionGet.mockResolvedValue({ existingData: true })
 
@@ -60,7 +72,7 @@ describe('createMasterPassword', () => {
 
   it('should throw error if encryption of vault key fails', async () => {
     pearpassVaultClient.encryptionGetStatus.mockResolvedValue({
-      status: 'active'
+      status: true
     })
     pearpassVaultClient.encryptionGet.mockResolvedValue(null)
     pearpassVaultClient.encryptVaultKey.mockResolvedValue({ someData: 'value' })
@@ -74,11 +86,20 @@ describe('createMasterPassword', () => {
   })
 
   it('should encrypt and add master password successfully', async () => {
-    const mockEncryptionResult = { encrypted: 'data', salt: 'salt', iv: 'iv' }
+    const mockEncryptionResult = {
+      encrypted: undefined,
+      salt: 'salt',
+      iv: undefined,
+      decryptionKey: 'key'
+    }
     pearpassVaultClient.encryptionGetStatus.mockResolvedValue({
-      status: 'active'
+      status: true
+    })
+    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({
+      status: true
     })
     pearpassVaultClient.encryptionGet.mockResolvedValue(null)
+    pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
     pearpassVaultClient.encryptVaultKey.mockResolvedValue(mockEncryptionResult)
     hasAllEncryptionData.mockReturnValue(true)
 
@@ -87,9 +108,22 @@ describe('createMasterPassword', () => {
     expect(pearpassVaultClient.encryptVaultKey).toHaveBeenCalledWith(
       'testPassword'
     )
+    expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
+      'masterEncryption',
+      {
+        ciphertext: mockEncryptionResult.encrypted,
+        nonce: mockEncryptionResult.iv,
+        salt: mockEncryptionResult.salt,
+        decryptionKey: mockEncryptionResult.decryptionKey
+      }
+    )
     expect(pearpassVaultClient.encryptionAdd).toHaveBeenCalledWith(
       'masterPassword',
-      mockEncryptionResult
+      {
+        ciphertext: mockEncryptionResult.encrypted,
+        nonce: mockEncryptionResult.iv,
+        salt: mockEncryptionResult.salt
+      }
     )
   })
 })

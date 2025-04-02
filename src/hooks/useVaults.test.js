@@ -66,12 +66,6 @@ describe('useVaults', () => {
     })
   })
 
-  test('should call initVaults on mount if not skipped and not initialized', () => {
-    renderHook(() => useVaults())
-
-    expect(dispatch).toHaveBeenCalledWith(initializeVaults())
-  })
-
   test('should not call initVaults if shouldSkip is true', () => {
     renderHook(() => useVaults({ shouldSkip: true }))
 

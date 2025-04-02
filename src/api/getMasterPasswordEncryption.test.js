@@ -5,7 +5,9 @@ jest.mock('../instances', () => ({
   pearpassVaultClient: {
     encryptionGetStatus: jest.fn(),
     encryptionInit: jest.fn(),
-    encryptionGet: jest.fn()
+    encryptionGet: jest.fn(),
+    vaultsGetStatus: jest.fn(),
+    vaultsGet: jest.fn()
   }
 }))
 
@@ -16,11 +18,14 @@ describe('getMasterPasswordEncryption', () => {
 
   it('should initialize encryption if status is not available', async () => {
     pearpassVaultClient.encryptionGetStatus.mockResolvedValue({ status: null })
+    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: false })
     pearpassVaultClient.encryptionInit.mockResolvedValue({})
+    pearpassVaultClient.vaultsGet.mockResolvedValue()
     pearpassVaultClient.encryptionGet.mockResolvedValue({
       ciphertext: 'encrypted-data',
       nonce: 'nonce-value',
-      salt: 'salt-value'
+      salt: 'salt-value',
+      decryptionKey: 'decryption-key'
     })
 
     const result = await getMasterPasswordEncryption()
@@ -33,7 +38,8 @@ describe('getMasterPasswordEncryption', () => {
     expect(result).toEqual({
       ciphertext: 'encrypted-data',
       nonce: 'nonce-value',
-      salt: 'salt-value'
+      salt: 'salt-value',
+      decryptionKey: 'decryption-key'
     })
   })
 

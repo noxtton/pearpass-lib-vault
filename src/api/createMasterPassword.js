@@ -3,7 +3,12 @@ import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 /**
  * @param {string} password
- * @returns {Promise<void>}
+ * @returns {Promise<{
+ *   ciphertext: string
+ *   nonce: string
+ *   salt: string
+ *   decryptionKey: string
+ * }>}
  */
 export const createMasterPassword = async (password) => {
   const statusRes = await pearpassVaultClient.encryptionGetStatus()
@@ -21,9 +26,41 @@ export const createMasterPassword = async (password) => {
 
   const encryptVaultKeyRes = await pearpassVaultClient.encryptVaultKey(password)
 
-  if (!hasAllEncryptionData(encryptVaultKeyRes)) {
+  if (
+    !hasAllEncryptionData(encryptVaultKeyRes) ||
+    !encryptVaultKeyRes.decryptionKey
+  ) {
     throw new Error('Error encrypting vault key')
   }
 
-  await pearpassVaultClient.encryptionAdd(`masterPassword`, encryptVaultKeyRes)
+  const { ciphertext, nonce, salt, decryptionKey } = encryptVaultKeyRes
+
+  const vaultsGetRes = await pearpassVaultClient.vaultsGetStatus()
+
+  if (!vaultsGetRes?.status) {
+    const decryptVaultKeyRes = await pearpassVaultClient.decryptVaultKey({
+      ciphertext,
+      nonce,
+      decryptionKey
+    })
+
+    await pearpassVaultClient.vaultsInit(decryptVaultKeyRes)
+  }
+
+  await pearpassVaultClient.vaultsAdd('masterEncryption', {
+    ciphertext,
+    nonce,
+    salt,
+    decryptionKey
+  })
+
+  await pearpassVaultClient.vaultsClose()
+
+  await pearpassVaultClient.encryptionAdd(`masterPassword`, {
+    ciphertext,
+    nonce,
+    salt
+  })
+
+  return encryptVaultKeyRes
 }

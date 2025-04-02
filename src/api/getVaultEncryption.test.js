@@ -1,57 +1,48 @@
 import { getVaultEncryption } from './getVaultEncryption'
-import { pearpassVaultClient } from '../instances'
+import { listVaults } from './listVaults'
+
+jest.mock('./listVaults')
 
 describe('getVaultEncryption', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('should initialize encryption if status is not available', async () => {
-    const vaultId = 'test-vault-id'
-    const mockEncryptionData = { key: 'test-key', iv: 'test-iv' }
-    pearpassVaultClient.encryptionGetStatus.mockResolvedValue({ status: false })
-    pearpassVaultClient.encryptionInit.mockResolvedValue({})
-    pearpassVaultClient.encryptionGet.mockResolvedValue(mockEncryptionData)
+  it('should return vault encryption data when vault is found', async () => {
+    const mockEncryption = {
+      salt: 'test-salt',
+      ciphertext: 'test-ciphertext',
+      nonce: 'test-nonce',
+      decryptionKey: 'test-key'
+    }
 
-    const result = await getVaultEncryption(vaultId)
+    const mockVaults = [
+      {
+        id: 'vault-1',
+        encryption: mockEncryption
+      }
+    ]
 
-    expect(pearpassVaultClient.encryptionGetStatus).toHaveBeenCalledTimes(1)
-    expect(pearpassVaultClient.encryptionInit).toHaveBeenCalledTimes(1)
-    expect(pearpassVaultClient.encryptionGet).toHaveBeenCalledWith(
-      `vault/${vaultId}`
-    )
-    expect(result).toEqual(mockEncryptionData)
+    listVaults.mockResolvedValue(mockVaults)
+
+    const result = await getVaultEncryption('vault-1')
+
+    expect(listVaults).toHaveBeenCalledTimes(1)
+    expect(result).toEqual(mockEncryption)
   })
 
-  it('should not initialize encryption if status is available', async () => {
-    const vaultId = 'test-vault-id'
-    const mockEncryptionData = { key: 'test-key', iv: 'test-iv' }
-    pearpassVaultClient.encryptionGetStatus.mockResolvedValue({ status: true })
-    pearpassVaultClient.encryptionGet.mockResolvedValue(mockEncryptionData)
+  it('should throw error when vault is not found', async () => {
+    listVaults.mockResolvedValue([
+      {
+        id: 'vault-1',
+        encryption: {}
+      }
+    ])
 
-    const result = await getVaultEncryption(vaultId)
-
-    expect(pearpassVaultClient.encryptionGetStatus).toHaveBeenCalledTimes(1)
-    expect(pearpassVaultClient.encryptionInit).not.toHaveBeenCalled()
-    expect(pearpassVaultClient.encryptionGet).toHaveBeenCalledWith(
-      `vault/${vaultId}`
+    await expect(getVaultEncryption('non-existent-vault')).rejects.toThrow(
+      'Vault not found'
     )
-    expect(result).toEqual(mockEncryptionData)
-  })
 
-  it('should handle undefined status response correctly', async () => {
-    const vaultId = 'test-vault-id'
-    const mockEncryptionData = { key: 'test-key', iv: 'test-iv' }
-    pearpassVaultClient.encryptionGetStatus.mockResolvedValue(undefined)
-    pearpassVaultClient.encryptionInit.mockResolvedValue({})
-    pearpassVaultClient.encryptionGet.mockResolvedValue(mockEncryptionData)
-
-    const result = await getVaultEncryption(vaultId)
-
-    expect(pearpassVaultClient.encryptionInit).toHaveBeenCalledTimes(1)
-    expect(pearpassVaultClient.encryptionGet).toHaveBeenCalledWith(
-      `vault/${vaultId}`
-    )
-    expect(result).toEqual(mockEncryptionData)
+    expect(listVaults).toHaveBeenCalledTimes(1)
   })
 })

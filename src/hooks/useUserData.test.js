@@ -95,15 +95,15 @@ describe('useUserData', () => {
     expect(onCompletedMock).toHaveBeenCalledWith({ hasPasswordSet: true })
   })
 
-  test('logIn should call init and setLoading', async () => {
+  test('logIn should call init and setLoading with password', async () => {
     const { result } = renderHook(() => useUserData())
 
     await act(async () => {
-      await result.current.logIn('password123')
+      await result.current.logIn({ password: 'password123' })
     })
 
     expect(setLoading).toHaveBeenCalledWith(true)
-    expect(init).toHaveBeenCalledWith('password123')
+    expect(init).toHaveBeenCalledWith({ password: 'password123' })
     expect(setLoading).toHaveBeenCalledWith(false)
   })
 
@@ -116,6 +116,28 @@ describe('useUserData', () => {
 
     expect(setLoading).toHaveBeenCalledWith(true)
     expect(createMasterPasswordApi).toHaveBeenCalledWith('password123')
+    expect(setLoading).toHaveBeenCalledWith(false)
+  })
+
+  test('logIn should call init and setLoading with encryption fields', async () => {
+    const { result } = renderHook(() => useUserData())
+
+    await act(async () => {
+      await result.current.logIn({
+        ciphertext: 'ciphertext123',
+        nonce: 'nonce123',
+        salt: 'salt123',
+        decryptionKey: 'decryptionKey123'
+      })
+    })
+
+    expect(setLoading).toHaveBeenCalledWith(true)
+    expect(init).toHaveBeenCalledWith({
+      ciphertext: 'ciphertext123',
+      nonce: 'nonce123',
+      salt: 'salt123',
+      decryptionKey: 'decryptionKey123'
+    })
     expect(setLoading).toHaveBeenCalledWith(false)
   })
 })

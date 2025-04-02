@@ -1,4 +1,5 @@
 import { pearpassVaultClient } from '../instances'
+import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
 import { getVaultEncryption } from './getVaultEncryption'
 import { listVaults } from './listVaults'
 import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
@@ -18,19 +19,44 @@ export const getVaultById = async (vaultId, password) => {
   let encryptionKey
 
   if (password) {
-    const vaultEncryptionres = await getVaultEncryption(vaultId)
+    const vaultEncryptionRes = await getVaultEncryption(vaultId)
 
-    if (!hasAllEncryptionData(vaultEncryptionres)) {
+    if (!hasAllEncryptionData(vaultEncryptionRes)) {
       throw new Error('Vault encryption data does not exist')
     }
 
-    const { ciphertext, nonce, salt } = vaultEncryptionres
+    const { ciphertext, nonce, salt } = vaultEncryptionRes
+
+    const decryptionKey = await pearpassVaultClient.getDecryptionKey({
+      password,
+      salt
+    })
 
     encryptionKey = await pearpassVaultClient.decryptVaultKey({
-      password: password,
+      decryptionKey,
       ciphertext,
-      nonce,
-      salt
+      nonce
+    })
+
+    if (!encryptionKey) {
+      throw new Error('Error decrypting vault key')
+    }
+  } else {
+    const masterEncryption = await getMasterPasswordEncryption()
+
+    if (
+      !hasAllEncryptionData(masterEncryption) ||
+      !masterEncryption.decryptionKey
+    ) {
+      throw new Error('Master password encryption data does not exist')
+    }
+
+    const { ciphertext, nonce, decryptionKey } = masterEncryption
+
+    encryptionKey = await pearpassVaultClient.decryptVaultKey({
+      decryptionKey,
+      ciphertext,
+      nonce
     })
 
     if (!encryptionKey) {
