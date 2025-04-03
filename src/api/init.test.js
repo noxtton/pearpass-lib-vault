@@ -1,6 +1,5 @@
 import { init } from './init'
 import { pearpassVaultClient } from '../instances'
-import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 jest.mock('../instances', () => ({
   pearpassVaultClient: {
@@ -10,10 +9,6 @@ jest.mock('../instances', () => ({
     getDecryptionKey: jest.fn(),
     vaultsInit: jest.fn()
   }
-}))
-
-jest.mock('../utils/hasAllEncryptionData', () => ({
-  hasAllEncryptionData: jest.fn()
 }))
 
 describe('init', () => {
@@ -38,20 +33,6 @@ describe('init', () => {
     expect(pearpassVaultClient.vaultsGetStatus).toHaveBeenCalled()
   })
 
-  it('should throw error if master password does not exist', async () => {
-    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: false })
-    pearpassVaultClient.encryptionGet.mockResolvedValue({})
-    hasAllEncryptionData.mockReturnValue(false)
-
-    await expect(init({ password: 'password' })).rejects.toThrow(
-      'Master password does not exist'
-    )
-    expect(pearpassVaultClient.vaultsGetStatus).toHaveBeenCalled()
-    expect(pearpassVaultClient.encryptionGet).toHaveBeenCalledWith(
-      'masterPassword'
-    )
-  })
-
   it('should throw error if vault key decryption fails', async () => {
     pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: false })
     pearpassVaultClient.encryptionGet.mockResolvedValue({
@@ -59,7 +40,7 @@ describe('init', () => {
       nonce: 'test',
       salt: 'test'
     })
-    hasAllEncryptionData.mockReturnValue(true)
+
     pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
     pearpassVaultClient.getDecryptionKey.mockResolvedValue('decryption-key')
 
@@ -73,7 +54,7 @@ describe('init', () => {
     expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalledWith({
       ciphertext: 'test',
       nonce: 'test',
-      decryptionKey: 'decryption-key'
+      hashedPassword: 'decryption-key'
     })
   })
 
@@ -84,7 +65,7 @@ describe('init', () => {
       nonce: 'test',
       salt: 'test'
     })
-    hasAllEncryptionData.mockReturnValue(true)
+
     pearpassVaultClient.decryptVaultKey.mockResolvedValue('decrypted-key')
     pearpassVaultClient.vaultsInit.mockResolvedValue({})
 
@@ -102,7 +83,7 @@ describe('init', () => {
     const result = await init({
       ciphertext: 'ciphertext',
       nonce: 'nonce',
-      decryptionKey: 'decryption-key'
+      hashedPassword: 'decryption-key'
     })
 
     expect(result).toBe(true)
@@ -117,7 +98,7 @@ describe('init', () => {
       init({
         ciphertext: 'ciphertext',
         nonce: 'nonce',
-        decryptionKey: 'decryption-key'
+        hashedPassword: 'decryption-key'
       })
     ).rejects.toThrow('Error decrypting vault key')
   })

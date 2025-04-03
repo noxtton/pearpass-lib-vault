@@ -127,7 +127,7 @@ describe('useUserData', () => {
         ciphertext: 'ciphertext123',
         nonce: 'nonce123',
         salt: 'salt123',
-        decryptionKey: 'decryptionKey123'
+        hashedPassword: 'hashedPassword123'
       })
     })
 
@@ -136,7 +136,7 @@ describe('useUserData', () => {
       ciphertext: 'ciphertext123',
       nonce: 'nonce123',
       salt: 'salt123',
-      decryptionKey: 'decryptionKey123'
+      hashedPassword: 'hashedPassword123'
     })
     expect(setLoading).toHaveBeenCalledWith(false)
   })

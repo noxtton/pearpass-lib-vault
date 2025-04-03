@@ -135,9 +135,8 @@ export const vaultSlice = createSlice({
       .addCase(pair.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(pair.fulfilled, (state, action) => {
+      .addCase(pair.fulfilled, (state) => {
         state.isLoading = false
-        state.data = action.payload
       })
       .addCase(pair.rejected, (state, action) => {
         console.error(`Action pair error:`, JSON.stringify(action.error))

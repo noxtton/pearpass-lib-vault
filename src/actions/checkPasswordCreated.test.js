@@ -1,9 +1,7 @@
 import { checkPasswordCreated } from './checkPasswordCreated'
 import { getMasterPasswordEncryption } from '../api/getMasterPasswordEncryption'
-import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 jest.mock('../api/getMasterPasswordEncryption')
-jest.mock('../utils/hasAllEncryptionData')
 
 describe('checkPasswordCreated', () => {
   beforeEach(() => {
@@ -11,36 +9,56 @@ describe('checkPasswordCreated', () => {
   })
 
   it('should call getMasterPasswordEncryption', async () => {
-    getMasterPasswordEncryption.mockResolvedValue({})
-    hasAllEncryptionData.mockReturnValue(true)
+    getMasterPasswordEncryption.mockResolvedValue({
+      ciphertext: 'test-ciphertext',
+      nonce: 'test-nonce',
+      salt: 'test-salt'
+    })
 
     await checkPasswordCreated()(jest.fn(), jest.fn)
 
     expect(getMasterPasswordEncryption).toHaveBeenCalledTimes(1)
   })
 
-  it('should call hasAllEncryptionData with the result from getMasterPasswordEncryption', async () => {
-    const mockEncryptionData = { salt: 'test-salt', iv: 'test-iv' }
-    getMasterPasswordEncryption.mockResolvedValue(mockEncryptionData)
-    hasAllEncryptionData.mockReturnValue(true)
-
-    await checkPasswordCreated()(jest.fn(), jest.fn)
-
-    expect(hasAllEncryptionData).toHaveBeenCalledWith(mockEncryptionData)
-  })
-
-  it('should return true when hasAllEncryptionData returns true', async () => {
-    getMasterPasswordEncryption.mockResolvedValue({})
-    hasAllEncryptionData.mockReturnValue(true)
+  it('should return true when all necessary fields exsis', async () => {
+    getMasterPasswordEncryption.mockResolvedValue({
+      ciphertext: 'test-ciphertext',
+      nonce: 'test-nonce',
+      salt: 'test-salt'
+    })
 
     const result = await checkPasswordCreated()(jest.fn(), jest.fn)
 
     expect(result.payload).toBe(true)
   })
 
-  it('should return false when hasAllEncryptionData returns false', async () => {
-    getMasterPasswordEncryption.mockResolvedValue({})
-    hasAllEncryptionData.mockReturnValue(false)
+  it('should return false when ciphertext is missing', async () => {
+    getMasterPasswordEncryption.mockResolvedValue({
+      nonce: 'test-nonce',
+      salt: 'test-salt'
+    })
+
+    const result = await checkPasswordCreated()(jest.fn(), jest.fn)
+
+    expect(result.payload).toBe(false)
+  })
+
+  it('should return false when nonce is missing', async () => {
+    getMasterPasswordEncryption.mockResolvedValue({
+      ciphertext: 'test-ciphertext',
+      salt: 'test-salt'
+    })
+
+    const result = await checkPasswordCreated()(jest.fn(), jest.fn)
+
+    expect(result.payload).toBe(false)
+  })
+
+  it('should return false when salt is missing', async () => {
+    getMasterPasswordEncryption.mockResolvedValue({
+      ciphertext: 'test-ciphertext',
+      nonce: 'test-nonce'
+    })
 
     const result = await checkPasswordCreated()(jest.fn(), jest.fn)
 

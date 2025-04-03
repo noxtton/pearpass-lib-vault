@@ -35,16 +35,16 @@ describe('initializeVaults', () => {
     const ciphertext = 'test-ciphertext'
     const nonce = 'test-nonce'
     const salt = 'test-salt'
-    const decryptionKey = 'test-decryption-key'
+    const hashedPassword = 'test-decryption-key'
 
-    const thunk = initializeVaults({ ciphertext, nonce, salt, decryptionKey })
+    const thunk = initializeVaults({ ciphertext, nonce, salt, hashedPassword })
     await thunk(dispatch, getState)
 
     expect(init).toHaveBeenCalledWith({
       ciphertext,
       nonce,
       salt,
-      decryptionKey
+      hashedPassword
     })
   })
 

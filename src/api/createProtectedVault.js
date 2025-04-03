@@ -1,5 +1,4 @@
 import { pearpassVaultClient } from '../instances'
-import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 /**
  * @param {{
@@ -20,19 +19,14 @@ export const createProtectedVault = async (vault, password) => {
     await pearpassVaultClient.activeVaultClose()
   }
 
-  const vaultEncryption = await pearpassVaultClient.encryptVaultKey(password)
+  const { hashedPassword, salt } =
+    await pearpassVaultClient.hashPassword(password)
 
-  if (
-    !hasAllEncryptionData(vaultEncryption) ||
-    !vaultEncryption.decryptionKey
-  ) {
-    throw new Error('Error encrypting vault key')
-  }
-
-  const { ciphertext, nonce, salt, decryptionKey } = vaultEncryption
+  const { ciphertext, nonce } =
+    await pearpassVaultClient.encryptVaultKeyWithHashedPassword(hashedPassword)
 
   const encryptionKey = await pearpassVaultClient.decryptVaultKey({
-    decryptionKey,
+    hashedPassword,
     ciphertext,
     nonce
   })
@@ -43,7 +37,7 @@ export const createProtectedVault = async (vault, password) => {
       ciphertext,
       nonce,
       salt,
-      decryptionKey
+      hashedPassword
     }
   })
 

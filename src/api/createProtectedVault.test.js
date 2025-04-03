@@ -1,21 +1,17 @@
 import { createProtectedVault } from './createProtectedVault'
 import { pearpassVaultClient } from '../instances'
-import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 jest.mock('../instances', () => ({
   pearpassVaultClient: {
     activeVaultGetStatus: jest.fn(),
     activeVaultClose: jest.fn(),
-    encryptVaultKey: jest.fn(),
     decryptVaultKey: jest.fn(),
     vaultsAdd: jest.fn(),
     activeVaultInit: jest.fn(),
-    activeVaultAdd: jest.fn()
+    activeVaultAdd: jest.fn(),
+    hashPassword: jest.fn(),
+    encryptVaultKeyWithHashedPassword: jest.fn()
   }
-}))
-
-jest.mock('../utils/hasAllEncryptionData', () => ({
-  hasAllEncryptionData: jest.fn()
 }))
 
 describe('createProtectedVault', () => {
@@ -35,39 +31,20 @@ describe('createProtectedVault', () => {
     )
   })
 
-  it('throws an error if encryption fails', async () => {
-    const vault = { id: 'test-id', name: 'Test Vault' }
-    const password = 'test-password'
-
-    pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({
-      status: false
-    })
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue({
-      ciphertext: 'encrypted-data',
-      nonce: 'nonce-value',
-      salt: 'salt-value'
-    })
-
-    hasAllEncryptionData.mockReturnValue(false)
-
-    await expect(createProtectedVault(vault, password)).rejects.toThrow(
-      'Error encrypting vault key'
-    )
-  })
-
   it('closes active vault if one exists', async () => {
     const vault = { id: 'test-id', name: 'Test Vault' }
     const password = 'test-password'
 
     pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({ status: true })
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue({
+    pearpassVaultClient.hashPassword.mockResolvedValue({
+      hashedPassword: 'hashedPassword-value',
+      salt: 'salt-value'
+    })
+    pearpassVaultClient.encryptVaultKeyWithHashedPassword.mockResolvedValue({
       ciphertext: 'encrypted-data',
-      nonce: 'nonce-value',
-      salt: 'salt-value',
-      decryptionKey: 'decryption-key'
+      nonce: 'nonce-value'
     })
 
-    hasAllEncryptionData.mockReturnValue(true)
     pearpassVaultClient.decryptVaultKey.mockResolvedValue('encryption-key')
 
     await createProtectedVault(vault, password)
@@ -82,21 +59,31 @@ describe('createProtectedVault', () => {
       ciphertext: 'encrypted-data',
       nonce: 'nonce-value',
       salt: 'salt-value',
-      decryptionKey: 'decryption-key'
+      hashedPassword: 'decryption-key'
     }
 
     pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({
       status: false
     })
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue(encryptionData)
-    hasAllEncryptionData.mockReturnValue(true)
+    pearpassVaultClient.hashPassword.mockResolvedValue({
+      hashedPassword: encryptionData.hashedPassword,
+      salt: encryptionData.salt
+    })
+    pearpassVaultClient.encryptVaultKeyWithHashedPassword.mockResolvedValue({
+      ciphertext: encryptionData.ciphertext,
+      nonce: encryptionData.nonce
+    })
+
     pearpassVaultClient.decryptVaultKey.mockResolvedValue('encryption-key')
 
     await createProtectedVault(vault, password)
 
-    expect(pearpassVaultClient.encryptVaultKey).toHaveBeenCalledWith(password)
+    expect(pearpassVaultClient.hashPassword).toHaveBeenCalledWith(password)
+    expect(
+      pearpassVaultClient.encryptVaultKeyWithHashedPassword
+    ).toHaveBeenCalledWith(encryptionData.hashedPassword)
     expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalledWith({
-      decryptionKey: 'decryption-key',
+      hashedPassword: 'decryption-key',
       ciphertext: 'encrypted-data',
       nonce: 'nonce-value'
     })

@@ -24,14 +24,13 @@ describe('pair', () => {
     expect(pairApi).toHaveBeenCalledWith(inviteCode)
   })
 
-  it('should return the vault from pairApi', async () => {
-    const mockVault = { id: 'test-vault', name: 'Test Vault' }
-    pairApi.mockResolvedValue(mockVault)
+  it('should return the vault id from pairApi', async () => {
+    pairApi.mockResolvedValue('test-vault')
 
     const thunk = pair('test-code')
     const result = await thunk(dispatch, getState)
 
-    expect(result.payload).toEqual(mockVault)
+    expect(result.payload).toEqual('test-vault')
   })
 
   it('should handle errors from pairApi', async () => {

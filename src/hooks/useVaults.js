@@ -18,7 +18,7 @@ import { selectVaults } from '../selectors/selectVaults'
  *     ciphertext?: string
  *     nonce?: string
  *     salt?: string
- *     decryptionKey?: string
+ *     hashedPassword?: string
  *     password?: string
  *   }) => Promise<void>
  *    resetState: () => void
@@ -34,7 +34,7 @@ export const useVaults = ({ onCompleted, onInitialize } = {}) => {
     ciphertext,
     nonce,
     salt,
-    decryptionKey,
+    hashedPassword,
     password
   }) => {
     if (isInitialized || isInitializing) {
@@ -46,7 +46,7 @@ export const useVaults = ({ onCompleted, onInitialize } = {}) => {
         ciphertext,
         nonce,
         salt,
-        decryptionKey,
+        hashedPassword,
         password
       })
     )

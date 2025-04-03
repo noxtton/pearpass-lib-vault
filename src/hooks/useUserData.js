@@ -20,14 +20,14 @@ import { setLoading } from '../slices/userSlice'
  *    ciphertext?: string
  *    nonce?: string
  *    salt?: string
- *    decryptionKey?: string
+ *    hashedPassword?: string
  *    password?: string
  *  }) => Promise<void>
  *  createMasterPassword: (password: string) => Promise<{
  *   ciphertext: string
  *   nonce: string
  *   salt: string
- *   decryptionKey: string
+ *   hashedPassword: string
  *    }>
  *  }}
  */
@@ -39,7 +39,7 @@ export const useUserData = ({ onCompleted, shouldSkip } = {}) => {
     ciphertext,
     nonce,
     salt,
-    decryptionKey,
+    hashedPassword,
     password
   }) => {
     setLoading(true)
@@ -48,7 +48,7 @@ export const useUserData = ({ onCompleted, shouldSkip } = {}) => {
       ciphertext,
       nonce,
       salt,
-      decryptionKey,
+      hashedPassword,
       password
     })
 

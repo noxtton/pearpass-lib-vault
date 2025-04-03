@@ -1,14 +1,13 @@
 import { createMasterPassword } from './createMasterPassword'
 import { pearpassVaultClient } from '../instances'
-import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 jest.mock('../instances', () => ({
   pearpassVaultClient: {
     encryptionGetStatus: jest.fn(),
     encryptionInit: jest.fn(),
     encryptionGet: jest.fn(),
-    encryptVaultKey: jest.fn(),
-    encryptionAdd: jest.fn(),
+    hashPassword: jest.fn(),
+    encryptVaultKeyWithHashedPassword: jest.fn(),
     vaultsGetStatus: jest.fn(),
     decryptVaultKey: jest.fn(),
     vaultsInit: jest.fn(),
@@ -16,10 +15,6 @@ jest.mock('../instances', () => ({
     vaultsClose: jest.fn(),
     encryptionAdd: jest.fn()
   }
-}))
-
-jest.mock('../utils/hasAllEncryptionData', () => ({
-  hasAllEncryptionData: jest.fn()
 }))
 
 describe('createMasterPassword', () => {
@@ -30,11 +25,14 @@ describe('createMasterPassword', () => {
   it('should initialize encryption if status is not available', async () => {
     pearpassVaultClient.encryptionGetStatus.mockResolvedValue({ status: null })
     pearpassVaultClient.encryptionGet.mockResolvedValue(null)
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue({
-      someData: 'value',
-      decryptionKey: 'key'
+    pearpassVaultClient.hashPassword.mockResolvedValue({
+      salt: 'salt',
+      hashedPassword: 'key'
     })
-    hasAllEncryptionData.mockReturnValue(true)
+    pearpassVaultClient.encryptVaultKeyWithHashedPassword.mockResolvedValue({
+      ciphertext: 'ciphertext',
+      nonce: 'nonce'
+    })
 
     await createMasterPassword('testPassword')
 
@@ -46,11 +44,14 @@ describe('createMasterPassword', () => {
       status: true
     })
     pearpassVaultClient.encryptionGet.mockResolvedValue(null)
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue({
-      someData: 'value',
-      decryptionKey: 'key'
+    pearpassVaultClient.hashPassword.mockResolvedValue({
+      salt: 'salt',
+      hashedPassword: 'key'
     })
-    hasAllEncryptionData.mockReturnValue(true)
+    pearpassVaultClient.encryptVaultKeyWithHashedPassword.mockResolvedValue({
+      ciphertext: 'ciphertext',
+      nonce: 'nonce'
+    })
 
     await createMasterPassword('testPassword')
 
@@ -67,30 +68,15 @@ describe('createMasterPassword', () => {
       'Master password already exists'
     )
 
-    expect(pearpassVaultClient.encryptVaultKey).not.toHaveBeenCalled()
-  })
-
-  it('should throw error if encryption of vault key fails', async () => {
-    pearpassVaultClient.encryptionGetStatus.mockResolvedValue({
-      status: true
-    })
-    pearpassVaultClient.encryptionGet.mockResolvedValue(null)
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue({ someData: 'value' })
-    hasAllEncryptionData.mockReturnValue(false)
-
-    await expect(createMasterPassword('testPassword')).rejects.toThrow(
-      'Error encrypting vault key'
-    )
-
-    expect(pearpassVaultClient.encryptionAdd).not.toHaveBeenCalled()
+    expect(pearpassVaultClient.hashPassword).not.toHaveBeenCalled()
   })
 
   it('should encrypt and add master password successfully', async () => {
     const mockEncryptionResult = {
-      encrypted: undefined,
+      ciphertext: 'ciphertext',
+      nonce: 'nonce',
       salt: 'salt',
-      iv: undefined,
-      decryptionKey: 'key'
+      hashedPassword: 'hashedPassword'
     }
     pearpassVaultClient.encryptionGetStatus.mockResolvedValue({
       status: true
@@ -100,28 +86,34 @@ describe('createMasterPassword', () => {
     })
     pearpassVaultClient.encryptionGet.mockResolvedValue(null)
     pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
-    pearpassVaultClient.encryptVaultKey.mockResolvedValue(mockEncryptionResult)
-    hasAllEncryptionData.mockReturnValue(true)
+    pearpassVaultClient.hashPassword.mockResolvedValue({
+      salt: mockEncryptionResult.salt,
+      hashedPassword: mockEncryptionResult.hashedPassword
+    })
+    pearpassVaultClient.encryptVaultKeyWithHashedPassword.mockResolvedValue({
+      ciphertext: mockEncryptionResult.ciphertext,
+      nonce: mockEncryptionResult.nonce
+    })
 
     await createMasterPassword('testPassword')
 
-    expect(pearpassVaultClient.encryptVaultKey).toHaveBeenCalledWith(
+    expect(pearpassVaultClient.hashPassword).toHaveBeenCalledWith(
       'testPassword'
     )
     expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
       'masterEncryption',
       {
-        ciphertext: mockEncryptionResult.encrypted,
-        nonce: mockEncryptionResult.iv,
+        ciphertext: mockEncryptionResult.ciphertext,
+        nonce: mockEncryptionResult.nonce,
         salt: mockEncryptionResult.salt,
-        decryptionKey: mockEncryptionResult.decryptionKey
+        hashedPassword: mockEncryptionResult.hashedPassword
       }
     )
     expect(pearpassVaultClient.encryptionAdd).toHaveBeenCalledWith(
       'masterPassword',
       {
-        ciphertext: mockEncryptionResult.encrypted,
-        nonce: mockEncryptionResult.iv,
+        ciphertext: mockEncryptionResult.ciphertext,
+        nonce: mockEncryptionResult.nonce,
         salt: mockEncryptionResult.salt
       }
     )

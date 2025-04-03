@@ -5,7 +5,7 @@ import { pearpassVaultClient } from '../instances'
  *  ciphertext: string
  *  nonce: string
  *  salt: string
- *  decryptionKey?: string
+ *  hashedPassword?: string
  * }>}
  */
 export const getMasterPasswordEncryption = async () => {

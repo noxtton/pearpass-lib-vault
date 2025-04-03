@@ -4,11 +4,10 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
 import { resetState as resetStateAction } from '../actions/resetState'
-import { getVaultEncryption } from '../api/getVaultEncryption'
+import { checkVaultIsProtected } from '../api/checkVaultIsProtected'
 import { initListener } from '../api/initListener'
 import { selectVault } from '../selectors/selectVault'
 import { selectVaults } from '../selectors/selectVaults'
-import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 /**
  *  @param {{
@@ -41,9 +40,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   const isLoading = isVaultsLoading || isVaultLoading
 
   const isVaultProtected = async (vaultId) => {
-    const encryptionData = await getVaultEncryption(vaultId)
-
-    return hasAllEncryptionData(encryptionData)
+    return checkVaultIsProtected(vaultId)
   }
 
   const fetchVault = async (vaultId, password) => {

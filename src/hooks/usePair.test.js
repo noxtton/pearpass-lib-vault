@@ -21,13 +21,13 @@ jest.mock('../api/initListener', () => ({
 
 describe('usePair', () => {
   const mockDispatch = jest.fn()
-  const mockVault = { id: 'test-vault-id' }
+  const mockVaultId = 'test-vault-id'
 
   beforeEach(() => {
     jest.clearAllMocks()
     useDispatch.mockReturnValue(mockDispatch)
     mockDispatch.mockImplementation(() =>
-      Promise.resolve({ payload: mockVault })
+      Promise.resolve({ payload: mockVaultId })
     )
     pairAction.mockReturnValue('pair-action')
     initListener.mockResolvedValue(undefined)
@@ -55,10 +55,10 @@ describe('usePair', () => {
     expect(pairAction).toHaveBeenCalledWith('invite-code')
     expect(mockDispatch).toHaveBeenCalledWith('pair-action')
     expect(initListener).toHaveBeenCalledWith({
-      vaultId: mockVault.id,
+      vaultId: mockVaultId,
       onUpdate: expect.any(Function)
     })
-    expect(mockOnCompleted).toHaveBeenCalledWith(mockVault)
+    expect(mockOnCompleted).toHaveBeenCalledWith(mockVaultId)
     expect(result.current.isLoading).toBe(false)
   })
 
@@ -84,7 +84,7 @@ describe('usePair', () => {
 
     mockDispatch.mockImplementation(() => {
       return new Promise((resolve) => {
-        setTimeout(() => resolve({ payload: mockVault }), 20000)
+        setTimeout(() => resolve({ payload: mockVaultId }), 20000)
       })
     })
 
@@ -125,9 +125,9 @@ describe('usePair', () => {
       onUpdateCallback()
     })
 
-    expect(getVaultById).toHaveBeenCalledWith({ vaultId: mockVault.id })
+    expect(getVaultById).toHaveBeenCalledWith({ vaultId: mockVaultId })
     expect(mockDispatch).toHaveBeenCalledWith(
-      getVaultById({ vaultId: mockVault.id })
+      getVaultById({ vaultId: mockVaultId })
     )
   })
 })

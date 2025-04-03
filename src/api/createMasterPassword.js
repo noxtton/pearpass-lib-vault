@@ -1,5 +1,4 @@
 import { pearpassVaultClient } from '../instances'
-import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 /**
  * @param {string} password
@@ -7,7 +6,7 @@ import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
  *   ciphertext: string
  *   nonce: string
  *   salt: string
- *   decryptionKey: string
+ *   hashedPassword: string
  * }>}
  */
 export const createMasterPassword = async (password) => {
@@ -24,16 +23,11 @@ export const createMasterPassword = async (password) => {
     throw new Error('Master password already exists')
   }
 
-  const encryptVaultKeyRes = await pearpassVaultClient.encryptVaultKey(password)
+  const { hashedPassword, salt } =
+    await pearpassVaultClient.hashPassword(password)
 
-  if (
-    !hasAllEncryptionData(encryptVaultKeyRes) ||
-    !encryptVaultKeyRes.decryptionKey
-  ) {
-    throw new Error('Error encrypting vault key')
-  }
-
-  const { ciphertext, nonce, salt, decryptionKey } = encryptVaultKeyRes
+  const { ciphertext, nonce } =
+    await pearpassVaultClient.encryptVaultKeyWithHashedPassword(hashedPassword)
 
   const vaultsGetRes = await pearpassVaultClient.vaultsGetStatus()
 
@@ -41,7 +35,7 @@ export const createMasterPassword = async (password) => {
     const decryptVaultKeyRes = await pearpassVaultClient.decryptVaultKey({
       ciphertext,
       nonce,
-      decryptionKey
+      hashedPassword
     })
 
     await pearpassVaultClient.vaultsInit(decryptVaultKeyRes)
@@ -51,7 +45,7 @@ export const createMasterPassword = async (password) => {
     ciphertext,
     nonce,
     salt,
-    decryptionKey
+    hashedPassword
   })
 
   await pearpassVaultClient.vaultsClose()
@@ -62,5 +56,5 @@ export const createMasterPassword = async (password) => {
     salt
   })
 
-  return encryptVaultKeyRes
+  return { hashedPassword, salt, ciphertext, nonce }
 }

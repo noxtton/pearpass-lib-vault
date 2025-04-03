@@ -8,7 +8,7 @@ import { initListener } from '../api/initListener'
 
 /**
  * @param {{
- *  onCompleted?: (vault: {id: string}) => void
+ *  onCompleted?: (vaultId: string) => void
  *  onError?: (error: Error) => void
  * }} options
  * @returns {{
@@ -29,24 +29,24 @@ export const usePair = ({ onCompleted, onError } = {}) => {
 
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(
-          () => reject(new Error('Pairing timeout after 5 seconds')),
+          () => reject(new Error('Pairing timeout after 10 seconds')),
           10000
         )
       })
 
-      const { payload: vault } = await Promise.race([
+      const { payload: vaultId } = await Promise.race([
         pairPromise,
         timeoutPromise
       ])
 
       await initListener({
-        vaultId: vault.id,
+        vaultId: vaultId,
         onUpdate: () => {
-          dispatch(getVaultById({ vaultId: vault.id }))
+          dispatch(getVaultById({ vaultId: vaultId }))
         }
       })
 
-      onCompleted?.(vault)
+      onCompleted?.(vaultId)
 
       setIsLoading(false)
     } catch (error) {

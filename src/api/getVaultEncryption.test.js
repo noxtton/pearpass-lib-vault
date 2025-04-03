@@ -13,7 +13,7 @@ describe('getVaultEncryption', () => {
       salt: 'test-salt',
       ciphertext: 'test-ciphertext',
       nonce: 'test-nonce',
-      decryptionKey: 'test-key'
+      hashedPassword: 'test-key'
     }
 
     const mockVaults = [

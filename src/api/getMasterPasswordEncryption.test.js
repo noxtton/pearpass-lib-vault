@@ -25,7 +25,7 @@ describe('getMasterPasswordEncryption', () => {
       ciphertext: 'encrypted-data',
       nonce: 'nonce-value',
       salt: 'salt-value',
-      decryptionKey: 'decryption-key'
+      hashedPassword: 'decryption-key'
     })
 
     const result = await getMasterPasswordEncryption()
@@ -39,7 +39,7 @@ describe('getMasterPasswordEncryption', () => {
       ciphertext: 'encrypted-data',
       nonce: 'nonce-value',
       salt: 'salt-value',
-      decryptionKey: 'decryption-key'
+      hashedPassword: 'decryption-key'
     })
   })
 

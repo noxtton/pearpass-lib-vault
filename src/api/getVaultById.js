@@ -2,7 +2,6 @@ import { pearpassVaultClient } from '../instances'
 import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
 import { getVaultEncryption } from './getVaultEncryption'
 import { listVaults } from './listVaults'
-import { hasAllEncryptionData } from '../utils/hasAllEncryptionData'
 
 /**
  * @param {string} vaultId
@@ -18,50 +17,31 @@ export const getVaultById = async (vaultId, password) => {
 
   let encryptionKey
 
-  if (password) {
-    const vaultEncryptionRes = await getVaultEncryption(vaultId)
+  const { ciphertext, nonce, salt } = await getVaultEncryption(vaultId)
 
-    if (!hasAllEncryptionData(vaultEncryptionRes)) {
-      throw new Error('Vault encryption data does not exist')
-    }
+  if (!password?.length) {
+    const masterEncryption = await getMasterPasswordEncryption()
 
-    const { ciphertext, nonce, salt } = vaultEncryptionRes
-
-    const decryptionKey = await pearpassVaultClient.getDecryptionKey({
+    encryptionKey = await pearpassVaultClient.decryptVaultKey({
+      hashedPassword: masterEncryption.hashedPassword,
+      ciphertext,
+      nonce
+    })
+  } else {
+    const hashedPassword = await pearpassVaultClient.getDecryptionKey({
       password,
       salt
     })
 
     encryptionKey = await pearpassVaultClient.decryptVaultKey({
-      decryptionKey,
+      hashedPassword,
       ciphertext,
       nonce
     })
+  }
 
-    if (!encryptionKey) {
-      throw new Error('Error decrypting vault key')
-    }
-  } else {
-    const masterEncryption = await getMasterPasswordEncryption()
-
-    if (
-      !hasAllEncryptionData(masterEncryption) ||
-      !masterEncryption.decryptionKey
-    ) {
-      throw new Error('Master password encryption data does not exist')
-    }
-
-    const { ciphertext, nonce, decryptionKey } = masterEncryption
-
-    encryptionKey = await pearpassVaultClient.decryptVaultKey({
-      decryptionKey,
-      ciphertext,
-      nonce
-    })
-
-    if (!encryptionKey) {
-      throw new Error('Error decrypting vault key')
-    }
+  if (!encryptionKey) {
+    throw new Error('Error decrypting vault key')
   }
 
   const res = await pearpassVaultClient.activeVaultGetStatus()

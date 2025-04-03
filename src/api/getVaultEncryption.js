@@ -1,11 +1,13 @@
 import { listVaults } from './listVaults'
 
 /**
+ * Get the vault encryption data
+ * @param {string} vaultId
  * @returns {Promise<{
  *  salt: string
  *  ciphertext: string
  *  nonce: string
- *  decryptionKey?: string
+ *  hashedPassword?: string
  * }>}
  */
 export const getVaultEncryption = async (vaultId) => {
