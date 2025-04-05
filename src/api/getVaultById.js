@@ -15,6 +15,18 @@ export const getVaultById = async (vaultId, password) => {
     throw new Error('Vault not found')
   }
 
+  const res = await pearpassVaultClient.activeVaultGetStatus()
+
+  if (res.status) {
+    const currentVault = await pearpassVaultClient.activeVaultGet(`vault`)
+
+    if (currentVault && vaultId === currentVault.id) {
+      return currentVault
+    } else {
+      await pearpassVaultClient.activeVaultClose()
+    }
+  }
+
   let encryptionKey
 
   const { ciphertext, nonce, salt } = await getVaultEncryption(vaultId)
@@ -44,23 +56,9 @@ export const getVaultById = async (vaultId, password) => {
     throw new Error('Error decrypting vault key')
   }
 
-  const res = await pearpassVaultClient.activeVaultGetStatus()
+  await pearpassVaultClient.activeVaultInit({ id: vaultId, encryptionKey })
 
-  if (!res.status) {
-    await pearpassVaultClient.activeVaultInit({ id: vaultId, encryptionKey })
-  }
+  const newVault = await pearpassVaultClient.activeVaultGet(`vault`)
 
-  const currentVault = await pearpassVaultClient.activeVaultGet(`vault`)
-
-  if (currentVault && vaultId !== currentVault.id) {
-    await pearpassVaultClient.activeVaultClose()
-
-    await pearpassVaultClient.activeVaultInit({ id: vaultId, encryptionKey })
-
-    const newVault = await pearpassVaultClient.activeVaultGet(`vault`)
-
-    return newVault
-  }
-
-  return currentVault
+  return newVault
 }
