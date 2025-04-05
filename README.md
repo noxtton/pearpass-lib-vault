@@ -10,7 +10,6 @@ Without a proper client implementation, the vault operations cannot be performed
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage Examples](#usage-examples)
