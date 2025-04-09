@@ -14,8 +14,6 @@ export const initializeVaults = createAsyncThunk(
       password
     })
 
-    const vaults = await listVaults()
-
-    return vaults
+    return listVaults()
   }
 )
