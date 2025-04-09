@@ -16,5 +16,5 @@ export const checkVaultIsProtected = async (vaultId) => {
 
   const { ciphertext, nonce, hashedPassword, salt } = vault.encryption
 
-  return !!ciphertext && !!nonce && !!hashedPassword && !!salt
+  return !!(ciphertext && nonce && hashedPassword && salt)
 }
