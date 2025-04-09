@@ -1,14 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { createFolder } from './actions/createFolder'
-import { createRecord } from './actions/createRecord'
-import { createVault } from './actions/createVault'
-import { deleteRecord } from './actions/deleteRecord'
-import { getVaultById } from './actions/getVaultById'
-import { updateRecord } from './actions/updateRecord'
+import { createFolder } from '../actions/createFolder'
+import { createRecord } from '../actions/createRecord'
+import { createVault } from '../actions/createVault'
+import { deleteRecord } from '../actions/deleteRecord'
+import { getVaultById } from '../actions/getVaultById'
+import { pair } from '../actions/pair'
+import { resetState } from '../actions/resetState'
+import { updateRecord } from '../actions/updateRecord'
 
 const initialState = {
-  isLoading: true,
+  isLoading: false,
   isRecordLoading: false,
   isFolderLoading: false,
   data: null,
@@ -17,7 +19,7 @@ const initialState = {
 
 export const vaultSlice = createSlice({
   name: 'vault',
-  initialState,
+  initialState: initialState,
   extraReducers: (builder) => {
     builder
       .addCase(getVaultById.pending, (state) => {
@@ -28,6 +30,11 @@ export const vaultSlice = createSlice({
         state.data = action.payload
       })
       .addCase(getVaultById.rejected, (state, action) => {
+        console.error(
+          `Action getVaultById error:`,
+          JSON.stringify(action.error)
+        )
+
         state.isLoading = false
         state.error = action.error
       })
@@ -41,6 +48,8 @@ export const vaultSlice = createSlice({
         state.data = action.payload
       })
       .addCase(createVault.rejected, (state, action) => {
+        console.error(`Action createVault error:`, JSON.stringify(action.error))
+
         state.isLoading = false
         state.error = action.error
       })
@@ -54,6 +63,11 @@ export const vaultSlice = createSlice({
         state.data.records.push(action.payload)
       })
       .addCase(createRecord.rejected, (state, action) => {
+        console.error(
+          `Action createRecord error:`,
+          JSON.stringify(action.error)
+        )
+
         state.isRecordLoading = false
         state.error = action.error
       })
@@ -70,6 +84,11 @@ export const vaultSlice = createSlice({
           ) ?? []
       })
       .addCase(updateRecord.rejected, (state, action) => {
+        console.error(
+          `Action updateRecord error:`,
+          JSON.stringify(action.error)
+        )
+
         state.isRecordLoading = false
         state.error = action.error
       })
@@ -85,6 +104,11 @@ export const vaultSlice = createSlice({
         )
       })
       .addCase(deleteRecord.rejected, (state, action) => {
+        console.error(
+          `Action deleteRecord error:`,
+          JSON.stringify(action.error)
+        )
+
         state.isRecordLoading = false
         state.error = action.error
       })
@@ -98,9 +122,36 @@ export const vaultSlice = createSlice({
         state.data.records.push(action.payload)
       })
       .addCase(createFolder.rejected, (state, action) => {
+        console.error(
+          `Action createFolder error:`,
+          JSON.stringify(action.error)
+        )
+
         state.isFolderLoading = false
         state.error = action.error
       })
+
+    builder
+      .addCase(pair.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(pair.fulfilled, (state) => {
+        state.isLoading = false
+      })
+      .addCase(pair.rejected, (state, action) => {
+        console.error(`Action pair error:`, JSON.stringify(action.error))
+
+        state.isLoading = false
+        state.error = action.error
+      })
+
+    builder.addCase(resetState.fulfilled, (state) => {
+      state.data = initialState.data
+      state.error = initialState.error
+      state.isLoading = initialState.isLoading
+      state.isRecordLoading = initialState.isRecordLoading
+      state.isFolderLoading = initialState.isFolderLoading
+    })
   }
 })
 

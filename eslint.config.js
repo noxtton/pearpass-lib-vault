@@ -1,3 +1,16 @@
-import sharedConfig from 'pearpass-eslint-config'
+import { eslintConfig } from 'tether-dev-docs'
 
-export default [...sharedConfig]
+export default [
+  ...eslintConfig,
+  {
+    rules: {
+      'no-unused-vars': [
+        'error',
+        {
+          varsIgnorePattern: '^React$',
+          ignoreRestSiblings: true
+        }
+      ]
+    }
+  }
+]

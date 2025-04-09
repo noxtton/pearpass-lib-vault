@@ -1,6 +1,10 @@
-export const selectRecordById = (id) => (state) => {
-  return {
-    isLoading: state.vault.isRecordLoading,
-    data: state.vault.data?.records?.find((record) => record.id === id)
-  }
-}
+import { createSelector } from '@reduxjs/toolkit'
+
+export const selectRecordById = (id) =>
+  createSelector(
+    (state) => state.vault,
+    (vault) => ({
+      isLoading: vault.isRecordLoading,
+      data: vault.data?.records?.find((record) => record.id === id)
+    })
+  )

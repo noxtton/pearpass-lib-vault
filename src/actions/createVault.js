@@ -1,38 +1,44 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { Validator } from 'pearpass-lib-validator'
+import { Validator } from 'pear-apps-utils-validator'
 
+import { createProtectedVault } from '../api/createProtectedVault'
+import { createVault as createVaultApi } from '../api/createVault'
+import { VERSION } from '../constants/version'
 import { generateUniqueId } from '../utils/generateUniqueId'
 
 const schema = Validator.object({
   id: Validator.string().required(),
+  name: Validator.string().required(),
   version: Validator.number().required(),
   records: Validator.array().required(),
   createdAt: Validator.number().required(),
   updatedAt: Validator.number().required()
 })
 
-export const createVault = createAsyncThunk('vault/createVault', async () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const vault = {
-        id: generateUniqueId(),
-        version: 1,
-        records: [],
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      }
+export const createVault = createAsyncThunk(
+  'vault/createVault',
+  async ({ name, password }) => {
+    const vault = {
+      id: generateUniqueId(),
+      name: name,
+      version: VERSION.v1,
+      records: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    }
 
-      const errors = schema.validate(vault)
+    const errors = schema.validate(vault)
 
-      if (errors) {
-        reject({
-          message: `Invalid vault data: ${JSON.stringify(errors, null, 2)}`
-        })
+    if (errors) {
+      throw new Error(`Invalid vault data: ${JSON.stringify(errors, null, 2)}`)
+    }
 
-        return
-      }
+    if (password?.length) {
+      await createProtectedVault(vault, password)
+    } else {
+      await createVaultApi(vault)
+    }
 
-      resolve(vault)
-    }, 1500)
-  })
-})
+    return vault
+  }
+)

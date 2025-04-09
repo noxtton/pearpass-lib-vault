@@ -1,11 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { Provider } from 'react-redux'
 
-import vaultReducer from './slice'
+import inviteReducer from './slices/inviteSlice'
+import userReducer from './slices/userSlice'
+import vaultReducer from './slices/vaultSlice'
+import vaultsReducer from './slices/vaultsSlice'
 
 export const store = configureStore({
   reducer: {
-    vault: vaultReducer
+    user: userReducer,
+    vaults: vaultsReducer,
+    vault: vaultReducer,
+    invite: inviteReducer
   }
 })
 

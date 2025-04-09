@@ -1,0 +1,143 @@
+import { renderHook, act } from '@testing-library/react'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { useUserData } from './useUserData'
+import { checkPasswordCreated } from '../actions/checkPasswordCreated'
+import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
+import { init } from '../api/init'
+import { setLoading } from '../slices/userSlice'
+
+jest.mock('react-redux', () => ({
+  useDispatch: jest.fn(),
+  useSelector: jest.fn()
+}))
+
+jest.mock('../actions/checkPasswordCreated', () => ({
+  checkPasswordCreated: jest.fn()
+}))
+
+jest.mock('../api/createMasterPassword', () => ({
+  createMasterPassword: jest.fn()
+}))
+
+jest.mock('../api/init', () => ({
+  init: jest.fn()
+}))
+
+jest.mock('../slices/userSlice', () => ({
+  setLoading: jest.fn()
+}))
+
+describe('useUserData', () => {
+  const dispatchMock = jest.fn()
+  const mockUserData = {
+    isLoading: false,
+    isInitialized: false,
+    data: {
+      hasPasswordSet: false
+    }
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    useDispatch.mockReturnValue(dispatchMock)
+    useSelector.mockReturnValue(mockUserData)
+    checkPasswordCreated.mockReturnValue({
+      type: 'checkPasswordCreated',
+      payload: true
+    })
+    dispatchMock.mockResolvedValue({
+      payload: true
+    })
+  })
+
+  test('should return correct initial state', () => {
+    const { result } = renderHook(() => useUserData())
+
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.hasPasswordSet).toBe(false)
+    expect(typeof result.current.logIn).toBe('function')
+    expect(typeof result.current.createMasterPassword).toBe('function')
+  })
+
+  test('should check password state on mount', () => {
+    renderHook(() => useUserData())
+
+    expect(dispatchMock).toHaveBeenCalledWith(checkPasswordCreated())
+  })
+
+  test('should not check password state if shouldSkip is true', () => {
+    renderHook(() => useUserData({ shouldSkip: true }))
+
+    expect(dispatchMock).not.toHaveBeenCalled()
+  })
+
+  test('should not check password state if isInitialized is true', () => {
+    useSelector.mockReturnValue({
+      ...mockUserData,
+      isInitialized: true
+    })
+
+    renderHook(() => useUserData())
+
+    expect(dispatchMock).not.toHaveBeenCalled()
+  })
+
+  test('should call onCompleted with hasPasswordSet', async () => {
+    const onCompletedMock = jest.fn()
+
+    renderHook(() => useUserData({ onCompleted: onCompletedMock }))
+
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(onCompletedMock).toHaveBeenCalledWith({ hasPasswordSet: true })
+  })
+
+  test('logIn should call init and setLoading with password', async () => {
+    const { result } = renderHook(() => useUserData())
+
+    await act(async () => {
+      await result.current.logIn({ password: 'password123' })
+    })
+
+    expect(setLoading).toHaveBeenCalledWith(true)
+    expect(init).toHaveBeenCalledWith({ password: 'password123' })
+    expect(setLoading).toHaveBeenCalledWith(false)
+  })
+
+  test('createMasterPassword should call API and setLoading', async () => {
+    const { result } = renderHook(() => useUserData())
+
+    await act(async () => {
+      await result.current.createMasterPassword('password123')
+    })
+
+    expect(setLoading).toHaveBeenCalledWith(true)
+    expect(createMasterPasswordApi).toHaveBeenCalledWith('password123')
+    expect(setLoading).toHaveBeenCalledWith(false)
+  })
+
+  test('logIn should call init and setLoading with encryption fields', async () => {
+    const { result } = renderHook(() => useUserData())
+
+    await act(async () => {
+      await result.current.logIn({
+        ciphertext: 'ciphertext123',
+        nonce: 'nonce123',
+        salt: 'salt123',
+        hashedPassword: 'hashedPassword123'
+      })
+    })
+
+    expect(setLoading).toHaveBeenCalledWith(true)
+    expect(init).toHaveBeenCalledWith({
+      ciphertext: 'ciphertext123',
+      nonce: 'nonce123',
+      salt: 'salt123',
+      hashedPassword: 'hashedPassword123'
+    })
+    expect(setLoading).toHaveBeenCalledWith(false)
+  })
+})

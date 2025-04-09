@@ -9,7 +9,7 @@ import { selectVault } from '../selectors/selectVault'
  * }} options
  * @returns {{
  *  isLoading: boolean
- *  deleteRecord: (recordId: string) => void
+ *  deleteRecord: (recordId: string, vaultId: string) => Promise<void>
  *  }}
  */
 export const useDeleteRecord = ({ onCompleted } = {}) => {

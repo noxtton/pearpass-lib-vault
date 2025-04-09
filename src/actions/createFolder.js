@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { Validator } from 'pearpass-lib-validator'
+import { Validator } from 'pear-apps-utils-validator'
 
+import { createRecord as createRecordApi } from '../api/createRecord'
 import { generateUniqueId } from '../utils/generateUniqueId'
 
 export const recordSchema = Validator.object({
@@ -14,34 +15,24 @@ export const recordSchema = Validator.object({
 export const createFolder = createAsyncThunk(
   'vault/createFolder',
   async (folderName, { getState }) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        try {
-          const vaultId = getState().vault.data.id
+    const vaultId = getState().vault.data.id
 
-          const record = {
-            id: generateUniqueId(),
-            vaultId: vaultId,
-            folder: folderName,
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-          }
+    const record = {
+      id: generateUniqueId(),
+      vaultId: vaultId,
+      folder: folderName,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    }
 
-          const errors = recordSchema.validate(record)
+    const errors = recordSchema.validate(record)
 
-          if (errors) {
-            throw new Error(
-              `Invalid record data: ${JSON.stringify(errors, null, 2)}`
-            )
-          }
+    if (errors) {
+      throw new Error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
+    }
 
-          resolve(record)
-        } catch (error) {
-          console.error(error)
+    await createRecordApi(record)
 
-          reject(error)
-        }
-      }, 1500)
-    })
+    return record
   }
 )

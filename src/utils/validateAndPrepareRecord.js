@@ -1,10 +1,11 @@
-import { Validator } from 'pearpass-lib-validator'
+import { Validator } from 'pear-apps-utils-validator'
 
 import { validateAndPrepareCreditCardData } from './validateAndPrepareCreditCardData'
 import { validateAndPrepareCustomData } from './validateAndPrepareCustomData'
 import { validateAndPrepareIdentityData } from './validateAndPrepareIdentityData'
 import { validateAndPrepareLoginData } from './validateAndPrepareLoginData'
 import { validateAndPrepareNoteData } from './validateAndPrepareNoteData'
+import { VERSION } from '../constants/version'
 
 export const recordSchema = Validator.object({
   id: Validator.string().required(),
@@ -12,7 +13,6 @@ export const recordSchema = Validator.object({
   type: Validator.string().required(),
   vaultId: Validator.string().required(),
   folder: Validator.string(),
-  isPinned: Validator.boolean().required(),
   isFavorite: Validator.boolean().required(),
   createdAt: Validator.number().required(),
   updatedAt: Validator.number().required()
@@ -43,12 +43,11 @@ export const validateAndPrepareRecord = (record) => {
 
   const preparedRecord = {
     id: record.id,
-    version: 1,
+    version: VERSION.v1,
     type: record.type,
     vaultId: record.vaultId,
     data: recordData,
     folder: record.folder || null,
-    isPinned: record.isPinned,
     isFavorite: record.isFavorite,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt
@@ -57,6 +56,8 @@ export const validateAndPrepareRecord = (record) => {
   const errors = recordSchema.validate(preparedRecord)
 
   if (errors) {
+    console.error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
+
     throw new Error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
   }
 
