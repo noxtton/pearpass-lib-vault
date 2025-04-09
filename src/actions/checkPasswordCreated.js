@@ -9,6 +9,6 @@ export const checkPasswordCreated = createAsyncThunk(
 
     const { ciphertext, nonce, salt } = masterPasswordEncryption || {}
 
-    return !!ciphertext && !!nonce && !!salt
+    return !!(ciphertext && nonce && salt)
   }
 )
