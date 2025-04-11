@@ -1,8 +1,8 @@
-import { deleteRecord } from './deleteRecord'
-import { deleteRecord as deleteRecordApi } from '../api/deleteRecord'
+import { deleteRecords as deleteRecords } from './deleteRecords'
+import { deleteRecords as deleteRecordsApi } from '../api/deleteRecords'
 
-jest.mock('../api/deleteRecord', () => ({
-  deleteRecord: jest.fn()
+jest.mock('../api/deleteRecords', () => ({
+  deleteRecords: jest.fn()
 }))
 
 describe('deleteRecord', () => {
@@ -15,18 +15,18 @@ describe('deleteRecord', () => {
     jest.clearAllMocks()
     dispatch = jest.fn()
     getState = jest.fn()
-    deleteRecordApi.mockResolvedValue({})
+    deleteRecordsApi.mockResolvedValue({})
   })
 
   it('should call deleteRecordApi with correct recordId', async () => {
-    const thunk = deleteRecord(mockRecordId)
+    const thunk = deleteRecords(mockRecordId)
     await thunk(dispatch, getState)
 
-    expect(deleteRecordApi).toHaveBeenCalledWith(mockRecordId)
+    expect(deleteRecordsApi).toHaveBeenCalledWith(mockRecordId)
   })
 
   it('should return recordId as payload', async () => {
-    const thunk = deleteRecord(mockRecordId)
+    const thunk = deleteRecords(mockRecordId)
     const result = await thunk(dispatch, getState)
 
     expect(result.payload).toEqual(mockRecordId)
@@ -34,19 +34,19 @@ describe('deleteRecord', () => {
 
   it('should handle rejection when API call fails', async () => {
     const errorMessage = 'Failed to delete record'
-    deleteRecordApi.mockRejectedValue(new Error(errorMessage))
+    deleteRecordsApi.mockRejectedValue(new Error(errorMessage))
 
-    const thunk = deleteRecord(mockRecordId)
+    const thunk = deleteRecords(mockRecordId)
     const result = await thunk(dispatch, getState).catch((e) => e)
 
-    expect(result.type).toBe(deleteRecord.rejected.type)
+    expect(result.type).toBe(deleteRecords.rejected.type)
     expect(result.error.message).toContain(errorMessage)
   })
 
   it('should throw error when recordId is not provided', async () => {
-    const thunk = deleteRecord()
+    const thunk = deleteRecords()
     const result = await thunk(dispatch, getState).catch((e) => e)
 
-    expect(result.type).toBe(deleteRecord.rejected.type)
+    expect(result.type).toBe(deleteRecords.rejected.type)
   })
 })

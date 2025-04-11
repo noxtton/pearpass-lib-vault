@@ -1,26 +1,14 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { createRecord as createRecordApi } from '../api/createRecord'
-import { generateUniqueId } from '../utils/generateUniqueId'
-import { validateAndPrepareRecord } from '../utils/validateAndPrepareRecord'
+import { createRecordsFactory } from '../utils/createRecordsFactory'
 
 export const createRecord = createAsyncThunk(
   'vault/createRecord',
   async (payload, { getState }) => {
     const vaultId = getState().vault.data.id
 
-    const record = {
-      id: generateUniqueId(),
-      type: payload.type,
-      vaultId: vaultId,
-      data: payload.data,
-      folder: payload.folder || null,
-      isFavorite: !!payload.isFavorite,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    }
-
-    const newRecord = validateAndPrepareRecord(record)
+    const newRecord = createRecordsFactory(payload, vaultId)
 
     await createRecordApi(newRecord)
 

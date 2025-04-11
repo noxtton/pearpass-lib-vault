@@ -3,11 +3,13 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createFolder } from '../actions/createFolder'
 import { createRecord } from '../actions/createRecord'
 import { createVault } from '../actions/createVault'
-import { deleteRecord } from '../actions/deleteRecord'
+import { deleteFolder } from '../actions/deleteFolder'
+import { deleteRecords } from '../actions/deleteRecords'
 import { getVaultById } from '../actions/getVaultById'
 import { pair } from '../actions/pair'
+import { renameFolder } from '../actions/renameFolder'
 import { resetState } from '../actions/resetState'
-import { updateRecord } from '../actions/updateRecord'
+import { updateRecords } from '../actions/updateRecords'
 
 const initialState = {
   isLoading: false,
@@ -73,17 +75,22 @@ export const vaultSlice = createSlice({
       })
 
     builder
-      .addCase(updateRecord.pending, (state) => {
+      .addCase(updateRecords.pending, (state) => {
         state.isRecordLoading = true
       })
-      .addCase(updateRecord.fulfilled, (state, action) => {
+      .addCase(updateRecords.fulfilled, (state, action) => {
+        const recordIdsMap = action?.payload?.reduce((acc, record) => {
+          acc[record.id] = record
+          return acc
+        }, {})
+
         state.isRecordLoading = false
         state.data.records =
-          state.data?.records?.map((record) =>
-            record.id === action.payload.id ? action.payload : record
+          state.data?.records?.map(
+            (record) => recordIdsMap[record.id] ?? record
           ) ?? []
       })
-      .addCase(updateRecord.rejected, (state, action) => {
+      .addCase(updateRecords.rejected, (state, action) => {
         console.error(
           `Action updateRecord error:`,
           JSON.stringify(action.error)
@@ -94,16 +101,21 @@ export const vaultSlice = createSlice({
       })
 
     builder
-      .addCase(deleteRecord.pending, (state) => {
+      .addCase(deleteRecords.pending, (state) => {
         state.isRecordLoading = true
       })
-      .addCase(deleteRecord.fulfilled, (state, action) => {
+      .addCase(deleteRecords.fulfilled, (state, action) => {
+        const deleteRecordIdsMap = action.payload.reduce((acc, recordId) => {
+          acc[recordId] = true
+          return acc
+        }, {})
+
         state.isRecordLoading = false
         state.data.records = state.data.records.filter(
-          (record) => record.id !== action.payload
+          (record) => !deleteRecordIdsMap[record.id]
         )
       })
-      .addCase(deleteRecord.rejected, (state, action) => {
+      .addCase(deleteRecords.rejected, (state, action) => {
         console.error(
           `Action deleteRecord error:`,
           JSON.stringify(action.error)
@@ -122,6 +134,45 @@ export const vaultSlice = createSlice({
         state.data.records.push(action.payload)
       })
       .addCase(createFolder.rejected, (state, action) => {
+        console.error(
+          `Action createFolder error:`,
+          JSON.stringify(action.error)
+        )
+
+        state.isFolderLoading = false
+        state.error = action.error
+      })
+
+    builder
+      .addCase(renameFolder.pending, (state) => {
+        state.isFolderLoading = true
+      })
+      .addCase(renameFolder.fulfilled, (state, action) => {
+        const records = action.payload
+
+        state.isFolderLoading = false
+        state.data.records = records ?? []
+      })
+      .addCase(renameFolder.rejected, (state, action) => {
+        console.error(
+          `Action createFolder error:`,
+          JSON.stringify(action.error)
+        )
+
+        state.isFolderLoading = false
+        state.error = action.error
+      })
+    builder
+      .addCase(deleteFolder.pending, (state) => {
+        state.isFolderLoading = true
+      })
+      .addCase(deleteFolder.fulfilled, (state, action) => {
+        const records = action.payload
+
+        state.isFolderLoading = false
+        state.data.records = records ?? []
+      })
+      .addCase(deleteFolder.rejected, (state, action) => {
         console.error(
           `Action createFolder error:`,
           JSON.stringify(action.error)

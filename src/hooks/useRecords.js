@@ -1,8 +1,14 @@
 import { useEffect } from 'react'
 
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
+import { deleteRecords as deleteRecordsAction } from '../actions/deleteRecords'
 import { getVaultById } from '../actions/getVaultById'
+import {
+  updateFavoriteState as updateFavoriteStateAction,
+  updateFolder as updateFolderAction,
+  updateRecords as updateRecordsAction
+} from '../actions/updateRecords'
 import { selectRecords } from '../selectors/selectRecords'
 import { selectVault } from '../selectors/selectVault'
 
@@ -26,6 +32,10 @@ import { selectVault } from '../selectors/selectVault'
  * }} options
  * @returns {{
  *    isLoading: boolean
+ *    deleteRecords: (recordIds: Array<string>) => Promise<void>
+ *    updateRecords: (records: Array<any>) => void
+ *    updateFolder: (recordIds: Array<string>, folder: string) => void
+ *    updateFavoriteState: (recordIds: Array<string>, isFavorite: boolean) => void
  *    data: any
  *   refetch: (vaultId: string) => void
  * }}
@@ -61,6 +71,42 @@ export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
     fetchVault(vaultId || providedVaultId)
   }
 
+  const updateRecords = async (records) => {
+    const { error, payload } = await dispatch(updateRecordsAction(records))
+
+    if (!error) {
+      onCompleted?.(payload)
+    }
+  }
+
+  const updateFolder = async (recordIds, folder) => {
+    const { error, payload } = await dispatch(
+      updateFolderAction(recordIds, folder)
+    )
+
+    if (!error) {
+      onCompleted?.(payload)
+    }
+  }
+
+  const updateFavoriteState = async (recordIds, isFavorite) => {
+    const { error, payload } = await dispatch(
+      updateFavoriteStateAction(recordIds, isFavorite)
+    )
+
+    if (!error) {
+      onCompleted?.(payload)
+    }
+  }
+
+  const deleteRecords = async (recordIds) => {
+    const { error, payload } = await dispatch(deleteRecordsAction(recordIds))
+
+    if (!error) {
+      onCompleted?.(payload)
+    }
+  }
+
   useEffect(() => {
     if (data || shouldSkip) {
       return
@@ -69,5 +115,13 @@ export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
     fetchVault(providedVaultId)
   }, [data, providedVaultId])
 
-  return { isLoading, data, refetch }
+  return {
+    isLoading,
+    data,
+    refetch,
+    updateRecords,
+    updateFolder,
+    updateFavoriteState,
+    deleteRecords
+  }
 }

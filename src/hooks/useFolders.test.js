@@ -5,11 +5,17 @@ import { useFolders } from './useFolders'
 import { selectFolders } from '../selectors/selectFolders'
 
 jest.mock('react-redux', () => ({
+  useDispatch: jest.fn(),
   useSelector: jest.fn()
 }))
 
 jest.mock('../selectors/selectFolders', () => ({
   selectFolders: jest.fn()
+}))
+
+jest.mock('../actions/updateRecords', () => ({
+  updateRecords: jest.fn(),
+  updateFolder: jest.fn()
 }))
 
 describe('useFolders', () => {
@@ -39,7 +45,12 @@ describe('useFolders', () => {
 
     const { result } = renderHook(() => useFolders())
 
-    expect(result.current).toEqual({ isLoading: false, data: mockData })
+    expect(result.current).toEqual({
+      isLoading: false,
+      data: mockData,
+      renameFolder: expect.any(Function),
+      deleteFolder: expect.any(Function)
+    })
   })
 
   it('should handle undefined variables', () => {

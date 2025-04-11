@@ -1,4 +1,4 @@
-import { deleteRecord } from './deleteRecord'
+import { deleteRecords } from './deleteRecords'
 import { pearpassVaultClient } from '../instances'
 
 describe('deleteRecord', () => {
@@ -7,9 +7,9 @@ describe('deleteRecord', () => {
   })
 
   it('should call activeVaultRemove with the correct path', async () => {
-    const recordId = 'record-123'
+    const recordIds = ['record-123']
 
-    await deleteRecord(recordId)
+    await deleteRecords(recordIds)
 
     expect(pearpassVaultClient.activeVaultRemove).toHaveBeenCalledTimes(1)
     expect(pearpassVaultClient.activeVaultRemove).toHaveBeenCalledWith(
@@ -18,14 +18,14 @@ describe('deleteRecord', () => {
   })
 
   it('should throw an error if activeVaultRemove fails', async () => {
-    const recordId = 'record-456'
+    const recordIds = ['record-456']
     const error = new Error('Failed to delete record')
     pearpassVaultClient.activeVaultRemove.mockRejectedValueOnce(error)
 
-    await expect(deleteRecord(recordId)).rejects.toThrow(error)
+    await expect(deleteRecords(recordIds)).rejects.toThrow(error)
   })
 
-  it('should throw an error if recordId is not provided', async () => {
-    await expect(deleteRecord()).rejects.toThrow('Record ID is required')
+  it('should throw an error if recordIds is not provided', async () => {
+    await expect(deleteRecords()).rejects.toThrow('Record ID is required')
   })
 })

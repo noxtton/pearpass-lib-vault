@@ -1,4 +1,5 @@
-import { createFolder } from './createFolder'
+import { recordSchema } from './createFolderFactory'
+import { createFolder } from '../actions/createFolder'
 import { createRecord } from '../api/createRecord'
 import { generateUniqueId } from '../utils/generateUniqueId'
 
@@ -62,6 +63,24 @@ describe('createFolder', () => {
       createdAt: mockDate,
       updatedAt: mockDate
     })
+  })
+
+  it('should throw an error if record validation fails', async () => {
+    const originalValidate = recordSchema.validate
+    recordSchema.validate = jest
+      .fn()
+      .mockReturnValue({ error: 'Validation error' })
+
+    const thunk = createFolder(mockFolderName)
+
+    const result = await thunk(dispatch, getState)
+
+    expect(result.type).toBe(createFolder.rejected.type)
+    expect(result.error.message).toContain('Invalid record data')
+
+    expect(createRecord).not.toHaveBeenCalled()
+
+    recordSchema.validate = originalValidate
   })
 
   it('should generate a unique ID for the folder', async () => {
