@@ -17,7 +17,7 @@ export const getVaultById = async (vaultId, password) => {
 
   const res = await pearpassVaultClient.activeVaultGetStatus()
 
-  if (res.status) {
+  if (res?.status) {
     const currentVault = await pearpassVaultClient.activeVaultGet(`vault`)
 
     if (currentVault && vaultId === currentVault.id) {

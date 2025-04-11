@@ -2,13 +2,14 @@ import { generateUniqueId } from './generateUniqueId'
 import { validateAndPrepareRecord } from './validateAndPrepareRecord'
 
 /**
- * @property {{
+ * @param {{
  *  type: string,
  *  data: object,
  *  folder: string,
  *  isFavorite: boolean
  * }} payload
- * @property {string} vaultId
+ * @param {string} vaultId
+ * @returns {Object}
  */
 export const createRecordFactory = (payload, vaultId) => {
   if (!payload || !vaultId) {
