@@ -26,6 +26,6 @@ describe('deleteRecord', () => {
   })
 
   it('should throw an error if recordIds is not provided', async () => {
-    await expect(deleteRecords()).rejects.toThrow('Record ID is required')
+    await expect(deleteRecords()).rejects.toThrow('Record IDs is required')
   })
 })

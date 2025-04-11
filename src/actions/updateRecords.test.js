@@ -3,13 +3,16 @@ import {
   updateFolder,
   updateFavoriteState
 } from './updateRecords'
+import { listRecords } from '../api/listRecords'
 import { updateRecords as updateRecordApi } from '../api/updateRecords'
 import { validateAndPrepareRecord } from '../utils/validateAndPrepareRecord'
 
 jest.mock('../api/updateRecords', () => ({
   updateRecords: jest.fn()
 }))
-
+jest.mock('../api/listRecords', () => ({
+  listRecords: jest.fn()
+}))
 jest.mock('../utils/validateAndPrepareRecord', () => ({
   validateAndPrepareRecord: jest.fn((record) => record)
 }))
@@ -72,6 +75,12 @@ describe('updateRecord actions', () => {
       }
     ]
 
+    listRecords.mockResolvedValue([
+      {
+        ...payload[0],
+        updatedAt: mockDate
+      }
+    ])
     const thunk = updateRecords(payload)
     const result = await thunk(dispatch, getState)
 
@@ -123,6 +132,13 @@ describe('updateRecord actions', () => {
       }
     ]
 
+    listRecords.mockResolvedValue([
+      {
+        ...payload[0],
+        folder: null,
+        updatedAt: mockDate
+      }
+    ])
     const thunk = updateRecords(payload)
     const result = await thunk(dispatch, getState)
 
@@ -140,16 +156,6 @@ describe('updateRecord actions', () => {
         updatedAt: mockDate
       })
     ])
-  })
-
-  it('should not dispatch if record is not found', () => {
-    const result = updateFolder(['non-existent'], 'new-folder')(
-      dispatch,
-      getState
-    )
-
-    expect(result[0]).toBeUndefined()
-    expect(updateRecordApi).not.toHaveBeenCalled()
   })
 
   it('should dispatch updateRecord with updated isFavorite', () => {

@@ -10,7 +10,21 @@ export const recordSchema = Validator.object({
   updatedAt: Validator.number().required()
 })
 
+/**
+ * Creates a folder record
+ * @param {string} folderName
+ * @param {string} vaultId
+ * @returns {object}
+ */
 export const createFolderFactory = (folderName, vaultId) => {
+  if (!folderName) {
+    throw new Error('Folder name is required')
+  }
+
+  if (!vaultId) {
+    throw new Error('Vault ID is required')
+  }
+
   const record = {
     id: generateUniqueId(),
     vaultId: vaultId,

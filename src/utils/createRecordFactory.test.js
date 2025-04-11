@@ -1,16 +1,16 @@
-import { createRecordsFactory } from './createRecordsFactory'
+import { createRecordFactory } from './createRecordFactory'
 import { generateUniqueId } from './generateUniqueId'
 import { validateAndPrepareRecord } from './validateAndPrepareRecord'
 
-// Mock the dependencies
 jest.mock('./generateUniqueId', () => ({
   generateUniqueId: jest.fn()
 }))
+
 jest.mock('./validateAndPrepareRecord', () => ({
   validateAndPrepareRecord: jest.fn()
 }))
 
-describe('createRecordsFactory', () => {
+describe('createRecordFactory', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -25,11 +25,10 @@ describe('createRecordsFactory', () => {
     }
     const vaultId = 'vault-456'
 
-    // Stub generateUniqueId and validateAndPrepareRecord
     generateUniqueId.mockReturnValue(mockId)
     validateAndPrepareRecord.mockImplementation((record) => record)
 
-    const result = createRecordsFactory(payload, vaultId)
+    const result = createRecordFactory(payload, vaultId)
 
     expect(generateUniqueId).toHaveBeenCalled()
     expect(validateAndPrepareRecord).toHaveBeenCalledWith(
@@ -43,7 +42,6 @@ describe('createRecordsFactory', () => {
       })
     )
 
-    // Check some fields more specifically
     expect(result.id).toBe(mockId)
     expect(result.vaultId).toBe(vaultId)
     expect(result.createdAt).toBeGreaterThan(0)
@@ -61,7 +59,7 @@ describe('createRecordsFactory', () => {
     generateUniqueId.mockReturnValue(mockId)
     validateAndPrepareRecord.mockImplementation((record) => record)
 
-    const result = createRecordsFactory(payload, vaultId)
+    const result = createRecordFactory(payload, vaultId)
 
     expect(result.folder).toBeNull()
     expect(result.isFavorite).toBe(false)

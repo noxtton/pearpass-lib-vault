@@ -77,18 +77,11 @@ export const vaultSlice = createSlice({
     builder
       .addCase(updateRecords.pending, (state) => {
         state.isRecordLoading = true
+        state.error = null
       })
       .addCase(updateRecords.fulfilled, (state, action) => {
-        const recordIdsMap = action?.payload?.reduce((acc, record) => {
-          acc[record.id] = record
-          return acc
-        }, {})
-
         state.isRecordLoading = false
-        state.data.records =
-          state.data?.records?.map(
-            (record) => recordIdsMap[record.id] ?? record
-          ) ?? []
+        state.data.records = action?.payload ?? []
       })
       .addCase(updateRecords.rejected, (state, action) => {
         console.error(
@@ -103,17 +96,11 @@ export const vaultSlice = createSlice({
     builder
       .addCase(deleteRecords.pending, (state) => {
         state.isRecordLoading = true
+        state.error = null
       })
       .addCase(deleteRecords.fulfilled, (state, action) => {
-        const deleteRecordIdsMap = action.payload.reduce((acc, recordId) => {
-          acc[recordId] = true
-          return acc
-        }, {})
-
         state.isRecordLoading = false
-        state.data.records = state.data.records.filter(
-          (record) => !deleteRecordIdsMap[record.id]
-        )
+        state.data.records = action?.payload ?? []
       })
       .addCase(deleteRecords.rejected, (state, action) => {
         console.error(
@@ -148,10 +135,8 @@ export const vaultSlice = createSlice({
         state.isFolderLoading = true
       })
       .addCase(renameFolder.fulfilled, (state, action) => {
-        const records = action.payload
-
         state.isFolderLoading = false
-        state.data.records = records ?? []
+        state.data.records = action?.payload ?? []
       })
       .addCase(renameFolder.rejected, (state, action) => {
         console.error(
@@ -167,10 +152,8 @@ export const vaultSlice = createSlice({
         state.isFolderLoading = true
       })
       .addCase(deleteFolder.fulfilled, (state, action) => {
-        const records = action.payload
-
         state.isFolderLoading = false
-        state.data.records = records ?? []
+        state.data.records = action?.payload ?? []
       })
       .addCase(deleteFolder.rejected, (state, action) => {
         console.error(

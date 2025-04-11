@@ -95,7 +95,7 @@ describe('vaultSlice reducer', () => {
     })
   })
 
-  describe('updateRecord actions', () => {
+  describe('updateRecords actions', () => {
     it('should handle pending state', () => {
       const action = { type: updateRecords.pending.type }
       const state = vaultReducer(initialState, action)
@@ -134,7 +134,7 @@ describe('vaultSlice reducer', () => {
     })
   })
 
-  describe('deleteRecord actions', () => {
+  describe('deleteRecords actions', () => {
     it('should handle pending state', () => {
       const action = { type: deleteRecords.pending.type }
       const state = vaultReducer(initialState, action)
@@ -151,7 +151,10 @@ describe('vaultSlice reducer', () => {
           ]
         }
       }
-      const action = { type: deleteRecords.fulfilled.type, payload: [1] }
+      const action = {
+        type: deleteRecords.fulfilled.type,
+        payload: [{ id: 2, title: 'Record 2' }]
+      }
       const state = vaultReducer(existingState, action)
       expect(state.isRecordLoading).toBe(false)
       expect(state.data.records.length).toBe(1)

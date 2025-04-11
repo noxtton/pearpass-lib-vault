@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { deleteRecords as deleteRecordsApi } from '../api/deleteRecords'
+import { listRecords } from '../api/listRecords'
 
 export const deleteRecords = createAsyncThunk(
   'vault/deleteRecords',
@@ -11,6 +12,6 @@ export const deleteRecords = createAsyncThunk(
 
     await deleteRecordsApi(recordIds)
 
-    return recordIds
+    return listRecords()
   }
 )

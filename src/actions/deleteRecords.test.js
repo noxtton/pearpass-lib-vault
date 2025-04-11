@@ -1,8 +1,12 @@
-import { deleteRecords as deleteRecords } from './deleteRecords'
+import { deleteRecords } from './deleteRecords'
 import { deleteRecords as deleteRecordsApi } from '../api/deleteRecords'
+import { listRecords } from '../api/listRecords'
 
 jest.mock('../api/deleteRecords', () => ({
   deleteRecords: jest.fn()
+}))
+jest.mock('../api/listRecords', () => ({
+  listRecords: jest.fn()
 }))
 
 describe('deleteRecord', () => {
@@ -18,18 +22,19 @@ describe('deleteRecord', () => {
     deleteRecordsApi.mockResolvedValue({})
   })
 
-  it('should call deleteRecordApi with correct recordId', async () => {
+  it('should call deleteRecordApi with correct recordIds', async () => {
     const thunk = deleteRecords(mockRecordId)
     await thunk(dispatch, getState)
 
     expect(deleteRecordsApi).toHaveBeenCalledWith(mockRecordId)
   })
 
-  it('should return recordId as payload', async () => {
+  it('should return recordIds as payload', async () => {
     const thunk = deleteRecords(mockRecordId)
+    listRecords.mockResolvedValue([])
     const result = await thunk(dispatch, getState)
 
-    expect(result.payload).toEqual(mockRecordId)
+    expect(result.payload).toEqual([])
   })
 
   it('should handle rejection when API call fails', async () => {
@@ -43,7 +48,7 @@ describe('deleteRecord', () => {
     expect(result.error.message).toContain(errorMessage)
   })
 
-  it('should throw error when recordId is not provided', async () => {
+  it('should throw error when recordIds is not provided', async () => {
     const thunk = deleteRecords()
     const result = await thunk(dispatch, getState).catch((e) => e)
 

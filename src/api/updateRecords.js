@@ -1,7 +1,7 @@
 import { pearpassVaultClient } from '../instances'
 
 /**
- * @param {Array<any>}records
+ * @param {Array<Object>}records
  * @returns {Promise<void>}
  */
 export const updateRecords = async (records) => {
@@ -9,9 +9,9 @@ export const updateRecords = async (records) => {
     throw new Error('Record is required')
   }
 
-  const promises = records.map((record) =>
-    pearpassVaultClient.activeVaultAdd(`record/${record.id}`, record)
+  await Promise.all(
+    records.map((record) =>
+      pearpassVaultClient.activeVaultAdd(`record/${record.id}`, record)
+    )
   )
-
-  await Promise.all(promises)
 }

@@ -1,14 +1,14 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { createRecord as createRecordApi } from '../api/createRecord'
-import { createRecordsFactory } from '../utils/createRecordsFactory'
+import { createRecordFactory } from '../utils/createRecordFactory'
 
 export const createRecord = createAsyncThunk(
   'vault/createRecord',
   async (payload, { getState }) => {
     const vaultId = getState().vault.data.id
 
-    const newRecord = createRecordsFactory(payload, vaultId)
+    const newRecord = createRecordFactory(payload, vaultId)
 
     await createRecordApi(newRecord)
 

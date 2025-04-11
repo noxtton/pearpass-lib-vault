@@ -13,8 +13,8 @@ import { selectFolders } from '../selectors/selectFolders'
  * @returns {{
  *  isLoading: boolean
  *  data: any[]
- *  renameFolder: (name : string, newName: string) => void
- *  deleteFolder: (name: string) => void
+ *  renameFolder: (name : string, newName: string) => Promise<void>
+ *  deleteFolder: (name: string) => Promise<void>
  *  }}
  */
 export const useFolders = ({ variables } = {}) => {

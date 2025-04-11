@@ -33,11 +33,11 @@ import { selectVault } from '../selectors/selectVault'
  * @returns {{
  *    isLoading: boolean
  *    deleteRecords: (recordIds: Array<string>) => Promise<void>
- *    updateRecords: (records: Array<any>) => void
- *    updateFolder: (recordIds: Array<string>, folder: string) => void
- *    updateFavoriteState: (recordIds: Array<string>, isFavorite: boolean) => void
- *    data: any
- *   refetch: (vaultId: string) => void
+ *    updateRecords: (records: Array<Object>) => Promise<void>
+ *    updateFolder: (recordIds: Array<string>, folder: string) => Promise<void>
+ *    updateFavoriteState: (recordIds: Array<string>, isFavorite: boolean) => Promise<void>
+ *    data: Object
+ *   refetch: (vaultId: string) => Promise<void>
  * }}
  */
 export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {

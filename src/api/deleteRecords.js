@@ -6,12 +6,12 @@ import { pearpassVaultClient } from '../instances'
  */
 export const deleteRecords = async (recordIds) => {
   if (!recordIds?.length) {
-    throw new Error('Record ID is required')
+    throw new Error('Record IDs is required')
   }
 
-  const promises = recordIds.map((recordId) =>
-    pearpassVaultClient.activeVaultRemove(`record/${recordId}`)
+  await Promise.all(
+    recordIds.map((recordId) =>
+      pearpassVaultClient.activeVaultRemove(`record/${recordId}`)
+    )
   )
-
-  await Promise.all(promises)
 }

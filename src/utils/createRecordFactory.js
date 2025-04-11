@@ -1,7 +1,20 @@
 import { generateUniqueId } from './generateUniqueId'
 import { validateAndPrepareRecord } from './validateAndPrepareRecord'
 
-export const createRecordsFactory = (payload, vaultId) => {
+/**
+ * @property {{
+ *  type: string,
+ *  data: object,
+ *  folder: string,
+ *  isFavorite: boolean
+ * }} payload
+ * @property {string} vaultId
+ */
+export const createRecordFactory = (payload, vaultId) => {
+  if (!payload || !vaultId) {
+    throw new Error('Payload and vaultId are required')
+  }
+
   const record = {
     id: generateUniqueId(),
     type: payload.type,
@@ -13,6 +26,5 @@ export const createRecordsFactory = (payload, vaultId) => {
     updatedAt: Date.now()
   }
 
-  const newRecord = validateAndPrepareRecord(record)
-  return newRecord
+  return validateAndPrepareRecord(record)
 }

@@ -7,15 +7,13 @@ export const deleteFolder = createAsyncThunk(
   'vault/deleteFolder',
   async (selectedFolder) => {
     if (!selectedFolder) {
-      return
+      throw new Error('Selected folder is required')
     }
 
     const recordIdsToDelete = selectedFolder.records.map((record) => record.id)
 
     await deleteRecordsAction(recordIdsToDelete)
 
-    const newRecords = listRecords()
-
-    return newRecords
+    return listRecords()
   }
 )

@@ -1,17 +1,18 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
+import { listRecords } from '../api/listRecords'
 import { updateRecords as updateRecordsApi } from '../api/updateRecords'
 import { updateFolderFactory } from '../utils/updateFolderFactory'
 import { updateRecordsFactory } from '../utils/updateRecordsFactory'
 
 export const updateRecords = createAsyncThunk(
-  'vault/updateRecord',
+  'vault/updateRecords',
   async (recordsPayload) => {
     const newRecords = updateRecordsFactory(recordsPayload)
 
     await updateRecordsApi(newRecords)
 
-    return newRecords
+    return listRecords()
   }
 )
 

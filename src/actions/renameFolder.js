@@ -13,11 +13,11 @@ export const renameFolder = createAsyncThunk(
     const { vault } = getState()
 
     if (!selectedFolder) {
-      return
+      throw new Error('Selected folder is required')
     }
 
     if (selectedFolder.name === newName) {
-      return
+      throw new Error('New name must be different from the old name')
     }
 
     const record = createFolderFactory(newName, vault.data.id)
@@ -48,8 +48,6 @@ export const renameFolder = createAsyncThunk(
 
     await deleteRecordsApi(recordIds.toDelete)
 
-    const newRecords = listRecords()
-
-    return newRecords
+    return listRecords()
   }
 )
