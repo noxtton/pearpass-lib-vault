@@ -4,23 +4,28 @@ import { createRecord as createRecordApi } from '../api/createRecord'
 import { deleteRecords as deleteRecordsApi } from '../api/deleteRecords'
 import { listRecords } from '../api/listRecords'
 import { updateRecords as updateRecordsApi } from '../api/updateRecords'
+import { selectFolders } from '../selectors/selectFolders'
 import { createFolderFactory } from '../utils/createFolderFactory'
 import { updateFolderFactory } from '../utils/updateFolderFactory'
 
 export const renameFolder = createAsyncThunk(
   'vault/renameFolder',
-  async ({ selectedFolder, newName }, { getState }) => {
-    const { vault } = getState()
+  async ({ name, newName }, { getState }) => {
+    const state = getState()
 
-    if (!selectedFolder) {
+    if (!name) {
       throw new Error('Selected folder is required')
     }
 
-    if (selectedFolder.name === newName) {
+    if (name.name === newName) {
       throw new Error('New name must be different from the old name')
     }
 
-    const record = createFolderFactory(newName, vault.data.id)
+    const { data } = selectFolders()(state)
+
+    const selectedFolder = data.customFolders[name]
+
+    const record = createFolderFactory(newName, state.vault.data.id)
 
     await createRecordApi(record)
 
@@ -40,7 +45,7 @@ export const renameFolder = createAsyncThunk(
     )
 
     const records =
-      updateFolderFactory(recordIds.toRename, newName, vault) || []
+      updateFolderFactory(recordIds.toRename, newName, state.vault) || []
 
     if (records.length) {
       await updateRecordsApi(records)

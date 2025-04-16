@@ -27,15 +27,11 @@ export const useFolders = ({ variables } = {}) => {
   )
 
   const renameFolder = async (name, newName) => {
-    const selectedFolder = data.customFolders[name]
-
-    await dispatch(renameFolderAction({ selectedFolder, newName }))
+    await dispatch(renameFolderAction({ name, newName }))
   }
 
   const deleteFolder = async (name) => {
-    const selectedFolder = data.customFolders[name]
-
-    await dispatch(deleteFolderAction(selectedFolder))
+    await dispatch(deleteFolderAction(name))
   }
 
   return { isLoading, data, renameFolder, deleteFolder }
