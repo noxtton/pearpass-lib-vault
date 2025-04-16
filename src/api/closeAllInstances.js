@@ -5,6 +5,4 @@ import { pearpassVaultClient } from '../instances'
  */
 export const closeAllInstances = async () => {
   await pearpassVaultClient.close()
-
-  return true
 }
