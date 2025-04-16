@@ -3,6 +3,7 @@ import { createRecord as createRecordApi } from '../api/createRecord'
 import { deleteRecords as deleteRecordsApi } from '../api/deleteRecords'
 import { listRecords } from '../api/listRecords'
 import { updateRecords as updateRecordsApi } from '../api/updateRecords'
+import { selectFolders } from '../selectors/selectFolders'
 import { createFolderFactory } from '../utils/createFolderFactory'
 import { updateFolderFactory } from '../utils/updateFolderFactory'
 
@@ -23,6 +24,9 @@ jest.mock('../utils/createFolderFactory', () => ({
 }))
 jest.mock('../utils/updateFolderFactory', () => ({
   updateFolderFactory: jest.fn()
+}))
+jest.mock('../selectors/selectFolders', () => ({
+  selectFolders: jest.fn()
 }))
 
 describe('renameFolder thunk', () => {
@@ -65,17 +69,25 @@ describe('renameFolder thunk', () => {
   })
 
   it('should create a new folder record, update and delete records, then return updated list', async () => {
-    const selectedFolder = {
-      name: 'OldName',
-      records: [
-        { id: 'rec-1', data: { some: 'data' } },
-        { id: 'rec-2', data: null }
-      ]
-    }
-
+    const name = 'oldName'
     const newName = 'Renamed'
+    const oldRecords = [
+      { id: 'rec-1', folder: name, data: {} },
+      { id: 'rec-2', folder: name }
+    ]
     const updatedRecords = [{ id: 'rec-1', folder: newName }]
     const refreshedRecords = [{ id: 'rec-1', folder: newName }]
+
+    selectFolders.mockReturnValue(() => ({
+      data: {
+        customFolders: {
+          [name]: {
+            name: name,
+            records: oldRecords
+          }
+        }
+      }
+    }))
 
     createFolderFactory.mockReturnValue(mockNewRecord)
     createRecordApi.mockResolvedValue({})
@@ -84,7 +96,7 @@ describe('renameFolder thunk', () => {
     deleteRecordsApi.mockResolvedValue({})
     listRecords.mockReturnValue(refreshedRecords)
 
-    const thunk = renameFolder({ selectedFolder, newName })
+    const thunk = renameFolder({ name, newName })
     const result = await thunk(dispatch, getState)
 
     expect(createFolderFactory).toHaveBeenCalledWith(newName, vaultId)
@@ -101,16 +113,13 @@ describe('renameFolder thunk', () => {
   })
 
   it('should handle failure and reject the thunk', async () => {
-    const selectedFolder = {
-      name: 'OldName',
-      records: []
-    }
-
+    const name = 'oldName'
+    const newName = 'Renamed'
     const errorMessage = 'Something went wrong'
     createFolderFactory.mockReturnValue(mockNewRecord)
     createRecordApi.mockRejectedValue(new Error(errorMessage))
 
-    const thunk = renameFolder({ selectedFolder, newName: 'Renamed' })
+    const thunk = renameFolder({ name, newName })
     const result = await thunk(dispatch, getState).catch((e) => e)
 
     expect(result.type).toBe(renameFolder.rejected.type)

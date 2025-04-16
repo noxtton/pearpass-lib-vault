@@ -1,21 +1,20 @@
 import { deleteFolder } from './deleteFolder'
 import { deleteRecords as deleteRecordsApi } from '../api/deleteRecords'
 import { listRecords } from '../api/listRecords'
+import { selectFolders } from '../selectors/selectFolders'
 
 jest.mock('../api/deleteRecords', () => ({
   deleteRecords: jest.fn()
 }))
-
 jest.mock('../api/listRecords', () => ({
   listRecords: jest.fn()
 }))
+jest.mock('../selectors/selectFolders', () => ({
+  selectFolders: jest.fn()
+}))
 
 describe('deleteFolder', () => {
-  const mockFolder = {
-    id: 'folder-1',
-    name: 'Test Folder',
-    records: [{ id: 'rec-1' }, { id: 'rec-2' }]
-  }
+  const mockFolderName = 'oldName'
 
   let dispatch
   let getState
@@ -30,7 +29,24 @@ describe('deleteFolder', () => {
     deleteRecordsApi.mockResolvedValue({})
     listRecords.mockReturnValue([])
 
-    const thunk = deleteFolder(mockFolder)
+    const name = 'oldName'
+    const oldRecords = [
+      { id: 'rec-1', folder: name },
+      { id: 'rec-2', folder: name }
+    ]
+
+    selectFolders.mockReturnValue(() => ({
+      data: {
+        customFolders: {
+          [name]: {
+            name: name,
+            records: oldRecords
+          }
+        }
+      }
+    }))
+
+    const thunk = deleteFolder(mockFolderName)
     const result = await thunk(dispatch, getState)
 
     expect(deleteRecordsApi).toHaveBeenCalledWith(['rec-1', 'rec-2'])
@@ -51,7 +67,24 @@ describe('deleteFolder', () => {
     const errorMessage = 'API failed'
     deleteRecordsApi.mockRejectedValue(new Error(errorMessage))
 
-    const thunk = deleteFolder(mockFolder)
+    const name = 'oldName'
+    const oldRecords = [
+      { id: 'rec-1', folder: name },
+      { id: 'rec-2', folder: name }
+    ]
+
+    selectFolders.mockReturnValue(() => ({
+      data: {
+        customFolders: {
+          [name]: {
+            name: name,
+            records: oldRecords
+          }
+        }
+      }
+    }))
+
+    const thunk = deleteFolder(name)
     const result = await thunk(dispatch, getState).catch((e) => e)
 
     expect(result.type).toBe(deleteFolder.rejected.type)
