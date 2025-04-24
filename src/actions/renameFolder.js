@@ -17,7 +17,7 @@ export const renameFolder = createAsyncThunk(
       throw new Error('Selected folder is required')
     }
 
-    if (name.name === newName) {
+    if (name === newName) {
       throw new Error('New name must be different from the old name')
     }
 
