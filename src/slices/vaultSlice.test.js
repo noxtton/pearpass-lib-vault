@@ -1,10 +1,10 @@
 import vaultReducer from './vaultSlice'
 import { createRecord } from '../actions/createRecord'
 import { createVault } from '../actions/createVault'
-import { deleteRecord } from '../actions/deleteRecord'
+import { deleteRecords } from '../actions/deleteRecords'
 import { getVaultById } from '../actions/getVaultById'
 import { resetState } from '../actions/resetState'
-import { updateRecord } from '../actions/updateRecord'
+import { updateRecords } from '../actions/updateRecords'
 
 const initialState = {
   isLoading: false,
@@ -95,9 +95,9 @@ describe('vaultSlice reducer', () => {
     })
   })
 
-  describe('updateRecord actions', () => {
+  describe('updateRecords actions', () => {
     it('should handle pending state', () => {
-      const action = { type: updateRecord.pending.type }
+      const action = { type: updateRecords.pending.type }
       const state = vaultReducer(initialState, action)
       expect(state.isRecordLoading).toBe(true)
     })
@@ -113,7 +113,10 @@ describe('vaultSlice reducer', () => {
           ]
         }
       }
-      const action = { type: updateRecord.fulfilled.type, payload: mockRecord }
+      const action = {
+        type: updateRecords.fulfilled.type,
+        payload: [mockRecord]
+      }
       const state = vaultReducer(existingState, action)
       expect(state.isRecordLoading).toBe(false)
       expect(state.data.records).toContainEqual(mockRecord)
@@ -124,16 +127,16 @@ describe('vaultSlice reducer', () => {
 
     it('should handle rejected state', () => {
       const mockError = { message: 'Error updating record' }
-      const action = { type: updateRecord.rejected.type, error: mockError }
+      const action = { type: updateRecords.rejected.type, error: mockError }
       const state = vaultReducer(initialState, action)
       expect(state.isRecordLoading).toBe(false)
       expect(state.error).toEqual(mockError)
     })
   })
 
-  describe('deleteRecord actions', () => {
+  describe('deleteRecords actions', () => {
     it('should handle pending state', () => {
-      const action = { type: deleteRecord.pending.type }
+      const action = { type: deleteRecords.pending.type }
       const state = vaultReducer(initialState, action)
       expect(state.isRecordLoading).toBe(true)
     })
@@ -148,7 +151,10 @@ describe('vaultSlice reducer', () => {
           ]
         }
       }
-      const action = { type: deleteRecord.fulfilled.type, payload: 1 }
+      const action = {
+        type: deleteRecords.fulfilled.type,
+        payload: [{ id: 2, title: 'Record 2' }]
+      }
       const state = vaultReducer(existingState, action)
       expect(state.isRecordLoading).toBe(false)
       expect(state.data.records.length).toBe(1)
@@ -157,7 +163,7 @@ describe('vaultSlice reducer', () => {
 
     it('should handle rejected state', () => {
       const mockError = { message: 'Error deleting record' }
-      const action = { type: deleteRecord.rejected.type, error: mockError }
+      const action = { type: deleteRecords.rejected.type, error: mockError }
       const state = vaultReducer(initialState, action)
       expect(state.isRecordLoading).toBe(false)
       expect(state.error).toEqual(mockError)

@@ -21,7 +21,7 @@ describe('pair', () => {
     const thunk = pair(inviteCode)
     await thunk(dispatch, getState)
 
-    expect(pairApi).toHaveBeenCalledWith(inviteCode)
+    expect(pairApi).toHaveBeenCalledWith(inviteCode, expect.any(Object))
   })
 
   it('should return the vault id from pairApi', async () => {

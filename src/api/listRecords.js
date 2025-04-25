@@ -1,7 +1,7 @@
 import { pearpassVaultClient } from '../instances'
 
 /**
- * @returns {Promise<Array<any>>}
+ * @returns {Promise<Array<Object>>}
  */
 export const listRecords = async () => {
   const records = await pearpassVaultClient.activeVaultList(`record/`)
