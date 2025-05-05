@@ -1,5 +1,5 @@
 import userReducer, { setLoading } from './userSlice'
-import { checkPasswordCreated } from '../actions/checkPasswordCreated'
+import { initializeUser } from '../actions/initializeUser'
 import { resetState } from '../actions/resetState'
 
 describe('userSlice', () => {
@@ -8,7 +8,9 @@ describe('userSlice', () => {
     isInitialized: false,
     error: null,
     data: {
-      hasPasswordSet: false
+      hasPasswordSet: false,
+      isLoggedIn: false,
+      isVaultOpen: false
     }
   }
 
@@ -21,28 +23,34 @@ describe('userSlice', () => {
     expect(actual.isLoading).toEqual(true)
   })
 
-  it('should handle checkPasswordCreated.pending', () => {
+  it('should handle initializeUser.pending', () => {
     const actual = userReducer(initialState, {
-      type: checkPasswordCreated.pending.type
+      type: initializeUser.pending.type
     })
     expect(actual.isLoading).toEqual(true)
   })
 
-  it('should handle checkPasswordCreated.fulfilled', () => {
+  it('should handle initializeUser.fulfilled', () => {
     const actual = userReducer(initialState, {
-      type: checkPasswordCreated.fulfilled.type,
-      payload: true
+      type: initializeUser.fulfilled.type,
+      payload: {
+        hasPasswordSet: true,
+        isLoggedIn: true,
+        isVaultOpen: true
+      }
     })
     expect(actual.isLoading).toBe(false)
     expect(actual.isInitialized).toBe(true)
     expect(actual.error).toBe(null)
     expect(actual.data.hasPasswordSet).toBe(true)
+    expect(actual.data.isLoggedIn).toBe(true)
+    expect(actual.data.isVaultOpen).toBe(true)
   })
 
-  it('should handle checkPasswordCreated.rejected', () => {
+  it('should handle initializeUser.rejected', () => {
     const testError = new Error('Test error')
     const actual = userReducer(initialState, {
-      type: checkPasswordCreated.rejected.type,
+      type: initializeUser.rejected.type,
       error: testError
     })
     expect(actual.isLoading).toBe(false)

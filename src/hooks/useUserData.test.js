@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useUserData } from './useUserData'
-import { checkPasswordCreated } from '../actions/checkPasswordCreated'
+import { initializeUser } from '../actions/initializeUser'
 import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
 import { init } from '../api/init'
 import { setLoading } from '../slices/userSlice'
@@ -12,8 +12,8 @@ jest.mock('react-redux', () => ({
   useSelector: jest.fn()
 }))
 
-jest.mock('../actions/checkPasswordCreated', () => ({
-  checkPasswordCreated: jest.fn()
+jest.mock('../actions/initializeUser', () => ({
+  initializeUser: jest.fn()
 }))
 
 jest.mock('../api/createMasterPassword', () => ({
@@ -42,12 +42,20 @@ describe('useUserData', () => {
     jest.clearAllMocks()
     useDispatch.mockReturnValue(dispatchMock)
     useSelector.mockReturnValue(mockUserData)
-    checkPasswordCreated.mockReturnValue({
-      type: 'checkPasswordCreated',
-      payload: true
+    initializeUser.mockReturnValue({
+      type: 'initializeUser',
+      payload: {
+        hasPasswordSet: true,
+        isLoggedIn: true,
+        isVaultOpen: true
+      }
     })
     dispatchMock.mockResolvedValue({
-      payload: true
+      payload: {
+        hasPasswordSet: true,
+        isLoggedIn: true,
+        isVaultOpen: true
+      }
     })
   })
 
@@ -63,7 +71,7 @@ describe('useUserData', () => {
   test('should check password state on mount', () => {
     renderHook(() => useUserData())
 
-    expect(dispatchMock).toHaveBeenCalledWith(checkPasswordCreated())
+    expect(dispatchMock).toHaveBeenCalledWith(initializeUser())
   })
 
   test('should not check password state if shouldSkip is true', () => {
@@ -75,6 +83,7 @@ describe('useUserData', () => {
   test('should not check password state if isInitialized is true', () => {
     useSelector.mockReturnValue({
       ...mockUserData,
+      isLoading: false,
       isInitialized: true
     })
 
@@ -92,7 +101,11 @@ describe('useUserData', () => {
       await Promise.resolve()
     })
 
-    expect(onCompletedMock).toHaveBeenCalledWith({ hasPasswordSet: true })
+    expect(onCompletedMock).toHaveBeenCalledWith({
+      hasPasswordSet: true,
+      isLoggedIn: true,
+      isVaultOpen: true
+    })
   })
 
   test('logIn should call init and setLoading with password', async () => {

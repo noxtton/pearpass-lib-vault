@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
-import { checkPasswordCreated } from '../actions/checkPasswordCreated'
+import { initializeUser } from '../actions/initializeUser'
 import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
 import { init } from '../api/init'
 import { selectUser } from '../selectors/selectUser'
@@ -15,6 +15,12 @@ import { setLoading } from '../slices/userSlice'
  * }} options
  * @returns {{
  *  isLoading: boolean
+ *  isInitialized: boolean
+ *  data: {
+ *    hasPasswordSet: boolean
+ *    isLoggedIn: boolean
+ *    isVaultOpen: boolean
+ *  }
  *  hasPasswordSet: boolean
  *  logIn: ({
  *    ciphertext?: string
@@ -70,16 +76,18 @@ export const useUserData = ({ onCompleted, shouldSkip } = {}) => {
       return
     }
 
-    const checkPasswordState = async () => {
-      const { payload: hasPasswordSet } = await dispatch(checkPasswordCreated())
+    const init = async () => {
+      const { payload } = await dispatch(initializeUser())
 
-      onCompleted?.({ hasPasswordSet })
+      onCompleted?.(payload)
     }
 
-    checkPasswordState()
+    init()
   }, [isLoading, isInitialized, shouldSkip])
 
   return {
+    data: userData,
+    isInitialized: isInitialized,
     hasPasswordSet: userData.hasPasswordSet,
     isLoading,
     logIn,

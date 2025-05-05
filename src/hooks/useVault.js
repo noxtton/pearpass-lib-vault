@@ -5,9 +5,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getVaultById } from '../actions/getVaultById'
 import { resetState as resetStateAction } from '../actions/resetState'
 import { checkVaultIsProtected } from '../api/checkVaultIsProtected'
+import { getCurrentVault } from '../api/getCurrentVault'
 import { initListener } from '../api/initListener'
 import { selectVault } from '../selectors/selectVault'
 import { selectVaults } from '../selectors/selectVaults'
+import { logger } from '../utils/logger'
 
 /**
  *  @param {{
@@ -63,12 +65,16 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   }
 
   const refetch = async (vaultId, password) => {
-    if (!vaultId && !variables?.vaultId) {
-      console.error('refetch: Vault ID is required')
+    const correntVault = await getCurrentVault()
+
+    const id = vaultId || variables?.vaultId || correntVault?.id
+
+    if (!id) {
+      logger.error('refetch: Vault ID is required')
       return
     }
 
-    await fetchVault(vaultId || variables.vaultId, password)
+    await fetchVault(id, password)
   }
 
   const resetState = () => {

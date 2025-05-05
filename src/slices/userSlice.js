@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { checkPasswordCreated } from '../actions/checkPasswordCreated'
+import { initializeUser } from '../actions/initializeUser'
 import { resetState } from '../actions/resetState'
 
 const initialState = {
@@ -8,7 +8,9 @@ const initialState = {
   isInitialized: false,
   error: null,
   data: {
-    hasPasswordSet: false
+    hasPasswordSet: false,
+    isLoggedIn: false,
+    isVaultOpen: false
   }
 }
 
@@ -22,19 +24,21 @@ export const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(checkPasswordCreated.pending, (state) => {
+      .addCase(initializeUser.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(checkPasswordCreated.fulfilled, (state, action) => {
+      .addCase(initializeUser.fulfilled, (state, action) => {
+        state.data = {
+          ...state.data,
+          isLoggedIn: action.payload.isLoggedIn,
+          isVaultOpen: action.payload.isVaultOpen,
+          hasPasswordSet: action.payload.hasPasswordSet
+        }
         state.isLoading = false
         state.isInitialized = true
         state.error = null
-        state.data = {
-          ...state.data,
-          hasPasswordSet: action.payload
-        }
       })
-      .addCase(checkPasswordCreated.rejected, (state, action) => {
+      .addCase(initializeUser.rejected, (state, action) => {
         console.error(action.error)
 
         state.isLoading = false
