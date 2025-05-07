@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
 import { resetState as resetStateAction } from '../actions/resetState'
+import { updateVault as updateVaultAction } from '../actions/updateVault'
 import { checkVaultIsProtected } from '../api/checkVaultIsProtected'
 import { getCurrentVault } from '../api/getCurrentVault'
 import { initListener } from '../api/initListener'
@@ -64,6 +65,29 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     onCompleted?.(vault)
   }
 
+  const updateVault = async (vaultId, vaultUpdate) => {
+    const { payload: vault, error } = await dispatch(
+      getVaultById({ vaultId, password: vaultUpdate.oldPassword })
+    )
+
+    if (error) {
+      throw new Error('Error fetching vault')
+    }
+
+    const { error: createError, payload } = await dispatch(
+      updateVaultAction({
+        vault: { ...vault, name: vaultUpdate.name },
+        password: vaultUpdate.password
+      })
+    )
+
+    if (createError) {
+      throw new Error('Error updating vault')
+    }
+
+    onCompleted?.(payload)
+  }
+
   const refetch = async (vaultId, password) => {
     const correntVault = await getCurrentVault()
 
@@ -102,6 +126,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     isInitialized,
     refetch,
     isVaultProtected,
-    resetState
+    resetState,
+    updateVault
   }
 }

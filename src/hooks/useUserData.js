@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { initializeUser } from '../actions/initializeUser'
 import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
 import { init } from '../api/init'
+import { updateMasterPassword as updateMasterPasswordApi } from '../api/updateMasterPassword'
 import { selectUser } from '../selectors/selectUser'
 import { setLoading } from '../slices/userSlice'
 
@@ -71,6 +72,16 @@ export const useUserData = ({ onCompleted, shouldSkip } = {}) => {
     return result
   }
 
+  const updateMasterPassword = async (password) => {
+    setLoading(true)
+
+    const result = await updateMasterPasswordApi(password)
+
+    setLoading(false)
+
+    return result
+  }
+
   useEffect(() => {
     if (isLoading || isInitialized || shouldSkip) {
       return
@@ -91,6 +102,7 @@ export const useUserData = ({ onCompleted, shouldSkip } = {}) => {
     hasPasswordSet: userData.hasPasswordSet,
     isLoading,
     logIn,
-    createMasterPassword
+    createMasterPassword,
+    updateMasterPassword
   }
 }
