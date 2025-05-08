@@ -15,19 +15,28 @@ const schema = Validator.object({
 
 export const updateVault = createAsyncThunk(
   'vault/createVault',
-  async ({ vault, password }) => {
-    const errors = schema.validate(vault)
+  async ({ vault, newPassword, currentPassword }) => {
+    const updatedVault = {
+      ...vault,
+      updatedAt: Date.now()
+    }
+
+    const errors = schema.validate(updatedVault)
 
     if (errors) {
       throw new Error(`Invalid vault data: ${JSON.stringify(errors, null, 2)}`)
     }
 
-    if (password?.length) {
-      await updateProtectedVault(vault, password)
+    if (newPassword?.length) {
+      await updateProtectedVault({
+        vault: updatedVault,
+        newPassword,
+        currentPassword
+      })
     } else {
-      await updateVaultApi(vault)
+      await updateVaultApi(updatedVault)
     }
 
-    return vault
+    return updatedVault
   }
 )

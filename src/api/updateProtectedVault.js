@@ -1,4 +1,5 @@
 import { pearpassVaultClient } from '../instances'
+import { getVaultEncryption } from './getVaultEncryption'
 
 /**
  * @param {{
@@ -8,7 +9,11 @@ import { pearpassVaultClient } from '../instances'
  * @param {string} password
  * @returns {Promise<void>}
  */
-export const updateProtectedVault = async (vault, password) => {
+export const updateProtectedVault = async ({
+  vault,
+  newPassword,
+  currentPassword
+}) => {
   if (!vault?.id) {
     throw new Error('Vault id is required')
   }
@@ -20,7 +25,18 @@ export const updateProtectedVault = async (vault, password) => {
   }
 
   const { hashedPassword, salt } =
-    await pearpassVaultClient.hashPassword(password)
+    await pearpassVaultClient.hashPassword(newPassword)
+
+  const currentEncription = await getVaultEncryption(vault.id)
+
+  const currentHashedPassword = await pearpassVaultClient.getDecryptionKey({
+    salt: currentEncription.salt,
+    password: currentPassword
+  })
+
+  if (currentEncription?.hashedPassword !== currentHashedPassword) {
+    throw new Error('Invalid password')
+  }
 
   const { ciphertext, nonce } =
     await pearpassVaultClient.encryptVaultKeyWithHashedPassword(hashedPassword)

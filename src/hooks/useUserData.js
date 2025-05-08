@@ -72,10 +72,13 @@ export const useUserData = ({ onCompleted, shouldSkip } = {}) => {
     return result
   }
 
-  const updateMasterPassword = async (password) => {
+  const updateMasterPassword = async ({ newPassword, currentPassword }) => {
     setLoading(true)
 
-    const result = await updateMasterPasswordApi(password)
+    const result = await updateMasterPasswordApi({
+      newPassword,
+      currentPassword
+    })
 
     setLoading(false)
 

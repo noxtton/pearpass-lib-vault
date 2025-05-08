@@ -1,30 +1,45 @@
 import { pearpassVaultClient } from '../instances'
+import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
 import { listVaults } from './listVaults'
-// Removed unused import 'updateVault'
 
 /**
- * @param {string} password
+ * @param {{password: string, currentPassword: string}} porps
  * @returns {Promise<{
+ *   hashedPassword: string
+ *   salt: string
  *   ciphertext: string
  *   nonce: string
- *   salt: string
- *   hashedPassword: string
  * }>}
  */
-export const updateMasterPassword = async (password) => {
+export const updateMasterPassword = async ({
+  newPassword,
+  currentPassword
+}) => {
   const statusRes = await pearpassVaultClient.encryptionGetStatus()
+
+  if (!statusRes?.status) {
+    await pearpassVaultClient.encryptionInit()
+  }
+
   const vaults = await listVaults()
 
   const unProtectedvaults = vaults.filter(
     (vault) => !vault.hashedPassword && !vault.salt
   )
 
-  if (!statusRes?.status) {
-    await pearpassVaultClient.encryptionInit()
-  }
-
   const { hashedPassword, salt } =
-    await pearpassVaultClient.hashPassword(password)
+    await pearpassVaultClient.hashPassword(newPassword)
+
+  const currentEncription = await getMasterPasswordEncryption()
+
+  const currentHashedPassword = await pearpassVaultClient.getDecryptionKey({
+    salt: currentEncription.salt,
+    password: currentPassword
+  })
+
+  if (currentEncription?.hashedPassword !== currentHashedPassword) {
+    throw new Error('Invalid password')
+  }
 
   const { ciphertext, nonce } =
     await pearpassVaultClient.encryptVaultKeyWithHashedPassword(hashedPassword)

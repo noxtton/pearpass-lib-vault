@@ -67,25 +67,24 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
 
   const updateVault = async (vaultId, vaultUpdate) => {
     const { payload: vault, error } = await dispatch(
-      getVaultById({ vaultId, password: vaultUpdate.oldPassword })
+      getVaultById({ vaultId, password: vaultUpdate.currentPassword })
     )
 
     if (error) {
       throw new Error('Error fetching vault')
     }
 
-    const { error: createError, payload } = await dispatch(
+    const { error: createError } = await dispatch(
       updateVaultAction({
         vault: { ...vault, name: vaultUpdate.name },
-        password: vaultUpdate.password
+        newPassword: vaultUpdate.password,
+        currentPassword: vaultUpdate.currentPassword
       })
     )
 
     if (createError) {
       throw new Error('Error updating vault')
     }
-
-    onCompleted?.(payload)
   }
 
   const refetch = async (vaultId, password) => {
