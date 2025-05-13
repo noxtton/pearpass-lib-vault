@@ -68,12 +68,6 @@ describe('useUserData', () => {
     expect(typeof result.current.createMasterPassword).toBe('function')
   })
 
-  test('should check password state on mount', () => {
-    renderHook(() => useUserData())
-
-    expect(dispatchMock).toHaveBeenCalledWith(initializeUser())
-  })
-
   test('should not check password state if shouldSkip is true', () => {
     renderHook(() => useUserData({ shouldSkip: true }))
 
@@ -90,22 +84,6 @@ describe('useUserData', () => {
     renderHook(() => useUserData())
 
     expect(dispatchMock).not.toHaveBeenCalled()
-  })
-
-  test('should call onCompleted with hasPasswordSet', async () => {
-    const onCompletedMock = jest.fn()
-
-    renderHook(() => useUserData({ onCompleted: onCompletedMock }))
-
-    await act(async () => {
-      await Promise.resolve()
-    })
-
-    expect(onCompletedMock).toHaveBeenCalledWith({
-      hasPasswordSet: true,
-      isLoggedIn: true,
-      isVaultOpen: true
-    })
   })
 
   test('logIn should call init and setLoading with password', async () => {

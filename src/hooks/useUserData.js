@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { initializeUser } from '../actions/initializeUser'
 import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
 import { init } from '../api/init'
+import { updateMasterPassword as updateMasterPasswordApi } from '../api/updateMasterPassword'
 import { selectUser } from '../selectors/selectUser'
 import { setLoading } from '../slices/userSlice'
 
@@ -34,6 +35,20 @@ import { setLoading } from '../slices/userSlice'
  *   salt: string
  *   hashedPassword: string
  *    }>
+ *  updateMasterPassword: ({
+ *    newPassword: string
+ *    currentPassword: string
+ *  }) => Promise<{
+ *    ciphertext: string
+ *    nonce: string
+ *    salt: string
+ *    hashedPassword: string
+ *  }>
+ *  refetch: () => Promise<{
+ *    hasPasswordSet: boolean
+ *    isLoggedIn: boolean
+ *    isVaultOpen: boolean
+ *  }>
  *  }}
  */
 export const useUserData = () => {
@@ -47,7 +62,7 @@ export const useUserData = () => {
     hashedPassword,
     password
   }) => {
-    setLoading(true)
+    dispatch(setLoading(true))
 
     await init({
       ciphertext,
@@ -57,15 +72,28 @@ export const useUserData = () => {
       password
     })
 
-    setLoading(false)
+    dispatch(setLoading(false))
   }
 
   const createMasterPassword = async (password) => {
-    setLoading(true)
+    dispatch(setLoading(true))
 
     const result = await createMasterPasswordApi(password)
 
-    setLoading(false)
+    dispatch(setLoading(false))
+
+    return result
+  }
+
+  const updateMasterPassword = async ({ newPassword, currentPassword }) => {
+    dispatch(setLoading(true))
+
+    const result = await updateMasterPasswordApi({
+      newPassword,
+      currentPassword
+    })
+
+    dispatch(setLoading(false))
 
     return result
   }
@@ -82,7 +110,8 @@ export const useUserData = () => {
     hasPasswordSet: userData.hasPasswordSet,
     isLoading,
     logIn,
-    refetch,
-    createMasterPassword
+    createMasterPassword,
+    updateMasterPassword,
+    refetch
   }
 }
