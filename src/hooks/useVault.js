@@ -34,11 +34,15 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
 
   const {
     isLoading: isVaultsLoading,
-    isInitialized,
+    isInitialized: isVaultsInitialized,
     isInitializing
   } = useSelector(selectVaults)
 
-  const { isLoading: isVaultLoading, data } = useSelector(selectVault)
+  const {
+    isLoading: isVaultLoading,
+    data,
+    isInitialized: isVaultInitialized
+  } = useSelector(selectVault)
 
   const isLoading = isVaultsLoading || isVaultLoading
 
@@ -113,7 +117,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
       data ||
       shouldSkip ||
       !variables?.vaultId ||
-      !isInitialized ||
+      !isVaultsInitialized ||
       isLoading ||
       isInitializing
     ) {
@@ -121,12 +125,12 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     }
 
     fetchVault(variables?.vaultId)
-  }, [data, variables?.vaultId, isInitialized])
+  }, [data, variables?.vaultId, isVaultsInitialized])
 
   return {
     isLoading,
     data,
-    isInitialized,
+    isInitialized: isVaultInitialized,
     refetch,
     isVaultProtected,
     resetState,

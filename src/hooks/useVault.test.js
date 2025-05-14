@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useVault } from './useVault'
 import { getVaultById } from '../actions/getVaultById'
 import { resetState } from '../actions/resetState'
+import { updateVault } from '../actions/updateVault'
 import { checkVaultIsProtected } from '../api/checkVaultIsProtected'
 
 jest.mock('react-redux', () => ({
@@ -17,6 +18,10 @@ jest.mock('../actions/getVaultById', () => ({
 
 jest.mock('../actions/resetState', () => ({
   resetState: jest.fn()
+}))
+
+jest.mock('../actions/updateVault', () => ({
+  updateVault: jest.fn()
 }))
 
 jest.mock('../api/getVaultEncryption', () => ({
@@ -47,7 +52,7 @@ describe('useVault', () => {
       if (selector.name === 'selectVaults') {
         return { isLoading: false, isInitialized: true, isInitializing: false }
       }
-      return { isLoading: false, data: null }
+      return { isLoading: false, data: null, isInitialized: true }
     })
 
     const { result } = renderHook(() => useVault())
@@ -176,5 +181,81 @@ describe('useVault', () => {
 
     expect(resetState).toHaveBeenCalled()
     expect(mockDispatch).toHaveBeenCalledWith({ type: 'RESET_STATE' })
+  })
+
+  test('updateVault should update the vault with provided data', async () => {
+    const mockVaultUpdate = {
+      name: 'Updated Vault',
+      password: 'new-password',
+      currentPassword: 'current-password'
+    }
+
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: mockVault }
+    })
+
+    const { result } = renderHook(() => useVault())
+
+    await act(async () => {
+      await result.current.updateVault('vault-123', mockVaultUpdate)
+    })
+
+    expect(getVaultById).toHaveBeenCalledWith({
+      vaultId: 'vault-123',
+      password: 'current-password'
+    })
+    expect(updateVault).toHaveBeenCalledWith({
+      vault: {
+        id: 'vault-123',
+        name: 'Updated Vault'
+      },
+      currentPassword: 'current-password',
+      newPassword: 'new-password'
+    })
+  })
+
+  test('updateVault should throw error if getVaultById fails', async () => {
+    const mockVaultUpdate = {
+      name: 'Updated Vault',
+      password: 'new-password',
+      currentPassword: 'current-password'
+    }
+
+    getVaultById.mockReturnValue({ type: 'GET_VAULT', error: true })
+    mockDispatch.mockResolvedValue({ error: true })
+
+    const { result } = renderHook(() => useVault())
+
+    await expect(
+      result.current.updateVault('vault-123', mockVaultUpdate)
+    ).rejects.toThrow('Error fetching vault')
+  })
+
+  test('updateVault should throw error if updateVaultAction fails', async () => {
+    const mockVaultUpdate = {
+      name: 'Updated Vault',
+      password: 'new-password',
+      currentPassword: 'current-password'
+    }
+
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: mockVault }
+    })
+
+    mockDispatch
+      .mockResolvedValueOnce({ payload: mockVault })
+      .mockResolvedValueOnce({ error: true })
+
+    const { result } = renderHook(() => useVault())
+
+    await expect(
+      result.current.updateVault('vault-123', mockVaultUpdate)
+    ).rejects.toThrow('Error updating vault')
   })
 })

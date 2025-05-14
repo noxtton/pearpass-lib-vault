@@ -32,6 +32,7 @@ import { selectVault } from '../selectors/selectVault'
  * }} options
  * @returns {{
  *    isLoading: boolean
+ *    isInitialized: boolean
  *    deleteRecords: (recordIds: Array<string>) => Promise<void>
  *    updateRecords: (records: Array<Object>) => Promise<void>
  *    updateFolder: (recordIds: Array<string>, folder: string) => Promise<void>
@@ -43,7 +44,8 @@ import { selectVault } from '../selectors/selectVault'
 export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
   const dispatch = useDispatch()
 
-  const { data: vaultData } = useSelector(selectVault)
+  const { data: vaultData, isInitialized: isVaultInitialized } =
+    useSelector(selectVault)
 
   const providedVaultId = variables?.vaultId || vaultData?.id
 
@@ -117,6 +119,7 @@ export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
 
   return {
     isLoading,
+    isInitialized: isVaultInitialized,
     data,
     refetch,
     updateRecords,

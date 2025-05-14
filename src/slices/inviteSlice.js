@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 import { createInvite } from '../actions/createInvite'
 import { resetState } from '../actions/resetState'
+import { logger } from '../utils/logger'
 
 const initialState = {
   isLoading: false,
@@ -22,7 +23,7 @@ export const vaultSlice = createSlice({
         state.data = action.payload
       })
       .addCase(createInvite.rejected, (state, action) => {
-        console.error(action.error)
+        logger.error(action.error)
 
         state.isLoading = false
         state.error = action.error

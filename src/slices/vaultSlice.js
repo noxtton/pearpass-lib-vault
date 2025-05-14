@@ -10,6 +10,7 @@ import { pair } from '../actions/pair'
 import { renameFolder } from '../actions/renameFolder'
 import { resetState } from '../actions/resetState'
 import { updateRecords } from '../actions/updateRecords'
+import { logger } from '../utils/logger'
 
 const initialState = {
   isLoading: false,
@@ -34,10 +35,7 @@ export const vaultSlice = createSlice({
         state.data = action.payload
       })
       .addCase(getVaultById.rejected, (state, action) => {
-        console.error(
-          `Action getVaultById error:`,
-          JSON.stringify(action.error)
-        )
+        logger.error(`Action getVaultById error:`, JSON.stringify(action.error))
 
         state.isLoading = false
         state.error = action.error
@@ -52,7 +50,7 @@ export const vaultSlice = createSlice({
         state.data = action.payload
       })
       .addCase(createVault.rejected, (state, action) => {
-        console.error(`Action createVault error:`, JSON.stringify(action.error))
+        logger.error(`Action createVault error:`, JSON.stringify(action.error))
 
         state.isLoading = false
         state.error = action.error
@@ -67,10 +65,7 @@ export const vaultSlice = createSlice({
         state.data.records.push(action.payload)
       })
       .addCase(createRecord.rejected, (state, action) => {
-        console.error(
-          `Action createRecord error:`,
-          JSON.stringify(action.error)
-        )
+        logger.error(`Action createRecord error:`, JSON.stringify(action.error))
 
         state.isRecordLoading = false
         state.error = action.error
@@ -86,10 +81,7 @@ export const vaultSlice = createSlice({
         state.data.records = action?.payload ?? []
       })
       .addCase(updateRecords.rejected, (state, action) => {
-        console.error(
-          `Action updateRecord error:`,
-          JSON.stringify(action.error)
-        )
+        logger.error(`Action updateRecord error:`, JSON.stringify(action.error))
 
         state.isRecordLoading = false
         state.error = action.error
@@ -105,10 +97,7 @@ export const vaultSlice = createSlice({
         state.data.records = action?.payload ?? []
       })
       .addCase(deleteRecords.rejected, (state, action) => {
-        console.error(
-          `Action deleteRecord error:`,
-          JSON.stringify(action.error)
-        )
+        logger.error(`Action deleteRecord error:`, JSON.stringify(action.error))
 
         state.isRecordLoading = false
         state.error = action.error
@@ -123,10 +112,7 @@ export const vaultSlice = createSlice({
         state.data.records.push(action.payload)
       })
       .addCase(createFolder.rejected, (state, action) => {
-        console.error(
-          `Action createFolder error:`,
-          JSON.stringify(action.error)
-        )
+        logger.error(`Action createFolder error:`, JSON.stringify(action.error))
 
         state.isFolderLoading = false
         state.error = action.error
@@ -141,10 +127,7 @@ export const vaultSlice = createSlice({
         state.data.records = action?.payload ?? []
       })
       .addCase(renameFolder.rejected, (state, action) => {
-        console.error(
-          `Action createFolder error:`,
-          JSON.stringify(action.error)
-        )
+        logger.error(`Action createFolder error:`, JSON.stringify(action.error))
 
         state.isFolderLoading = false
         state.error = action.error
@@ -158,10 +141,7 @@ export const vaultSlice = createSlice({
         state.data.records = action?.payload ?? []
       })
       .addCase(deleteFolder.rejected, (state, action) => {
-        console.error(
-          `Action createFolder error:`,
-          JSON.stringify(action.error)
-        )
+        logger.error(`Action createFolder error:`, JSON.stringify(action.error))
 
         state.isFolderLoading = false
         state.error = action.error
@@ -175,7 +155,7 @@ export const vaultSlice = createSlice({
         state.isLoading = false
       })
       .addCase(pair.rejected, (state, action) => {
-        console.error(`Action pair error:`, JSON.stringify(action.error))
+        logger.error(`Action pair error:`, JSON.stringify(action.error))
 
         state.isLoading = false
         state.error = action.error

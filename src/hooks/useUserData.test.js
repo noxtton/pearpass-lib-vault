@@ -5,6 +5,7 @@ import { useUserData } from './useUserData'
 import { initializeUser } from '../actions/initializeUser'
 import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
 import { init } from '../api/init'
+import { updateMasterPassword as updateMasterPasswordApi } from '../api/updateMasterPassword'
 import { setLoading } from '../slices/userSlice'
 
 jest.mock('react-redux', () => ({
@@ -18,6 +19,10 @@ jest.mock('../actions/initializeUser', () => ({
 
 jest.mock('../api/createMasterPassword', () => ({
   createMasterPassword: jest.fn()
+}))
+
+jest.mock('../api/updateMasterPassword', () => ({
+  updateMasterPassword: jest.fn()
 }))
 
 jest.mock('../api/init', () => ({
@@ -128,6 +133,24 @@ describe('useUserData', () => {
       nonce: 'nonce123',
       salt: 'salt123',
       hashedPassword: 'hashedPassword123'
+    })
+    expect(setLoading).toHaveBeenCalledWith(false)
+  })
+
+  test('updateMasterPassword should call API and setLoading', async () => {
+    const { result } = renderHook(() => useUserData())
+
+    await act(async () => {
+      await result.current.updateMasterPassword({
+        newPassword: 'newPassword123',
+        currentPassword: 'currentPassword123'
+      })
+    })
+
+    expect(setLoading).toHaveBeenCalledWith(true)
+    expect(updateMasterPasswordApi).toHaveBeenCalledWith({
+      newPassword: 'newPassword123',
+      currentPassword: 'currentPassword123'
     })
     expect(setLoading).toHaveBeenCalledWith(false)
   })

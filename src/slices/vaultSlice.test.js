@@ -8,6 +8,7 @@ import { updateRecords } from '../actions/updateRecords'
 
 const initialState = {
   isLoading: false,
+  isInitialized: false,
   isRecordLoading: false,
   isFolderLoading: false,
   data: null,
@@ -174,6 +175,7 @@ describe('vaultSlice reducer', () => {
     it('should reset state to initial values', () => {
       const modifiedState = {
         isLoading: true,
+        isInitialized: true,
         isRecordLoading: true,
         isFolderLoading: true,
         data: { some: 'data' },

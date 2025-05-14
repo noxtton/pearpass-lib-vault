@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { listRecords } from '../api/listRecords'
 import { updateRecords as updateRecordsApi } from '../api/updateRecords'
+import { logger } from '../utils/logger'
 import { updateFolderFactory } from '../utils/updateFolderFactory'
 import { updateRecordsFactory } from '../utils/updateRecordsFactory'
 
@@ -40,7 +41,7 @@ export const updateFavoriteState =
     })
 
     if (!records.length) {
-      console.error('Record not found')
+      logger.error('Record not found')
       return
     }
 

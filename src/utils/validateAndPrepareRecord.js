@@ -1,5 +1,6 @@
 import { Validator } from 'pear-apps-utils-validator'
 
+import { logger } from './logger'
 import { validateAndPrepareCreditCardData } from './validateAndPrepareCreditCardData'
 import { validateAndPrepareCustomData } from './validateAndPrepareCustomData'
 import { validateAndPrepareIdentityData } from './validateAndPrepareIdentityData'
@@ -56,7 +57,7 @@ export const validateAndPrepareRecord = (record) => {
   const errors = recordSchema.validate(preparedRecord)
 
   if (errors) {
-    console.error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
+    logger.error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
 
     throw new Error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
   }
