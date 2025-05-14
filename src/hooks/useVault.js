@@ -14,19 +14,19 @@ import { logger } from '../utils/logger'
 
 /**
  *  @param {{
- *    onCompleted?: (payload: any) => void
- *    shouldSkip?: boolean
- *    variables: {
- *      vaultId: string
- *    }
+ *      onCompleted?: (payload: any) => void
+ *      shouldSkip?: boolean
+ *      variables: {
+ *        vaultId: string
+ *      }
  *  }} options
  *   @returns {{
  *      isLoading: boolean
  *      isInitialized: boolean
  *      data: any
- *    refetch: (vaultId: string, password?: string) => Promise<void>
- *    isVaultProtected: (vaultId: string) => Promise<boolean>
- *    resetState: () => void
+ *      refetch: (vaultId: string, password?: string) => Promise<any>
+ *      isVaultProtected: (vaultId: string) => Promise<boolean>
+ *      resetState: () => void
  *  }}
  */
 export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
@@ -63,6 +63,8 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     })
 
     onCompleted?.(vault)
+
+    return vault
   }
 
   const updateVault = async (vaultId, vaultUpdate) => {
@@ -97,7 +99,9 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
       return
     }
 
-    await fetchVault(id, password)
+    const vault = await fetchVault(id, password)
+
+    return vault
   }
 
   const resetState = () => {

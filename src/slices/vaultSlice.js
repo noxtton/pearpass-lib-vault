@@ -13,6 +13,7 @@ import { updateRecords } from '../actions/updateRecords'
 
 const initialState = {
   isLoading: false,
+  isInitialized: false,
   isRecordLoading: false,
   isFolderLoading: false,
   data: null,
@@ -29,6 +30,7 @@ export const vaultSlice = createSlice({
       })
       .addCase(getVaultById.fulfilled, (state, action) => {
         state.isLoading = false
+        state.isInitialized = true
         state.data = action.payload
       })
       .addCase(getVaultById.rejected, (state, action) => {
@@ -183,6 +185,7 @@ export const vaultSlice = createSlice({
       state.data = initialState.data
       state.error = initialState.error
       state.isLoading = initialState.isLoading
+      state.isInitialized = initialState.isInitialized
       state.isRecordLoading = initialState.isRecordLoading
       state.isFolderLoading = initialState.isFolderLoading
     })
