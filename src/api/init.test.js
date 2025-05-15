@@ -7,7 +7,9 @@ jest.mock('../instances', () => ({
     encryptionGet: jest.fn(),
     decryptVaultKey: jest.fn(),
     getDecryptionKey: jest.fn(),
-    vaultsInit: jest.fn()
+    vaultsInit: jest.fn(),
+    encryptionGetStatus: jest.fn(),
+    encryptionInit: jest.fn()
   }
 }))
 

@@ -203,35 +203,12 @@ describe('useVault', () => {
       await result.current.updateVault('vault-123', mockVaultUpdate)
     })
 
-    expect(getVaultById).toHaveBeenCalledWith({
-      vaultId: 'vault-123',
-      password: 'current-password'
-    })
     expect(updateVault).toHaveBeenCalledWith({
-      vault: {
-        id: 'vault-123',
-        name: 'Updated Vault'
-      },
+      vaultId: 'vault-123',
+      name: 'Updated Vault',
       currentPassword: 'current-password',
       newPassword: 'new-password'
     })
-  })
-
-  test('updateVault should throw error if getVaultById fails', async () => {
-    const mockVaultUpdate = {
-      name: 'Updated Vault',
-      password: 'new-password',
-      currentPassword: 'current-password'
-    }
-
-    getVaultById.mockReturnValue({ type: 'GET_VAULT', error: true })
-    mockDispatch.mockResolvedValue({ error: true })
-
-    const { result } = renderHook(() => useVault())
-
-    await expect(
-      result.current.updateVault('vault-123', mockVaultUpdate)
-    ).rejects.toThrow('Error fetching vault')
   })
 
   test('updateVault should throw error if updateVaultAction fails', async () => {
@@ -248,9 +225,7 @@ describe('useVault', () => {
       return { isLoading: false, data: mockVault }
     })
 
-    mockDispatch
-      .mockResolvedValueOnce({ payload: mockVault })
-      .mockResolvedValueOnce({ error: true })
+    mockDispatch.mockResolvedValueOnce({ error: true })
 
     const { result } = renderHook(() => useVault())
 

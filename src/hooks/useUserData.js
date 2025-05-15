@@ -5,7 +5,6 @@ import { createMasterPassword as createMasterPasswordApi } from '../api/createMa
 import { init } from '../api/init'
 import { updateMasterPassword as updateMasterPasswordApi } from '../api/updateMasterPassword'
 import { selectUser } from '../selectors/selectUser'
-import { setLoading } from '../slices/userSlice'
 
 /**
  * @returns {{
@@ -62,8 +61,6 @@ export const useUserData = () => {
     hashedPassword,
     password
   }) => {
-    dispatch(setLoading(true))
-
     await init({
       ciphertext,
       nonce,
@@ -71,29 +68,19 @@ export const useUserData = () => {
       hashedPassword,
       password
     })
-
-    dispatch(setLoading(false))
   }
 
   const createMasterPassword = async (password) => {
-    dispatch(setLoading(true))
-
     const result = await createMasterPasswordApi(password)
-
-    dispatch(setLoading(false))
 
     return result
   }
 
   const updateMasterPassword = async ({ newPassword, currentPassword }) => {
-    dispatch(setLoading(true))
-
     const result = await updateMasterPasswordApi({
       newPassword,
       currentPassword
     })
-
-    dispatch(setLoading(false))
 
     return result
   }

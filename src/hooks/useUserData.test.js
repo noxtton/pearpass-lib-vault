@@ -6,7 +6,6 @@ import { initializeUser } from '../actions/initializeUser'
 import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
 import { init } from '../api/init'
 import { updateMasterPassword as updateMasterPasswordApi } from '../api/updateMasterPassword'
-import { setLoading } from '../slices/userSlice'
 
 jest.mock('react-redux', () => ({
   useDispatch: jest.fn(),
@@ -98,9 +97,7 @@ describe('useUserData', () => {
       await result.current.logIn({ password: 'password123' })
     })
 
-    expect(setLoading).toHaveBeenCalledWith(true)
     expect(init).toHaveBeenCalledWith({ password: 'password123' })
-    expect(setLoading).toHaveBeenCalledWith(false)
   })
 
   test('createMasterPassword should call API and setLoading', async () => {
@@ -110,9 +107,7 @@ describe('useUserData', () => {
       await result.current.createMasterPassword('password123')
     })
 
-    expect(setLoading).toHaveBeenCalledWith(true)
     expect(createMasterPasswordApi).toHaveBeenCalledWith('password123')
-    expect(setLoading).toHaveBeenCalledWith(false)
   })
 
   test('logIn should call init and setLoading with encryption fields', async () => {
@@ -127,14 +122,12 @@ describe('useUserData', () => {
       })
     })
 
-    expect(setLoading).toHaveBeenCalledWith(true)
     expect(init).toHaveBeenCalledWith({
       ciphertext: 'ciphertext123',
       nonce: 'nonce123',
       salt: 'salt123',
       hashedPassword: 'hashedPassword123'
     })
-    expect(setLoading).toHaveBeenCalledWith(false)
   })
 
   test('updateMasterPassword should call API and setLoading', async () => {
@@ -147,11 +140,9 @@ describe('useUserData', () => {
       })
     })
 
-    expect(setLoading).toHaveBeenCalledWith(true)
     expect(updateMasterPasswordApi).toHaveBeenCalledWith({
       newPassword: 'newPassword123',
       currentPassword: 'currentPassword123'
     })
-    expect(setLoading).toHaveBeenCalledWith(false)
   })
 })

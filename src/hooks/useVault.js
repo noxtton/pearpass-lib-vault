@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
+import { getVaults } from '../actions/getVaults'
 import { resetState as resetStateAction } from '../actions/resetState'
 import { updateVault as updateVaultAction } from '../actions/updateVault'
 import { checkVaultIsProtected } from '../api/checkVaultIsProtected'
@@ -71,28 +72,6 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     return vault
   }
 
-  const updateVault = async (vaultId, vaultUpdate) => {
-    const { payload: vault, error } = await dispatch(
-      getVaultById({ vaultId, password: vaultUpdate.currentPassword })
-    )
-
-    if (error) {
-      throw new Error('Error fetching vault')
-    }
-
-    const { error: createError } = await dispatch(
-      updateVaultAction({
-        vault: { ...vault, name: vaultUpdate.name },
-        newPassword: vaultUpdate.password,
-        currentPassword: vaultUpdate.currentPassword
-      })
-    )
-
-    if (createError) {
-      throw new Error('Error updating vault')
-    }
-  }
-
   const refetch = async (vaultId, password) => {
     const correntVault = await getCurrentVault()
 
@@ -106,6 +85,25 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     const vault = await fetchVault(id, password)
 
     return vault
+  }
+
+  const updateVault = async (vaultId, vaultUpdate) => {
+    const { error: createError } = await dispatch(
+      updateVaultAction({
+        vaultId: vaultId,
+        name: vaultUpdate.name,
+        newPassword: vaultUpdate.password,
+        currentPassword: vaultUpdate.currentPassword
+      })
+    )
+
+    await refetch()
+
+    await dispatch(getVaults())
+
+    if (createError) {
+      throw new Error('Error updating vault')
+    }
   }
 
   const resetState = () => {

@@ -23,10 +23,6 @@ export const updateMasterPassword = async ({
 
   const vaults = await listVaults()
 
-  const unProtectedvaults = vaults.filter(
-    (vault) => !vault.hashedPassword && !vault.salt
-  )
-
   const { hashedPassword, salt } =
     await pearpassVaultClient.hashPassword(newPassword)
 
@@ -62,6 +58,10 @@ export const updateMasterPassword = async ({
     salt,
     hashedPassword
   })
+
+  const unProtectedvaults = vaults.filter(
+    (vault) => !vault?.encryption?.hashedPassword && !vault?.encryption?.salt
+  )
 
   if (unProtectedvaults.length > 0) {
     const decryptVaultKeyRes = await pearpassVaultClient.decryptVaultKey({
