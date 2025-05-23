@@ -9,7 +9,7 @@ export { useRecordCountsByType } from './hooks/useRecordCountsByType'
 export { useRecords } from './hooks/useRecords'
 export { useVaults } from './hooks/useVaults'
 export { useVault } from './hooks/useVault'
-export { useCreateInvite } from './hooks/useCreateInvite'
+export { useInvite } from './hooks/useInvite.js'
 export { usePair } from './hooks/usePair'
 export { useUserData } from './hooks/useUserData'
 
