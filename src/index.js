@@ -17,3 +17,7 @@ export { VaultProvider } from './store'
 
 export { setPearpassVaultClient, setStoragePath } from './instances'
 export { closeAllInstances } from './api/closeAllInstances'
+
+export { getVaultById } from './api/getVaultById'
+export { getVaultEncryption } from './api/getVaultEncryption'
+export { listRecords } from './api/listRecords'

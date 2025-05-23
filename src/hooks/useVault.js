@@ -51,9 +51,9 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     return checkVaultIsProtected(vaultId)
   }
 
-  const fetchVault = async (vaultId, password) => {
+  const fetchVault = async (vaultId, params) => {
     const { payload: vault, error } = await dispatch(
-      getVaultById({ vaultId: vaultId, password: password })
+      getVaultById({ vaultId: vaultId, params })
     )
 
     if (error) {
@@ -72,7 +72,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     return vault
   }
 
-  const refetch = async (vaultId, password) => {
+  const refetch = async (vaultId, param) => {
     const correntVault = await getCurrentVault()
 
     const id = vaultId || variables?.vaultId || correntVault?.id
@@ -82,7 +82,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
       return
     }
 
-    const vault = await fetchVault(id, password)
+    const vault = await fetchVault(id, param)
 
     return vault
   }
