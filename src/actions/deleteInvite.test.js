@@ -23,7 +23,6 @@ describe('deleteInvite', () => {
   it('should delete an invite and return a payload of null', async () => {
     const thunk = deleteInvite()
     const result = await thunk(dispatch, getState)
-    console.log(result)
 
     expect(result.payload).toEqual(null)
   })

@@ -4,24 +4,18 @@ import { deleteInvite as deleteInviteAction } from '../actions/deleteInvite'
 import { selectInvite } from '../selectors/selectInvite'
 
 /**
- * @param {{
- *  onCompleted?: (payload: {vault: any}) => void
- * }} options
  * @returns {{
  *  isLoading: boolean
  *  data: any
- *  createInvite: () => void
- *  deleteInvite: () => void
+ *  createInvite: () => Promise<void>
+ *  deleteInvite: () => Promise<void>
  * }}
  */
-export const useInvite = ({ onCompleted } = {}) => {
+export const useInvite = () => {
   const dispatch = useDispatch()
   const { isLoading, data } = useSelector(selectInvite)
 
-  const handleAction = async (action) => {
-    const { error, payload } = await dispatch(action())
-    if (!error) onCompleted?.(payload)
-  }
+  const handleAction = async (action) => dispatch(action())
 
   return {
     isLoading,

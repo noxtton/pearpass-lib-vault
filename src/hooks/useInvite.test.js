@@ -63,28 +63,26 @@ describe('useInvite', () => {
   test.each([
     ['createInvite', { inviteId: 'success-invite-id' }],
     ['deleteInvite', null]
-  ])('should call onCompleted when %s succeeds', async (method, payload) => {
+  ])('createInvite and deleteInvite should return correct action payload', async (method, payload) => {
     mockDispatch.mockResolvedValue({ error: false, payload })
 
-    const onCompleted = jest.fn()
-    const hook = useInvite({ onCompleted })
+    const hook = useInvite()
 
-    await hook[method]()
+    const dispatchResult = await hook[method]()
 
-    expect(onCompleted).toHaveBeenCalledWith(payload)
+    expect(dispatchResult.payload).toEqual(payload)
   })
 
   test.each([
     ['createInvite'],
     ['deleteInvite']
-  ])('should not call onCompleted when %s fails', async (method) => {
+  ])('createInvite and deleteInvite should return error when dispatch fails', async (method) => {
     mockDispatch.mockResolvedValue({ error: true })
 
-    const onCompleted = jest.fn()
-    const hook = useInvite({ onCompleted })
+    const hook = useInvite()
 
-    await hook[method]()
+    const dispatchResult = await hook[method]()
 
-    expect(onCompleted).not.toHaveBeenCalled()
+    expect(dispatchResult.error).toEqual(true)
   })
 })
