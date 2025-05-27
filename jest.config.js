@@ -3,6 +3,10 @@ export default {
   transform: {
     '^.+\\.[jt]sx?$': 'babel-jest'
   },
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.yalc/'
+  ],
   transformIgnorePatterns: [
     'node_modules/(?!(pear-apps-utils-validator|pear-apps-utils-pattern-search)/)'
   ],

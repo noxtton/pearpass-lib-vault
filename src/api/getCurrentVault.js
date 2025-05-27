@@ -8,7 +8,7 @@ export const getCurrentVault = async () => {
   const res = await pearpassVaultClient.activeVaultGetStatus()
 
   if (!res?.status) {
-    logger.log('No active vault found')
+    logger.error('No active vault found')
 
     return undefined
   }
