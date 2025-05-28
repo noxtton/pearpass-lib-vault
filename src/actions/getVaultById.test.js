@@ -12,8 +12,8 @@ jest.mock('../api/listRecords', () => ({
 
 describe('getVaultById', () => {
   const mockVaultId = 'vault-123'
-  const mockPassword = 'password123'
-  const mockArguments = { vaultId: mockVaultId, password: mockPassword }
+  const mockParams = { password: 'password123' }
+  const mockArguments = { vaultId: mockVaultId, params: mockParams }
   const mockVault = { id: mockVaultId, name: 'Test Vault' }
   const mockRecords = [{ id: 'record-1' }, { id: 'record-2' }]
 
@@ -28,11 +28,11 @@ describe('getVaultById', () => {
     listRecords.mockResolvedValue(mockRecords)
   })
 
-  it('should call getVaultByIdApi with correct vaultId and password', async () => {
+  it('should call getVaultByIdApi with correct vaultId and params', async () => {
     const thunk = getVaultById(mockArguments)
     await thunk(dispatch, getState)
 
-    expect(getVaultByIdApi).toHaveBeenCalledWith(mockVaultId, mockPassword)
+    expect(getVaultByIdApi).toHaveBeenCalledWith(mockVaultId, mockParams)
   })
 
   it('should call listRecords with vault id', async () => {
