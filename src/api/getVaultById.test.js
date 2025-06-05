@@ -34,9 +34,9 @@ describe('getVaultById', () => {
 
   it('throws "Vault not found" error if vault is not in the list', async () => {
     listVaults.mockResolvedValue([{ id: 'otherVault' }])
-    await expect(getVaultById('vault1', 'password')).rejects.toThrow(
-      'Vault not found'
-    )
+    await expect(
+      getVaultById('vault1', { password: 'password' })
+    ).rejects.toThrow('Vault not found')
   })
 
   describe('when password is provided', () => {
@@ -44,9 +44,9 @@ describe('getVaultById', () => {
       listVaults.mockResolvedValue([{ id: 'vault1' }])
       getVaultEncryption.mockResolvedValue({})
 
-      await expect(getVaultById('vault1', 'password')).rejects.toThrow(
-        'Error decrypting vault key'
-      )
+      await expect(
+        getVaultById('vault1', { password: 'password' })
+      ).rejects.toThrow('Error decrypting vault key')
     })
 
     it('throws error if decryption fails (decryptVaultKey returns falsy)', async () => {
@@ -61,9 +61,9 @@ describe('getVaultById', () => {
       pearpassVaultClient.getDecryptionKey.mockResolvedValue('hashedPassword')
       pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
 
-      await expect(getVaultById('vault1', 'password')).rejects.toThrow(
-        'Error decrypting vault key'
-      )
+      await expect(
+        getVaultById('vault1', { password: 'password' })
+      ).rejects.toThrow('Error decrypting vault key')
     })
 
     it('initializes the vault if activeVaultGetStatus returns false', async () => {
@@ -82,7 +82,7 @@ describe('getVaultById', () => {
       })
       pearpassVaultClient.activeVaultGet.mockResolvedValue({ id: 'vault1' })
 
-      const result = await getVaultById('vault1', 'password')
+      const result = await getVaultById('vault1', { password: 'password' })
 
       expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
         id: 'vault1',
@@ -110,7 +110,7 @@ describe('getVaultById', () => {
         .mockResolvedValueOnce({ id: 'differentVault' })
         .mockResolvedValueOnce({ id: 'vault1' })
 
-      const result = await getVaultById('vault1', 'password')
+      const result = await getVaultById('vault1', { password: 'password' })
 
       expect(pearpassVaultClient.activeVaultClose).toHaveBeenCalled()
 
@@ -134,7 +134,7 @@ describe('getVaultById', () => {
       })
       pearpassVaultClient.activeVaultGet.mockResolvedValue({ id: 'vault1' })
 
-      const result = await getVaultById('vault1', 'password')
+      const result = await getVaultById('vault1', { password: 'password' })
       expect(result).toEqual({ id: 'vault1' })
     })
   })

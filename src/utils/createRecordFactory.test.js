@@ -1,8 +1,9 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+
 import { createRecordFactory } from './createRecordFactory'
-import { generateUniqueId } from './generateUniqueId'
 import { validateAndPrepareRecord } from './validateAndPrepareRecord'
 
-jest.mock('./generateUniqueId', () => ({
+jest.mock('pear-apps-utils-generate-unique-id', () => ({
   generateUniqueId: jest.fn()
 }))
 

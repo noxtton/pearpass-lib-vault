@@ -45,44 +45,55 @@ describe('useInvite', () => {
   })
 
   test.each([
-    ['createInvite', createInviteAction, 'CREATE_INVITE', { inviteId: 'new-invite-id' }],
+    [
+      'createInvite',
+      createInviteAction,
+      'CREATE_INVITE',
+      { inviteId: 'new-invite-id' }
+    ],
     ['deleteInvite', deleteInviteAction, 'DELETE_INVITE', null]
-  ])('should dispatch %s action', async (method, actionMock, actionType, payload) => {
-    mockDispatch.mockResolvedValue({
-      error: false,
-      payload
-    })
+  ])(
+    'should dispatch %s action',
+    async (method, actionMock, actionType, payload) => {
+      mockDispatch.mockResolvedValue({
+        error: false,
+        payload
+      })
 
-    const hook = useInvite()
-    await hook[method]()
+      const hook = useInvite()
+      await hook[method]()
 
-    expect(actionMock).toHaveBeenCalled()
-    expect(mockDispatch).toHaveBeenCalledWith({ type: actionType })
-  })
+      expect(actionMock).toHaveBeenCalled()
+      expect(mockDispatch).toHaveBeenCalledWith({ type: actionType })
+    }
+  )
 
   test.each([
     ['createInvite', { inviteId: 'success-invite-id' }],
     ['deleteInvite', null]
-  ])('createInvite and deleteInvite should return correct action payload', async (method, payload) => {
-    mockDispatch.mockResolvedValue({ error: false, payload })
+  ])(
+    'createInvite and deleteInvite should return correct action payload',
+    async (method, payload) => {
+      mockDispatch.mockResolvedValue({ error: false, payload })
 
-    const hook = useInvite()
+      const hook = useInvite()
 
-    const dispatchResult = await hook[method]()
+      const dispatchResult = await hook[method]()
 
-    expect(dispatchResult.payload).toEqual(payload)
-  })
+      expect(dispatchResult.payload).toEqual(payload)
+    }
+  )
 
-  test.each([
-    ['createInvite'],
-    ['deleteInvite']
-  ])('createInvite and deleteInvite should return error when dispatch fails', async (method) => {
-    mockDispatch.mockResolvedValue({ error: true })
+  test.each([['createInvite'], ['deleteInvite']])(
+    'createInvite and deleteInvite should return error when dispatch fails',
+    async (method) => {
+      mockDispatch.mockResolvedValue({ error: true })
 
-    const hook = useInvite()
+      const hook = useInvite()
 
-    const dispatchResult = await hook[method]()
+      const dispatchResult = await hook[method]()
 
-    expect(dispatchResult.error).toEqual(true)
-  })
+      expect(dispatchResult.error).toEqual(true)
+    }
+  )
 })

@@ -1,189 +1,395 @@
+import { configureStore } from '@reduxjs/toolkit'
+
 import vaultReducer from './vaultSlice'
+import { createFolder } from '../actions/createFolder'
 import { createRecord } from '../actions/createRecord'
 import { createVault } from '../actions/createVault'
+import { deleteFolder } from '../actions/deleteFolder'
 import { deleteRecords } from '../actions/deleteRecords'
 import { getVaultById } from '../actions/getVaultById'
+import { pair } from '../actions/pair'
+import { renameFolder } from '../actions/renameFolder'
 import { resetState } from '../actions/resetState'
 import { updateRecords } from '../actions/updateRecords'
 
-const initialState = {
-  isLoading: false,
-  isInitialized: false,
-  isRecordLoading: false,
-  isFolderLoading: false,
-  data: null,
-  error: null
-}
+jest.mock('../actions/createFolder', () => ({
+  createFolder: {
+    pending: { type: 'createFolder/pending' },
+    fulfilled: { type: 'createFolder/fulfilled' },
+    rejected: { type: 'createFolder/rejected' }
+  }
+}))
+jest.mock('../actions/createRecord', () => ({
+  createRecord: {
+    pending: { type: 'createRecord/pending' },
+    fulfilled: { type: 'createRecord/fulfilled' },
+    rejected: { type: 'createRecord/rejected' }
+  }
+}))
+jest.mock('../actions/createVault', () => ({
+  createVault: {
+    pending: { type: 'createVault/pending' },
+    fulfilled: { type: 'createVault/fulfilled' },
+    rejected: { type: 'createVault/rejected' }
+  }
+}))
+jest.mock('../actions/deleteFolder', () => ({
+  deleteFolder: {
+    pending: { type: 'deleteFolder/pending' },
+    fulfilled: { type: 'deleteFolder/fulfilled' },
+    rejected: { type: 'deleteFolder/rejected' }
+  }
+}))
+jest.mock('../actions/deleteRecords', () => ({
+  deleteRecords: {
+    pending: { type: 'deleteRecords/pending' },
+    fulfilled: { type: 'deleteRecords/fulfilled' },
+    rejected: { type: 'deleteRecords/rejected' }
+  }
+}))
+jest.mock('../actions/getVaultById', () => ({
+  getVaultById: {
+    pending: { type: 'getVaultById/pending' },
+    fulfilled: { type: 'getVaultById/fulfilled' },
+    rejected: { type: 'getVaultById/rejected' }
+  }
+}))
+jest.mock('../actions/pair', () => ({
+  pair: {
+    pending: { type: 'pair/pending' },
+    fulfilled: { type: 'pair/fulfilled' },
+    rejected: { type: 'pair/rejected' }
+  }
+}))
+jest.mock('../actions/renameFolder', () => ({
+  renameFolder: {
+    pending: { type: 'renameFolder/pending' },
+    fulfilled: { type: 'renameFolder/fulfilled' },
+    rejected: { type: 'renameFolder/rejected' }
+  }
+}))
+jest.mock('../actions/resetState', () => ({
+  resetState: { fulfilled: { type: 'resetState/fulfilled' } }
+}))
+jest.mock('../actions/updateRecords', () => ({
+  updateRecords: {
+    pending: { type: 'updateRecords/pending' },
+    fulfilled: { type: 'updateRecords/fulfilled' },
+    rejected: { type: 'updateRecords/rejected' }
+  }
+}))
+jest.mock('../utils/logger', () => ({
+  logger: {
+    error: jest.fn()
+  }
+}))
 
-describe('vaultSlice reducer', () => {
-  it('should return the initial state when passed an empty action', () => {
-    expect(vaultReducer(undefined, { type: '' })).toEqual(initialState)
-  })
+describe('vaultSlice', () => {
+  let store
 
-  describe('getVaultById actions', () => {
-    it('should handle pending state', () => {
-      const action = { type: getVaultById.pending.type }
-      const state = vaultReducer(initialState, action)
-      expect(state.isLoading).toBe(true)
-    })
-
-    it('should handle fulfilled state', () => {
-      const mockVault = { id: 1, name: 'Test Vault', records: [] }
-      const action = { type: getVaultById.fulfilled.type, payload: mockVault }
-      const state = vaultReducer(initialState, action)
-      expect(state.isLoading).toBe(false)
-      expect(state.data).toEqual(mockVault)
-    })
-
-    it('should handle rejected state', () => {
-      const mockError = { message: 'Error getting vault' }
-      const action = { type: getVaultById.rejected.type, error: mockError }
-      const state = vaultReducer(initialState, action)
-      expect(state.isLoading).toBe(false)
-      expect(state.error).toEqual(mockError)
-    })
-  })
-
-  describe('createVault actions', () => {
-    it('should handle pending state', () => {
-      const action = { type: createVault.pending.type }
-      const state = vaultReducer(initialState, action)
-      expect(state.isLoading).toBe(true)
-    })
-
-    it('should handle fulfilled state', () => {
-      const mockVault = { id: 1, name: 'New Vault', records: [] }
-      const action = { type: createVault.fulfilled.type, payload: mockVault }
-      const state = vaultReducer(initialState, action)
-      expect(state.isLoading).toBe(false)
-      expect(state.data).toEqual(mockVault)
-    })
-
-    it('should handle rejected state', () => {
-      const mockError = { message: 'Error creating vault' }
-      const action = { type: createVault.rejected.type, error: mockError }
-      const state = vaultReducer(initialState, action)
-      expect(state.isLoading).toBe(false)
-      expect(state.error).toEqual(mockError)
-    })
-  })
-
-  describe('createRecord actions', () => {
-    it('should handle pending state', () => {
-      const action = { type: createRecord.pending.type }
-      const state = vaultReducer(initialState, action)
-      expect(state.isRecordLoading).toBe(true)
-    })
-
-    it('should handle fulfilled state', () => {
-      const mockRecord = { id: 1, title: 'Test Record' }
-      const existingState = {
-        ...initialState,
-        data: { records: [] }
+  beforeEach(() => {
+    store = configureStore({
+      reducer: {
+        vault: vaultReducer
       }
-      const action = { type: createRecord.fulfilled.type, payload: mockRecord }
-      const state = vaultReducer(existingState, action)
-      expect(state.isRecordLoading).toBe(false)
-      expect(state.data.records).toContain(mockRecord)
     })
+    jest.clearAllMocks()
+  })
 
-    it('should handle rejected state', () => {
-      const mockError = { message: 'Error creating record' }
-      const action = { type: createRecord.rejected.type, error: mockError }
-      const state = vaultReducer(initialState, action)
-      expect(state.isRecordLoading).toBe(false)
-      expect(state.error).toEqual(mockError)
+  it('should handle initial state', () => {
+    expect(store.getState().vault).toEqual({
+      isLoading: false,
+      isInitialized: false,
+      isRecordLoading: false,
+      isFolderLoading: false,
+      data: null,
+      error: null
     })
   })
 
-  describe('updateRecords actions', () => {
+  describe('getVaultById', () => {
     it('should handle pending state', () => {
-      const action = { type: updateRecords.pending.type }
-      const state = vaultReducer(initialState, action)
-      expect(state.isRecordLoading).toBe(true)
+      store.dispatch({ type: getVaultById.pending.type })
+      expect(store.getState().vault.isLoading).toBe(true)
     })
 
     it('should handle fulfilled state', () => {
-      const mockRecord = { id: 1, title: 'Updated Record' }
-      const existingState = {
-        ...initialState,
-        data: {
-          records: [
-            { id: 1, title: 'Old Record' },
-            { id: 2, title: 'Another Record' }
-          ]
-        }
-      }
-      const action = {
+      const mockVault = { id: '123', records: [] }
+      store.dispatch({ type: getVaultById.fulfilled.type, payload: mockVault })
+      expect(store.getState().vault.isLoading).toBe(false)
+      expect(store.getState().vault.isInitialized).toBe(true)
+      expect(store.getState().vault.data).toEqual(mockVault)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to fetch vault' }
+      store.dispatch({ type: getVaultById.rejected.type, error: mockError })
+      expect(store.getState().vault.isLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
+  describe('createVault', () => {
+    it('should handle pending state', () => {
+      store.dispatch({ type: createVault.pending.type })
+      expect(store.getState().vault.isLoading).toBe(true)
+    })
+
+    it('should handle fulfilled state', () => {
+      const mockVault = { id: '123', records: [] }
+      store.dispatch({ type: createVault.fulfilled.type, payload: mockVault })
+      expect(store.getState().vault.isLoading).toBe(false)
+      expect(store.getState().vault.data).toEqual(mockVault)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to create vault' }
+      store.dispatch({ type: createVault.rejected.type, error: mockError })
+      expect(store.getState().vault.isLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
+  describe('createRecord', () => {
+    beforeEach(() => {
+      store.dispatch({
+        type: getVaultById.fulfilled.type,
+        payload: { id: '123', records: [] }
+      })
+    })
+
+    it('should handle pending state', () => {
+      store.dispatch({ type: createRecord.pending.type })
+      expect(store.getState().vault.isRecordLoading).toBe(true)
+    })
+
+    it('should handle fulfilled state', () => {
+      const mockRecord = { id: 'rec1', type: 'password' }
+      store.dispatch({ type: createRecord.fulfilled.type, payload: mockRecord })
+      expect(store.getState().vault.isRecordLoading).toBe(false)
+      expect(store.getState().vault.data.records).toContain(mockRecord)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to create record' }
+      store.dispatch({ type: createRecord.rejected.type, error: mockError })
+      expect(store.getState().vault.isRecordLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
+  describe('updateRecords', () => {
+    beforeEach(() => {
+      store.dispatch({
+        type: getVaultById.fulfilled.type,
+        payload: { id: '123', records: [{ id: 'rec1' }] }
+      })
+    })
+
+    it('should handle pending state', () => {
+      store.dispatch({ type: updateRecords.pending.type })
+      expect(store.getState().vault.isRecordLoading).toBe(true)
+      expect(store.getState().vault.error).toBeNull()
+    })
+
+    it('should handle fulfilled state', () => {
+      const updatedRecords = [{ id: 'rec1', updated: true }, { id: 'rec2' }]
+      store.dispatch({
         type: updateRecords.fulfilled.type,
-        payload: [mockRecord]
-      }
-      const state = vaultReducer(existingState, action)
-      expect(state.isRecordLoading).toBe(false)
-      expect(state.data.records).toContainEqual(mockRecord)
-      expect(state.data.records.find((r) => r.id === 1).title).toBe(
-        'Updated Record'
-      )
+        payload: updatedRecords
+      })
+      expect(store.getState().vault.isRecordLoading).toBe(false)
+      expect(store.getState().vault.data.records).toEqual(updatedRecords)
+    })
+
+    it('should handle fulfilled state with no payload', () => {
+      store.dispatch({ type: updateRecords.fulfilled.type })
+      expect(store.getState().vault.isRecordLoading).toBe(false)
+      expect(store.getState().vault.data.records).toEqual([])
     })
 
     it('should handle rejected state', () => {
-      const mockError = { message: 'Error updating record' }
-      const action = { type: updateRecords.rejected.type, error: mockError }
-      const state = vaultReducer(initialState, action)
-      expect(state.isRecordLoading).toBe(false)
-      expect(state.error).toEqual(mockError)
+      const mockError = { message: 'Failed to update records' }
+      store.dispatch({ type: updateRecords.rejected.type, error: mockError })
+      expect(store.getState().vault.isRecordLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
     })
   })
 
-  describe('deleteRecords actions', () => {
+  describe('deleteRecords', () => {
+    beforeEach(() => {
+      store.dispatch({
+        type: getVaultById.fulfilled.type,
+        payload: { id: '123', records: [{ id: 'rec1' }, { id: 'rec2' }] }
+      })
+    })
+
     it('should handle pending state', () => {
-      const action = { type: deleteRecords.pending.type }
-      const state = vaultReducer(initialState, action)
-      expect(state.isRecordLoading).toBe(true)
+      store.dispatch({ type: deleteRecords.pending.type })
+      expect(store.getState().vault.isRecordLoading).toBe(true)
+      expect(store.getState().vault.error).toBeNull()
     })
 
     it('should handle fulfilled state', () => {
-      const existingState = {
-        ...initialState,
-        data: {
-          records: [
-            { id: 1, title: 'Record 1' },
-            { id: 2, title: 'Record 2' }
-          ]
-        }
-      }
-      const action = {
+      const remainingRecords = [{ id: 'rec2' }]
+      store.dispatch({
         type: deleteRecords.fulfilled.type,
-        payload: [{ id: 2, title: 'Record 2' }]
-      }
-      const state = vaultReducer(existingState, action)
-      expect(state.isRecordLoading).toBe(false)
-      expect(state.data.records.length).toBe(1)
-      expect(state.data.records[0].id).toBe(2)
+        payload: remainingRecords
+      })
+      expect(store.getState().vault.isRecordLoading).toBe(false)
+      expect(store.getState().vault.data.records).toEqual(remainingRecords)
     })
 
     it('should handle rejected state', () => {
-      const mockError = { message: 'Error deleting record' }
-      const action = { type: deleteRecords.rejected.type, error: mockError }
-      const state = vaultReducer(initialState, action)
-      expect(state.isRecordLoading).toBe(false)
-      expect(state.error).toEqual(mockError)
+      const mockError = { message: 'Failed to delete records' }
+      store.dispatch({ type: deleteRecords.rejected.type, error: mockError })
+      expect(store.getState().vault.isRecordLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
     })
   })
 
-  describe('resetState action', () => {
+  describe('createFolder', () => {
+    beforeEach(() => {
+      store.dispatch({
+        type: getVaultById.fulfilled.type,
+        payload: { id: '123', records: [] }
+      })
+    })
+
+    it('should handle pending state', () => {
+      store.dispatch({ type: createFolder.pending.type })
+      expect(store.getState().vault.isFolderLoading).toBe(true)
+    })
+
+    it('should handle fulfilled state', () => {
+      const mockFolder = { id: 'folder1', type: 'folder', name: 'Test Folder' }
+      store.dispatch({ type: createFolder.fulfilled.type, payload: mockFolder })
+      expect(store.getState().vault.isFolderLoading).toBe(false)
+      expect(store.getState().vault.data.records).toContain(mockFolder)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to create folder' }
+      store.dispatch({ type: createFolder.rejected.type, error: mockError })
+      expect(store.getState().vault.isFolderLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
+  describe('renameFolder', () => {
+    beforeEach(() => {
+      store.dispatch({
+        type: getVaultById.fulfilled.type,
+        payload: {
+          id: '123',
+          records: [{ id: 'folder1', type: 'folder', name: 'Old Name' }]
+        }
+      })
+    })
+
+    it('should handle pending state', () => {
+      store.dispatch({ type: renameFolder.pending.type })
+      expect(store.getState().vault.isFolderLoading).toBe(true)
+    })
+
+    it('should handle fulfilled state', () => {
+      const updatedRecords = [
+        { id: 'folder1', type: 'folder', name: 'New Name' }
+      ]
+      store.dispatch({
+        type: renameFolder.fulfilled.type,
+        payload: updatedRecords
+      })
+      expect(store.getState().vault.isFolderLoading).toBe(false)
+      expect(store.getState().vault.data.records).toEqual(updatedRecords)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to rename folder' }
+      store.dispatch({ type: renameFolder.rejected.type, error: mockError })
+      expect(store.getState().vault.isFolderLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
+  describe('deleteFolder', () => {
+    beforeEach(() => {
+      store.dispatch({
+        type: getVaultById.fulfilled.type,
+        payload: { id: '123', records: [{ id: 'folder1', type: 'folder' }] }
+      })
+    })
+
+    it('should handle pending state', () => {
+      store.dispatch({ type: deleteFolder.pending.type })
+      expect(store.getState().vault.isFolderLoading).toBe(true)
+    })
+
+    it('should handle fulfilled state', () => {
+      const remainingRecords = []
+      store.dispatch({
+        type: deleteFolder.fulfilled.type,
+        payload: remainingRecords
+      })
+      expect(store.getState().vault.isFolderLoading).toBe(false)
+      expect(store.getState().vault.data.records).toEqual(remainingRecords)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to delete folder' }
+      store.dispatch({ type: deleteFolder.rejected.type, error: mockError })
+      expect(store.getState().vault.isFolderLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
+  describe('pair', () => {
+    it('should handle pending state', () => {
+      store.dispatch({ type: pair.pending.type })
+      expect(store.getState().vault.isLoading).toBe(true)
+    })
+
+    it('should handle fulfilled state', () => {
+      store.dispatch({ type: pair.fulfilled.type })
+      expect(store.getState().vault.isLoading).toBe(false)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to pair' }
+      store.dispatch({ type: pair.rejected.type, error: mockError })
+      expect(store.getState().vault.isLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
+  describe('resetState', () => {
+    beforeEach(() => {
+      store.dispatch({
+        type: getVaultById.fulfilled.type,
+        payload: { id: '123', records: [{ id: 'rec1' }] }
+      })
+
+      store.dispatch({
+        type: createRecord.rejected.type,
+        error: { message: 'Some error' }
+      })
+    })
+
     it('should reset state to initial values', () => {
-      const modifiedState = {
-        isLoading: true,
-        isInitialized: true,
-        isRecordLoading: true,
-        isFolderLoading: true,
-        data: { some: 'data' },
-        error: { message: 'error' }
-      }
-      const action = { type: resetState.fulfilled.type }
-      const state = vaultReducer(modifiedState, action)
-      expect(state).toEqual(initialState)
+      expect(store.getState().vault.data).not.toBeNull()
+      expect(store.getState().vault.error).not.toBeNull()
+      expect(store.getState().vault.isInitialized).toBe(true)
+
+      store.dispatch({ type: resetState.fulfilled.type })
+
+      expect(store.getState().vault).toEqual({
+        isLoading: false,
+        isInitialized: false,
+        isRecordLoading: false,
+        isFolderLoading: false,
+        data: null,
+        error: null
+      })
     })
   })
 })

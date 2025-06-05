@@ -1,12 +1,13 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+
 import { createFolder } from './createFolder'
 import { createRecord } from '../api/createRecord'
-import { generateUniqueId } from '../utils/generateUniqueId'
 
 jest.mock('../api/createRecord', () => ({
   createRecord: jest.fn()
 }))
 
-jest.mock('../utils/generateUniqueId', () => ({
+jest.mock('pear-apps-utils-generate-unique-id', () => ({
   generateUniqueId: jest.fn()
 }))
 

@@ -25,7 +25,14 @@ import { logger } from '../utils/logger'
  *      isLoading: boolean
  *      isInitialized: boolean
  *      data: any
- *      refetch: (vaultId: string, password?: string) => Promise<any>
+ *      refetch: (
+ *        vaultId: string,
+ *        params?: {
+ *         password?: string
+ *         ciphertext?: string
+ *         nonce?: string
+ *         hashedPassword?: string
+ *        }) => Promise<any>
  *      isVaultProtected: (vaultId: string) => Promise<boolean>
  *      resetState: () => void
  *  }}
@@ -47,9 +54,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
 
   const isLoading = isVaultsLoading || isVaultLoading
 
-  const isVaultProtected = async (vaultId) => {
-    return checkVaultIsProtected(vaultId)
-  }
+  const isVaultProtected = async (vaultId) => checkVaultIsProtected(vaultId)
 
   const fetchVault = async (vaultId, params) => {
     const { payload: vault, error } = await dispatch(
@@ -72,7 +77,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     return vault
   }
 
-  const refetch = async (vaultId, param) => {
+  const refetch = async (vaultId, params) => {
     const correntVault = await getCurrentVault()
 
     const id = vaultId || variables?.vaultId || correntVault?.id
@@ -82,7 +87,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
       return
     }
 
-    const vault = await fetchVault(id, param)
+    const vault = await fetchVault(id, params)
 
     return vault
   }

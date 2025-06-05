@@ -82,11 +82,12 @@ describe('usePair', () => {
     jest.useFakeTimers()
     const mockOnError = jest.fn()
 
-    mockDispatch.mockImplementation(() => {
-      return new Promise((resolve) => {
-        setTimeout(() => resolve({ payload: mockVaultId }), 20000)
-      })
-    })
+    mockDispatch.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve({ payload: mockVaultId }), 20000)
+        })
+    )
 
     const { result } = renderHook(() => usePair({ onError: mockOnError }))
 

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+
 import { createInvite } from '../actions/createInvite'
 import { deleteInvite } from '../actions/deleteInvite'
 import { resetState } from '../actions/resetState'

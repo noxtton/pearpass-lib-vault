@@ -1,9 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
 import { Validator } from 'pear-apps-utils-validator'
 
 import { createInvite as createInviteApi } from '../api/createInvite'
 import { VERSION } from '../constants/version'
-import { generateUniqueId } from '../utils/generateUniqueId'
 
 export const inviteSchema = Validator.object({
   id: Validator.string().required(),
