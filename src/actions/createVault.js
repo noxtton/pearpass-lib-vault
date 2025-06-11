@@ -11,6 +11,7 @@ const schema = Validator.object({
   name: Validator.string().required(),
   version: Validator.number().required(),
   records: Validator.array().required(),
+  devices: Validator.array().required(),
   createdAt: Validator.number().required(),
   updatedAt: Validator.number().required()
 })
@@ -23,6 +24,7 @@ export const createVault = createAsyncThunk(
       name: name,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: Date.now(),
       updatedAt: Date.now()
     }

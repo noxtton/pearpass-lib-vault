@@ -1,7 +1,7 @@
-import { createVault } from './createVault'
 import { createVault as createVaultApi } from '../api/createVault'
 import { VERSION } from '../constants/version'
 import { generateUniqueId } from '../utils/generateUniqueId'
+import { createVault } from './createVault'
 
 jest.mock('../api/createVault', () => ({
   createVault: jest.fn()
@@ -45,6 +45,7 @@ describe('createVault', () => {
       name: vaultName,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: mockDate,
       updatedAt: mockDate
     })
@@ -61,20 +62,22 @@ describe('createVault', () => {
       name: vaultName,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: mockDate,
       updatedAt: mockDate
     })
   })
 
-  it('should call createVaultApi with correct parameters', async () => {
-    const thunk = createVault({ name: vaultName })
-    await thunk(dispatch, getState)
+  it("should call createVaultApi with correct parameters", async () => {
+    const thunk = createVault({ name: vaultName });
+    await thunk(dispatch, getState);
 
     expect(createVaultApi).toHaveBeenCalledWith({
       id: mockVaultId,
       name: vaultName,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: mockDate,
       updatedAt: mockDate
     })
