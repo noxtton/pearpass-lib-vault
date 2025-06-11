@@ -1,4 +1,4 @@
-import { createDeviceFactory } from "./createDeviceFactory";
+import { addDeviceFactory } from "./addDeviceFactory";
 import { generateUniqueId } from "./generateUniqueId";
 import { validateAndPrepareDevice } from "./validateAndPrepareDevice";
 
@@ -10,12 +10,12 @@ jest.mock("./validateAndPrepareDevice", () => ({
   validateAndPrepareDevice: jest.fn(),
 }));
 
-describe("createDeviceFactory", () => {
+describe("addDeviceFactory", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should create a device with correct fields and call dependencies", () => {
+  it("should add a device with correct fields and call dependencies", () => {
     const mockId = "123-abc";
     const payload = {
       data: { content: "Hello" },
@@ -25,7 +25,7 @@ describe("createDeviceFactory", () => {
     generateUniqueId.mockReturnValue(mockId);
     validateAndPrepareDevice.mockImplementation((device) => device);
 
-    const result = createDeviceFactory(payload, vaultId);
+    const result = addDeviceFactory(payload, vaultId);
 
     expect(generateUniqueId).toHaveBeenCalled();
     expect(validateAndPrepareDevice).toHaveBeenCalledWith(
@@ -52,7 +52,7 @@ describe("createDeviceFactory", () => {
     generateUniqueId.mockReturnValue(mockId);
     validateAndPrepareDevice.mockImplementation((device) => device);
 
-    const result = createDeviceFactory(payload, vaultId);
+    const result = addDeviceFactory(payload, vaultId);
 
     expect(result.folder).toBeNull();
     expect(result.isFavorite).toBe(false);

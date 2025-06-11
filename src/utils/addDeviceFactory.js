@@ -8,7 +8,7 @@ import { validateAndPrepareDevice } from "./validateAndPrepareDevice";
  * @param {string} vaultId
  * @returns {Object}
  */
-export const createRecordFactory = (payload, vaultId) => {
+export const addDeviceFactory = (payload, vaultId) => {
   if (!payload || !vaultId) {
     throw new Error("Payload and vaultId are required");
   }
