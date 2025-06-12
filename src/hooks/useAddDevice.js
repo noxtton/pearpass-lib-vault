@@ -1,7 +1,7 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from 'react-redux'
 
-import { addDevice as addDeviceAction } from "../actions/addDevice";
-import { selectVault } from "../selectors/selectVault";
+import { addDevice as addDeviceAction } from '../actions/addDevice'
+import { selectVault } from '../selectors/selectVault'
 
 /**
  * @param {{
@@ -13,17 +13,17 @@ import { selectVault } from "../selectors/selectVault";
  * }}
  */
 export const useAddDevice = ({ onCompleted } = {}) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  const { isDeviceLoading: isLoading } = useSelector(selectVault);
+  const { isDeviceLoading: isLoading } = useSelector(selectVault)
 
   const addDevice = async (device) => {
-    const { error, payload } = await dispatch(addDeviceAction(device));
+    const { error, payload } = await dispatch(addDeviceAction(device))
 
     if (!error) {
-      onCompleted?.(payload);
+      onCompleted?.(payload)
     }
-  };
+  }
 
-  return { isLoading, addDevice };
-};
+  return { isLoading, addDevice }
+}

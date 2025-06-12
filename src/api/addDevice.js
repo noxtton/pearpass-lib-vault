@@ -1,4 +1,4 @@
-import { pearpassVaultClient } from "../instances";
+import { pearpassVaultClient } from '../instances'
 
 /**
  * @param {{
@@ -8,5 +8,5 @@ import { pearpassVaultClient } from "../instances";
  * @returns {Promise<void>}
  */
 export const addDevice = async (device) => {
-  await pearpassVaultClient.activeVaultAdd(`device/${device.id}`, device);
-};
+  await pearpassVaultClient.activeVaultAdd(`device/${device.id}`, device)
+}

@@ -1,70 +1,70 @@
-import { act, renderHook } from "@testing-library/react";
-import { useDispatch, useSelector } from "react-redux";
+import { act, renderHook } from '@testing-library/react'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { deleteDevices as deleteDevicesAction } from "../actions/deleteDevices";
-import { getVaultById } from "../actions/getVaultById";
+import { useDevices } from './useDevices'
+import { deleteDevices as deleteDevicesAction } from '../actions/deleteDevices'
+import { getVaultById } from '../actions/getVaultById'
 import {
   updateDevices as updateDeviceAction,
   updateFavoriteState as updateFavoriteStateAction,
-  updateFolder as updateFolderAction,
-} from "../actions/updateDevices";
-import { selectDevices } from "../selectors/selectDevices";
-import { selectVault } from "../selectors/selectVault";
-import { useDevices } from "./useDevices";
+  updateFolder as updateFolderAction
+} from '../actions/updateDevices'
+import { selectDevices } from '../selectors/selectDevices'
+import { selectVault } from '../selectors/selectVault'
 
-jest.mock("react-redux");
-jest.mock("../actions/getVaultById");
-jest.mock("../selectors/selectDevices");
-jest.mock("../selectors/selectVault");
+jest.mock('react-redux')
+jest.mock('../actions/getVaultById')
+jest.mock('../selectors/selectDevices')
+jest.mock('../selectors/selectVault')
 
-jest.mock("react-redux", () => ({
+jest.mock('react-redux', () => ({
   useDispatch: jest.fn(),
-  useSelector: jest.fn(),
-}));
+  useSelector: jest.fn()
+}))
 
-jest.mock("../actions/updateDevices", () => ({
+jest.mock('../actions/updateDevices', () => ({
   updateDevices: jest.fn(),
   updateFolder: jest.fn(),
-  updateFavoriteState: jest.fn(),
-}));
+  updateFavoriteState: jest.fn()
+}))
 
-jest.mock("../actions/deleteDevices", () => ({
-  deleteDevices: jest.fn(),
-}));
+jest.mock('../actions/deleteDevices', () => ({
+  deleteDevices: jest.fn()
+}))
 
-describe("useDevices", () => {
-  const mockDispatch = jest.fn();
-  const mockOnCompleted = jest.fn();
-  const mockVaultId = "test-vault-id";
-  const mockData = [{ records: [{ id: 1 }, { id: 2 }] }];
-  const mockPayload = [{ id: mockVaultId, records: mockData.records }];
-  const onCompletedMock = jest.fn();
-  const deletemockPayload = ["record-123"];
+describe('useDevices', () => {
+  const mockDispatch = jest.fn()
+  const mockOnCompleted = jest.fn()
+  const mockVaultId = 'test-vault-id'
+  const mockData = [{ devices: [{ id: 1 }, { id: 2 }] }]
+  const mockPayload = [{ id: mockVaultId, devices: mockData.devices }]
+  const onCompletedMock = jest.fn()
+  const deletemockPayload = ['device-123']
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    useDispatch.mockReturnValue(mockDispatch);
-    getVaultById.mockReturnValue({ type: "GET_VAULT_BY_ID" });
-    mockDispatch.mockResolvedValue({ payload: mockPayload, error: null });
+    jest.clearAllMocks()
+    useDispatch.mockReturnValue(mockDispatch)
+    getVaultById.mockReturnValue({ type: 'GET_VAULT_BY_ID' })
+    mockDispatch.mockResolvedValue({ payload: mockPayload, error: null })
 
     useSelector.mockImplementation((selector) => {
       if (selector === selectVault) {
-        return { data: { id: mockVaultId } };
+        return { data: { id: mockVaultId } }
       }
-      return { isLoading: false, data: mockData };
-    });
+      return { isLoading: false, data: mockData }
+    })
 
-    selectDevices.mockReturnValue(() => ({ isLoading: false, data: mockData }));
-  });
+    selectDevices.mockReturnValue(() => ({ isLoading: false, data: mockData }))
+  })
 
-  it("should return initial state", () => {
-    useSelector.mockImplementation(() => ({ isLoading: true, data: null }));
+  it('should return initial state', () => {
+    useSelector.mockImplementation(() => ({ isLoading: true, data: null }))
 
     const { result } = renderHook(() =>
       useDevices({
-        variables: { vaultId: mockVaultId },
+        variables: { vaultId: mockVaultId }
       })
-    );
+    )
 
     expect(result.current).toEqual({
       isLoading: true,
@@ -73,224 +73,224 @@ describe("useDevices", () => {
       updateFolder: expect.any(Function),
       updateDevices: expect.any(Function),
       updateFavoriteState: expect.any(Function),
-      deleteDevices: expect.any(Function),
-    });
-  });
+      deleteDevices: expect.any(Function)
+    })
+  })
 
-  it("should fetch vault data on initial render", () => {
-    useSelector.mockImplementation(() => ({ isLoading: true, data: null }));
+  it('should fetch vault data on initial render', () => {
+    useSelector.mockImplementation(() => ({ isLoading: true, data: null }))
 
     renderHook(() =>
       useDevices({
-        variables: { vaultId: mockVaultId },
+        variables: { vaultId: mockVaultId }
       })
-    );
+    )
 
-    expect(mockDispatch).toHaveBeenCalledWith({ type: "GET_VAULT_BY_ID" });
-    expect(getVaultById).toHaveBeenCalledWith({ vaultId: mockVaultId });
-  });
+    expect(mockDispatch).toHaveBeenCalledWith({ type: 'GET_VAULT_BY_ID' })
+    expect(getVaultById).toHaveBeenCalledWith({ vaultId: mockVaultId })
+  })
 
-  it("should not fetch vault data if shouldSkip is true", () => {
+  it('should not fetch vault data if shouldSkip is true', () => {
     renderHook(() =>
       useDevices({
         shouldSkip: true,
-        variables: { vaultId: mockVaultId },
+        variables: { vaultId: mockVaultId }
       })
-    );
+    )
 
-    expect(mockDispatch).not.toHaveBeenCalled();
-  });
+    expect(mockDispatch).not.toHaveBeenCalled()
+  })
 
-  it("should not fetch vault data if data is already present", () => {
+  it('should not fetch vault data if data is already present', () => {
     renderHook(() =>
       useDevices({
-        variables: { vaultId: mockVaultId },
+        variables: { vaultId: mockVaultId }
       })
-    );
+    )
 
-    expect(mockDispatch).not.toHaveBeenCalled();
-  });
+    expect(mockDispatch).not.toHaveBeenCalled()
+  })
 
-  it("should call onCompleted callback after successful fetch", async () => {
-    useSelector.mockImplementation(() => ({ isLoading: true, data: null }));
+  it('should call onCompleted callback after successful fetch', async () => {
+    useSelector.mockImplementation(() => ({ isLoading: true, data: null }))
 
     renderHook(() =>
       useDevices({
         onCompleted: mockOnCompleted,
-        variables: { vaultId: mockVaultId },
+        variables: { vaultId: mockVaultId }
       })
-    );
+    )
 
-    await Promise.resolve();
+    await Promise.resolve()
 
-    expect(mockOnCompleted).toHaveBeenCalledWith(mockPayload);
-  });
+    expect(mockOnCompleted).toHaveBeenCalledWith(mockPayload)
+  })
 
-  it("should refetch data when refetch is called", async () => {
+  it('should refetch data when refetch is called', async () => {
     const { result } = renderHook(() =>
       useDevices({
-        variables: { vaultId: mockVaultId },
+        variables: { vaultId: mockVaultId }
       })
-    );
+    )
 
-    mockDispatch.mockClear();
+    mockDispatch.mockClear()
 
     act(() => {
-      result.current.refetch();
-    });
+      result.current.refetch()
+    })
 
-    expect(mockDispatch).toHaveBeenCalledWith({ type: "GET_VAULT_BY_ID" });
-  });
+    expect(mockDispatch).toHaveBeenCalledWith({ type: 'GET_VAULT_BY_ID' })
+  })
 
-  it("should apply filters and sort from variables", () => {
+  it('should apply filters and sort from variables', () => {
     const filters = {
-      searchPattern: "test",
-      type: "password",
-      folder: "personal",
-      isFavorite: true,
-    };
+      searchPattern: 'test',
+      type: 'password',
+      folder: 'personal',
+      isFavorite: true
+    }
 
     const sort = {
-      field: "name",
-      direction: "asc",
-    };
+      field: 'name',
+      direction: 'asc'
+    }
 
     renderHook(() =>
       useDevices({
         variables: {
           vaultId: mockVaultId,
           filters,
-          sort,
-        },
+          sort
+        }
       })
-    );
+    )
 
     expect(selectDevices).toHaveBeenCalledWith({
       filters,
-      sort,
-    });
-  });
+      sort
+    })
+  })
 
-  test("updateDevice should dispatch the action and call onCompleted on success", async () => {
-    const mockResponse = { error: false, payload: { id: "123" } };
-    mockDispatch.mockResolvedValue(mockResponse);
-    updateDeviceAction.mockReturnValue("UPDATE_RECORD_ACTION");
+  test('updateDevice should dispatch the action and call onCompleted on success', async () => {
+    const mockResponse = { error: false, payload: { id: '123' } }
+    mockDispatch.mockResolvedValue(mockResponse)
+    updateDeviceAction.mockReturnValue('UPDATE_RECORD_ACTION')
 
-    const onCompletedMock = jest.fn();
+    const onCompletedMock = jest.fn()
     const { result } = renderHook(() =>
       useDevices({ onCompleted: onCompletedMock })
-    );
+    )
 
-    const record = { id: "123", name: "Test Device" };
+    const device = { id: '123', name: 'Test Device' }
     await act(async () => {
-      await result.current.updateDevices(record);
-    });
+      await result.current.updateDevices(device)
+    })
 
-    expect(updateDeviceAction).toHaveBeenCalledWith(record);
-    expect(mockDispatch).toHaveBeenCalledWith("UPDATE_RECORD_ACTION");
-    expect(onCompletedMock).toHaveBeenCalledWith(mockResponse.payload);
-  });
+    expect(updateDeviceAction).toHaveBeenCalledWith(device)
+    expect(mockDispatch).toHaveBeenCalledWith('UPDATE_RECORD_ACTION')
+    expect(onCompletedMock).toHaveBeenCalledWith(mockResponse.payload)
+  })
 
-  test("updateDevice should not call onCompleted on error", async () => {
-    const mockResponse = { error: true, payload: null };
-    mockDispatch.mockResolvedValue(mockResponse);
+  test('updateDevice should not call onCompleted on error', async () => {
+    const mockResponse = { error: true, payload: null }
+    mockDispatch.mockResolvedValue(mockResponse)
 
-    const onCompletedMock = jest.fn();
+    const onCompletedMock = jest.fn()
     const { result } = renderHook(() =>
       useDevices({ onCompleted: onCompletedMock })
-    );
-
-    await act(async () => {
-      await result.current.updateDevices({ id: "123" });
-    });
-
-    expect(onCompletedMock).not.toHaveBeenCalled();
-  });
-
-  test("updateFolder should dispatch the action and call onCompleted on success", async () => {
-    const mockResponse = { error: false, payload: { id: "123" } };
-    mockDispatch.mockResolvedValue(mockResponse);
-    updateFolderAction.mockReturnValue("UPDATE_FOLDER_ACTION");
-
-    const onCompletedMock = jest.fn();
-    const { result } = renderHook(() =>
-      useDevices({ onCompleted: onCompletedMock })
-    );
+    )
 
     await act(async () => {
-      await result.current.updateFolder("123", "Test Folder");
-    });
+      await result.current.updateDevices({ id: '123' })
+    })
 
-    expect(updateFolderAction).toHaveBeenCalledWith("123", "Test Folder");
-    expect(mockDispatch).toHaveBeenCalledWith("UPDATE_FOLDER_ACTION");
-    expect(onCompletedMock).toHaveBeenCalledWith(mockResponse.payload);
-  });
+    expect(onCompletedMock).not.toHaveBeenCalled()
+  })
 
-  test("updateFavoriteState should dispatch the action and call onCompleted on success", async () => {
-    const mockResponse = { error: false, payload: { id: "123" } };
-    mockDispatch.mockResolvedValue(mockResponse);
-    updateFavoriteStateAction.mockReturnValue("UPDATE_FAVORITE_ACTION");
+  test('updateFolder should dispatch the action and call onCompleted on success', async () => {
+    const mockResponse = { error: false, payload: { id: '123' } }
+    mockDispatch.mockResolvedValue(mockResponse)
+    updateFolderAction.mockReturnValue('UPDATE_FOLDER_ACTION')
 
-    const onCompletedMock = jest.fn();
+    const onCompletedMock = jest.fn()
     const { result } = renderHook(() =>
       useDevices({ onCompleted: onCompletedMock })
-    );
+    )
 
     await act(async () => {
-      await result.current.updateFavoriteState("123", true);
-    });
+      await result.current.updateFolder('123', 'Test Folder')
+    })
 
-    expect(updateFavoriteStateAction).toHaveBeenCalledWith("123", true);
-    expect(mockDispatch).toHaveBeenCalledWith("UPDATE_FAVORITE_ACTION");
-    expect(onCompletedMock).toHaveBeenCalledWith(mockResponse.payload);
-  });
+    expect(updateFolderAction).toHaveBeenCalledWith('123', 'Test Folder')
+    expect(mockDispatch).toHaveBeenCalledWith('UPDATE_FOLDER_ACTION')
+    expect(onCompletedMock).toHaveBeenCalledWith(mockResponse.payload)
+  })
 
-  test("should expose loading state from the vault selector", () => {
-    useSelector.mockImplementation(() => ({ isLoading: true }));
+  test('updateFavoriteState should dispatch the action and call onCompleted on success', async () => {
+    const mockResponse = { error: false, payload: { id: '123' } }
+    mockDispatch.mockResolvedValue(mockResponse)
+    updateFavoriteStateAction.mockReturnValue('UPDATE_FAVORITE_ACTION')
 
-    const { result } = renderHook(() => useDevices());
+    const onCompletedMock = jest.fn()
+    const { result } = renderHook(() =>
+      useDevices({ onCompleted: onCompletedMock })
+    )
 
-    expect(result.current.isLoading).toBe(true);
-  });
+    await act(async () => {
+      await result.current.updateFavoriteState('123', true)
+    })
 
-  test("should call deleteDeviceAction with recordIds", async () => {
-    const recordIds = ["record-123"];
-    deleteDevicesAction.mockReturnValue("DELETE_RECORD_ACTION");
+    expect(updateFavoriteStateAction).toHaveBeenCalledWith('123', true)
+    expect(mockDispatch).toHaveBeenCalledWith('UPDATE_FAVORITE_ACTION')
+    expect(onCompletedMock).toHaveBeenCalledWith(mockResponse.payload)
+  })
+
+  test('should expose loading state from the vault selector', () => {
+    useSelector.mockImplementation(() => ({ isLoading: true }))
+
+    const { result } = renderHook(() => useDevices())
+
+    expect(result.current.isLoading).toBe(true)
+  })
+
+  test('should call deleteDeviceAction with deviceIds', async () => {
+    const deviceIds = ['device-123']
+    deleteDevicesAction.mockReturnValue('DELETE_RECORD_ACTION')
 
     const { result } = renderHook(() =>
       useDevices({ onCompleted: onCompletedMock })
-    );
+    )
 
-    await result.current.deleteDevices(recordIds);
+    await result.current.deleteDevices(deviceIds)
 
-    expect(deleteDevicesAction).toHaveBeenCalledWith(recordIds);
-    expect(mockDispatch).toHaveBeenCalledWith("DELETE_RECORD_ACTION");
-  });
+    expect(deleteDevicesAction).toHaveBeenCalledWith(deviceIds)
+    expect(mockDispatch).toHaveBeenCalledWith('DELETE_RECORD_ACTION')
+  })
 
-  test("should call onCompleted callback when operation succeeds", async () => {
-    const recordIds = ["record-123"];
+  test('should call onCompleted callback when operation succeeds', async () => {
+    const deviceIds = ['device-123']
 
-    mockDispatch.mockResolvedValue({ payload: recordIds, error: null });
-
-    const { result } = renderHook(() =>
-      useDevices({ onCompleted: onCompletedMock })
-    );
-
-    await result.current.deleteDevices(recordIds);
-
-    expect(onCompletedMock).toHaveBeenCalledWith(deletemockPayload);
-  });
-
-  test("should not call onCompleted callback when operation fails", async () => {
-    const recordIds = ["record-123"];
-    mockDispatch.mockResolvedValue({ error: "Some error", payload: null });
+    mockDispatch.mockResolvedValue({ payload: deviceIds, error: null })
 
     const { result } = renderHook(() =>
       useDevices({ onCompleted: onCompletedMock })
-    );
+    )
 
-    await result.current.deleteDevices(recordIds);
+    await result.current.deleteDevices(deviceIds)
 
-    expect(onCompletedMock).not.toHaveBeenCalled();
-  });
-});
+    expect(onCompletedMock).toHaveBeenCalledWith(deletemockPayload)
+  })
+
+  test('should not call onCompleted callback when operation fails', async () => {
+    const deviceIds = ['device-123']
+    mockDispatch.mockResolvedValue({ error: 'Some error', payload: null })
+
+    const { result } = renderHook(() =>
+      useDevices({ onCompleted: onCompletedMock })
+    )
+
+    await result.current.deleteDevices(deviceIds)
+
+    expect(onCompletedMock).not.toHaveBeenCalled()
+  })
+})
