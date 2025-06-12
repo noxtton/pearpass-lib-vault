@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { useDispatch } from 'react-redux'
 
+import { addDevice as addDeviceAction } from '../actions/addDevice'
 import { getVaultById } from '../actions/getVaultById'
 import { pair as pairAction } from '../actions/pair'
 import { initListener } from '../api/initListener'
@@ -21,7 +22,7 @@ export const usePair = ({ onCompleted, onError } = {}) => {
 
   const [isLoading, setIsLoading] = useState(false)
 
-  const pair = async (inviteCode) => {
+  const pair = async (inviteCode, device) => {
     try {
       setIsLoading(true)
 
@@ -38,6 +39,8 @@ export const usePair = ({ onCompleted, onError } = {}) => {
         pairPromise,
         timeoutPromise
       ])
+
+      await dispatch(addDeviceAction(device))
 
       await initListener({
         vaultId: vaultId,

@@ -1,5 +1,5 @@
-import { generateUniqueId } from "./generateUniqueId";
-import { validateAndPrepareDevice } from "./validateAndPrepareDevice";
+import { generateUniqueId } from './generateUniqueId'
+import { validateAndPrepareDevice } from './validateAndPrepareDevice'
 
 /**
  * @param {{
@@ -10,7 +10,7 @@ import { validateAndPrepareDevice } from "./validateAndPrepareDevice";
  */
 export const addDeviceFactory = (payload, vaultId) => {
   if (!payload || !vaultId) {
-    throw new Error("Payload and vaultId are required");
+    throw new Error('Payload and vaultId are required')
   }
 
   const device = {
@@ -18,8 +18,8 @@ export const addDeviceFactory = (payload, vaultId) => {
     vaultId: vaultId,
     data: payload.data,
     createdAt: Date.now(),
-    updatedAt: Date.now(),
-  };
+    updatedAt: Date.now()
+  }
 
-  return validateAndPrepareDevice(device);
-};
+  return validateAndPrepareDevice(device)
+}

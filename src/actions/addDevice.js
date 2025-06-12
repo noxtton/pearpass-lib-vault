@@ -1,17 +1,17 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk } from '@reduxjs/toolkit'
 
-import { addDevice as addDeviceApi } from "../api/addDevice";
-import { addDeviceFactory } from "../utils/addDeviceFactory";
+import { addDevice as addDeviceApi } from '../api/addDevice'
+import { addDeviceFactory } from '../utils/addDeviceFactory'
 
 export const addDevice = createAsyncThunk(
-  "vault/addDevice",
+  'vault/addDevice',
   async (payload, { getState }) => {
-    const vaultId = getState().vault.data.id;
+    const vaultId = getState().vault.data.id
 
-    const newDevice = addDeviceFactory(payload, vaultId);
+    const newDevice = addDeviceFactory(payload, vaultId)
 
-    await addDeviceApi(newDevice);
+    await addDeviceApi(newDevice)
 
-    return newDevice;
+    return newDevice
   }
-);
+)

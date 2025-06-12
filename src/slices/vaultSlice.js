@@ -11,12 +11,14 @@ import { renameFolder } from '../actions/renameFolder'
 import { resetState } from '../actions/resetState'
 import { updateRecords } from '../actions/updateRecords'
 import { logger } from '../utils/logger'
+import { addDevice } from './actions/addDevice'
 
 const initialState = {
   isLoading: false,
   isInitialized: false,
   isRecordLoading: false,
   isFolderLoading: false,
+  isDeviceLoading: false,
   data: null,
   error: null
 }
@@ -158,6 +160,21 @@ export const vaultSlice = createSlice({
         logger.error(`Action pair error:`, JSON.stringify(action.error))
 
         state.isLoading = false
+        state.error = action.error
+      })
+
+    builder
+      .addCase(addDevice.pending, (state) => {
+        state.isDeviceLoading = true
+      })
+      .addCase(addDevice.fulfilled, (state, action) => {
+        state.isDeviceLoading = false
+        state.data.devices = action?.payload ?? []
+      })
+      .addCase(addDevice.rejected, (state, action) => {
+        logger.error(`Action pair error:`, JSON.stringify(action.error))
+
+        state.isDeviceLoading = false
         state.error = action.error
       })
 
