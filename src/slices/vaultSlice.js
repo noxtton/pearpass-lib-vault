@@ -185,6 +185,7 @@ export const vaultSlice = createSlice({
       state.isInitialized = initialState.isInitialized
       state.isRecordLoading = initialState.isRecordLoading
       state.isFolderLoading = initialState.isFolderLoading
+      state.isDeviceLoading = initialState.isDeviceLoading
     })
   }
 })
