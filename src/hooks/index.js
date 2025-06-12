@@ -1,8 +1,6 @@
-export { useAddDevice } from './useAddDevice.js'
 export { useCreateFolder } from './useCreateFolder'
 export { useCreateRecord } from './useCreateRecord'
 export { useCreateVault } from './useCreateVault'
-export { useDevices } from './useDevices'
 export { useFolders } from './useFolders'
 export { useInvite } from './useInvite.js'
 export { usePair } from './usePair'

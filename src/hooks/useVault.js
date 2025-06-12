@@ -13,6 +13,8 @@ import { selectVault } from '../selectors/selectVault'
 import { selectVaults } from '../selectors/selectVaults'
 import { logger } from '../utils/logger'
 
+import { addDevice as addDeviceAction } from '../actions/addDevice.js'
+
 /**
  *  @param {{
  *      onCompleted?: (payload: any) => void
@@ -87,6 +89,18 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     return vault
   }
 
+  const addDevice = async (vaultId, device) => {
+    const { error: createError } = await dispatch(addDeviceAction(device))
+
+    await refetch()
+
+    await dispatch(getVaults())
+
+    if (createError) {
+      throw new Error('Error adding device to device list in vault')
+    }
+  }
+
   const updateVault = async (vaultId, vaultUpdate) => {
     const { error: createError } = await dispatch(
       updateVaultAction({
@@ -130,6 +144,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     data,
     isInitialized: isVaultInitialized,
     refetch,
+    addDevice,
     isVaultProtected,
     resetState,
     updateVault
