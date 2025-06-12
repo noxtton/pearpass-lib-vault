@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+import { addDevice } from '../actions/addDevice'
 import { createFolder } from '../actions/createFolder'
 import { createRecord } from '../actions/createRecord'
 import { createVault } from '../actions/createVault'
@@ -11,7 +12,6 @@ import { renameFolder } from '../actions/renameFolder'
 import { resetState } from '../actions/resetState'
 import { updateRecords } from '../actions/updateRecords'
 import { logger } from '../utils/logger'
-import { addDevice } from './actions/addDevice'
 
 const initialState = {
   isLoading: false,

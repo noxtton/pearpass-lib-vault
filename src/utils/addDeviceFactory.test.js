@@ -18,7 +18,7 @@ describe('addDeviceFactory', () => {
   it('should add a device with correct fields and call dependencies', () => {
     const mockId = '123-abc'
     const payload = {
-      data: { content: 'Hello' }
+      data: { platform: 'ios', version: '18.5.1' }
     }
     const vaultId = 'vault-456'
 
@@ -32,7 +32,7 @@ describe('addDeviceFactory', () => {
       expect.objectContaining({
         id: mockId,
         vaultId,
-        data: { content: 'Hello' }
+        data: { platform: 'ios', version: '18.5.1' }
       })
     )
 
@@ -45,7 +45,7 @@ describe('addDeviceFactory', () => {
   it('should default folder to null and isFavorite to false', () => {
     const mockId = '789-def'
     const payload = {
-      data: { username: 'test' }
+      data: { platform: 'ios', version: '18.5.1' }
     }
     const vaultId = 'vault-999'
 
