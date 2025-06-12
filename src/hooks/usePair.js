@@ -8,7 +8,9 @@ import { initListener } from '../api/initListener'
 
 /**
  * @returns {{
- *  pair: (inviteCode: string) => Promise<void>
+ *  pair: (inviteCode: string) => Promise<{
+ *    vaultId: string
+ *  }>
  *  isLoading: boolean
  *  }}
  */
