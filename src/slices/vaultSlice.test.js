@@ -11,6 +11,7 @@ const initialState = {
   isInitialized: false,
   isRecordLoading: false,
   isFolderLoading: false,
+  isDeviceLoading: false,
   data: null,
   error: null
 }
@@ -178,6 +179,7 @@ describe('vaultSlice reducer', () => {
         isInitialized: true,
         isRecordLoading: true,
         isFolderLoading: true,
+        isDeviceLoading: true,
         data: { some: 'data' },
         error: { message: 'error' }
       }

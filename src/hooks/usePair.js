@@ -25,10 +25,10 @@ export const usePair = () => {
     const pairPromise = dispatch(pairAction(inviteCode))
 
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(
-        () => reject(new Error('Pairing timeout after 10 seconds')),
-        10000
-      )
+      setTimeout(() => {
+        setIsLoading(false)
+        return reject(new Error('Pairing timeout after 10 seconds'))
+      }, 10000)
     })
 
     const { payload: vaultId } = await Promise.race([

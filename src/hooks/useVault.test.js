@@ -135,7 +135,7 @@ describe('useVault', () => {
 
     expect(getVaultById).toHaveBeenCalledWith({
       vaultId: 'new-vault-id',
-      password: 'password123'
+      params: 'password123'
     })
   })
 
