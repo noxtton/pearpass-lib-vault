@@ -20,7 +20,7 @@ describe('addDevice', () => {
   const mockDeviceId = 'device-456'
   const mockDate = 1633000000000
   const mockPayload = {
-    data: { platform: 'ios', version: '20.6.0' }
+    data: { name: 'ios' }
   }
 
   let dispatch
@@ -53,9 +53,8 @@ describe('addDevice', () => {
     expect(result.payload).toEqual({
       id: mockDeviceId,
       vaultId: mockVaultId,
-      data: mockPayload.data,
-      createdAt: mockDate,
-      updatedAt: mockDate
+      data: mockPayload.name,
+      createdAt: mockDate
     })
   })
 
@@ -66,9 +65,8 @@ describe('addDevice', () => {
     expect(addDeviceApi).toHaveBeenCalledWith({
       id: mockDeviceId,
       vaultId: mockVaultId,
-      data: mockPayload.data,
-      createdAt: mockDate,
-      updatedAt: mockDate
+      data: mockPayload.name,
+      createdAt: mockDate
     })
   })
 

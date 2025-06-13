@@ -5,8 +5,7 @@ import { logger } from './logger'
 export const deviceSchema = Validator.object({
   id: Validator.string().required(),
   vaultId: Validator.string().required(),
-  createdAt: Validator.number().required(),
-  updatedAt: Validator.number().required()
+  createdAt: Validator.number().required()
 })
 
 export const validateAndPrepareDevice = (device) => {
@@ -14,8 +13,7 @@ export const validateAndPrepareDevice = (device) => {
     id: device.id,
     vaultId: device.vaultId,
     data: device.data,
-    createdAt: device.createdAt,
-    updatedAt: device.updatedAt
+    createdAt: device.createdAt
   }
 
   const errors = deviceSchema.validate(preparedDevice)

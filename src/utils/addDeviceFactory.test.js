@@ -13,12 +13,13 @@ jest.mock('./validateAndPrepareDevice', () => ({
 describe('addDeviceFactory', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.spyOn(Date, 'now').mockReturnValue(1749848117883)
   })
 
   it('should add a device with correct fields and call dependencies', () => {
     const mockId = '123-abc'
     const payload = {
-      data: { platform: 'ios', version: '18.5.1' }
+      name: 'ios'
     }
     const vaultId = 'vault-456'
 
@@ -32,29 +33,13 @@ describe('addDeviceFactory', () => {
       expect.objectContaining({
         id: mockId,
         vaultId,
-        data: { platform: 'ios', version: '18.5.1' }
+        data: 'ios',
+        createdAt: 1749848117883
       })
     )
 
     expect(result.id).toBe(mockId)
     expect(result.vaultId).toBe(vaultId)
-    expect(result.createdAt).toBeGreaterThan(0)
-    expect(result.updatedAt).toBeGreaterThanOrEqual(result.createdAt)
-  })
-
-  it('should default folder to null and isFavorite to false', () => {
-    const mockId = '789-def'
-    const payload = {
-      data: { platform: 'ios', version: '18.5.1' }
-    }
-    const vaultId = 'vault-999'
-
-    generateUniqueId.mockReturnValue(mockId)
-    validateAndPrepareDevice.mockImplementation((device) => device)
-
-    const result = addDeviceFactory(payload, vaultId)
-
-    expect(result.folder).toBeNull()
-    expect(result.isFavorite).toBe(false)
+    expect(result.createdAt).toBe(1749848117883)
   })
 })

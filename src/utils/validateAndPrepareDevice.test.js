@@ -5,34 +5,34 @@ describe('validateAndPrepareDevice', () => {
     jest.clearAllMocks()
   })
 
-  test('should preserve folder when provided', () => {
-    const mockDevice = {
-      id: 'test-id-123',
-      type: 'login',
-      vaultId: 'vault-123',
-      data: { platform: 'ios', version: '18.5.1' },
-      folder: 'my-folder',
-      isFavorite: false,
-      createdAt: 1234567890,
-      updatedAt: 1234567890
-    }
-
-    const result = validateAndPrepareDevice(mockDevice)
-    expect(result.folder).toBe('my-folder')
-  })
-
   test('should throw error for invalid device', () => {
     const mockDevice = {
       id: 'test-id-123',
       type: 'login',
-      data: { platform: 'ios', version: '18.5.1' },
-      isFavorite: false,
-      createdAt: 1234567890,
-      updatedAt: 1234567890
+      data: { name: 'ios' },
+      createdAt: 1234567890
     }
 
     expect(() => validateAndPrepareDevice(mockDevice)).toThrow(
       'Invalid device data'
     )
+  })
+
+  test('should validate and prepare valid device', () => {
+    const mockDevice = {
+      id: 'test-id-123',
+      vaultId: 'vault-456',
+      data: { name: 'ios' },
+      createdAt: 1234567890
+    }
+
+    const result = validateAndPrepareDevice(mockDevice)
+
+    expect(result).toEqual({
+      id: 'test-id-123',
+      vaultId: 'vault-456',
+      data: { name: 'ios' },
+      createdAt: 1234567890
+    })
   })
 })
