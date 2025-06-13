@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { getVaultById as getVaultByIdApi } from '../api/getVaultById'
 import { listRecords } from '../api/listRecords'
+import { listDevices } from '../api/listDevices.js'
 
 export const getVaultById = createAsyncThunk(
   'vault/getVault',
@@ -17,10 +18,12 @@ export const getVaultById = createAsyncThunk(
     }
 
     const records = (await listRecords(vault.id)) ?? []
+    const devices = (await listDevices(vault.id)) ?? []
 
     return {
       ...vault,
-      records: records ?? []
+      records: records ?? [],
+      devices: devices ?? []
     }
   }
 )

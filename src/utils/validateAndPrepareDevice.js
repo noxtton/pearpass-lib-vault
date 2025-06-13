@@ -10,12 +10,10 @@ export const deviceSchema = Validator.object({
 })
 
 export const validateAndPrepareDevice = (device) => {
-  const deviceData = device.data
-
   const preparedDevice = {
     id: device.id,
     vaultId: device.vaultId,
-    data: deviceData,
+    data: device.data,
     createdAt: device.createdAt,
     updatedAt: device.updatedAt
   }
