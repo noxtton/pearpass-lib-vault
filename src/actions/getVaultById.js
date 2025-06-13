@@ -1,8 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { getVaultById as getVaultByIdApi } from '../api/getVaultById'
+import { listDevices } from '../api/listDevices'
 import { listRecords } from '../api/listRecords'
-import { listDevices } from '../api/listDevices.js'
 
 export const getVaultById = createAsyncThunk(
   'vault/getVault',

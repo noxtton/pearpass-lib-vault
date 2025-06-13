@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
+import { addDevice as addDeviceAction } from '../actions/addDevice.js'
 import { getVaultById } from '../actions/getVaultById'
 import { getVaults } from '../actions/getVaults'
 import { resetState as resetStateAction } from '../actions/resetState'
@@ -12,8 +13,6 @@ import { initListener } from '../api/initListener'
 import { selectVault } from '../selectors/selectVault'
 import { selectVaults } from '../selectors/selectVaults'
 import { logger } from '../utils/logger'
-
-import { addDevice as addDeviceAction } from '../actions/addDevice.js'
 
 /**
  *  @param {{

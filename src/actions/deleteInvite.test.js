@@ -1,5 +1,5 @@
 import { deleteInvite } from './deleteInvite'
-import { deleteInvite as deleteInviteApi} from '../api/deleteInvite.js'
+import { deleteInvite as deleteInviteApi } from '../api/deleteInvite.js'
 
 jest.mock('../api/deleteInvite', () => ({
   deleteInvite: jest.fn()

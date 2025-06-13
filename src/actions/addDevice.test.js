@@ -1,7 +1,7 @@
+import { addDevice } from './addDevice'
 import { addDevice as addDeviceApi } from '../api/addDevice'
 import { generateUniqueId } from '../utils/generateUniqueId'
 import { validateAndPrepareDevice } from '../utils/validateAndPrepareDevice'
-import { addDevice } from './addDevice'
 
 jest.mock('../api/addDevice', () => ({
   addDevice: jest.fn()
