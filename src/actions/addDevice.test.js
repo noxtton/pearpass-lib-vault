@@ -1,13 +1,14 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+
 import { addDevice } from './addDevice'
 import { addDevice as addDeviceApi } from '../api/addDevice'
-import { generateUniqueId } from '../utils/generateUniqueId'
 import { validateAndPrepareDevice } from '../utils/validateAndPrepareDevice'
 
 jest.mock('../api/addDevice', () => ({
   addDevice: jest.fn()
 }))
 
-jest.mock('../utils/generateUniqueId', () => ({
+jest.mock('pear-apps-utils-generate-unique-id', () => ({
   generateUniqueId: jest.fn()
 }))
 

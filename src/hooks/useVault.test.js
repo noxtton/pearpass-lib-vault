@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useVault } from './useVault'
+import { addDevice as addDeviceAction } from '../actions/addDevice'
 import { getVaultById } from '../actions/getVaultById'
 import { resetState } from '../actions/resetState'
 import { updateVault } from '../actions/updateVault'
@@ -22,6 +23,10 @@ jest.mock('../actions/resetState', () => ({
 
 jest.mock('../actions/updateVault', () => ({
   updateVault: jest.fn()
+}))
+
+jest.mock('../actions/addDevice', () => ({
+  addDevice: jest.fn()
 }))
 
 jest.mock('../api/getVaultEncryption', () => ({
@@ -232,5 +237,53 @@ describe('useVault', () => {
     await expect(
       result.current.updateVault('vault-123', mockVaultUpdate)
     ).rejects.toThrow('Error updating vault')
+  })
+
+  test('addDevice should add a device to the vault', async () => {
+    const mockDevice = {
+      name: 'Test Device',
+      type: 'ios'
+    }
+
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: mockVault }
+    })
+
+    addDeviceAction.mockReturnValue({ type: 'ADD_DEVICE' })
+
+    const { result } = renderHook(() => useVault())
+
+    await act(async () => {
+      await result.current.addDevice('vault-123', mockDevice)
+    })
+
+    expect(addDeviceAction).toHaveBeenCalledWith(mockDevice)
+    expect(mockDispatch).toHaveBeenCalledWith({ type: 'ADD_DEVICE' })
+  })
+
+  test('addDevice should throw error if adding device fails', async () => {
+    const mockDevice = {
+      name: 'Test Device',
+      type: 'ios'
+    }
+
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: mockVault }
+    })
+
+    addDeviceAction.mockReturnValue({ type: 'ADD_DEVICE' })
+    mockDispatch.mockResolvedValueOnce({ error: true })
+
+    const { result } = renderHook(() => useVault())
+
+    await expect(
+      result.current.addDevice('vault-123', mockDevice)
+    ).rejects.toThrow('Error adding device to device list in vault')
   })
 })
