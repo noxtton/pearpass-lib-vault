@@ -5,7 +5,11 @@ import { listVaults } from './listVaults'
 
 /**
  * @param {string} vaultId
- * @param {string | undefined} password
+ * @param {Object} [params]
+ * @param {string} [params.password]
+ * @param {string} [params.ciphertext]
+ * @param {string} [params.nonce]
+ * @param {string} [params.hashedPassword]
  * @returns {Promise<void>}
  */
 export const getVaultById = async (vaultId, params) => {

@@ -60,11 +60,13 @@ describe('usePair', () => {
 
   test('should handle timeout', async () => {
     jest.useFakeTimers()
-    mockDispatch.mockImplementation(() => {
-      return new Promise((resolve) => {
-        setTimeout(() => resolve({ payload: mockVaultId }), 20000)
-      })
-    })
+
+    mockDispatch.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve({ payload: mockVaultId }), 20000)
+        })
+    )
 
     const { result } = renderHook(() => usePair())
 

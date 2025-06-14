@@ -1,13 +1,14 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+
 import { createInvite, inviteSchema } from './createInvite'
 import { createInvite as createInviteApi } from '../api/createInvite'
 import { VERSION } from '../constants/version'
-import { generateUniqueId } from '../utils/generateUniqueId'
 
 jest.mock('../api/createInvite', () => ({
   createInvite: jest.fn()
 }))
 
-jest.mock('../utils/generateUniqueId', () => ({
+jest.mock('pear-apps-utils-generate-unique-id', () => ({
   generateUniqueId: jest.fn()
 }))
 

@@ -130,12 +130,12 @@ describe('useVault', () => {
     const { result } = renderHook(() => useVault())
 
     await act(async () => {
-      await result.current.refetch('new-vault-id', 'password123')
+      await result.current.refetch('new-vault-id', { password: 'password123' })
     })
 
     expect(getVaultById).toHaveBeenCalledWith({
       vaultId: 'new-vault-id',
-      params: 'password123'
+      params: { password: 'password123' }
     })
   })
 

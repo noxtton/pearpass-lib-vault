@@ -1,10 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
 import { Validator } from 'pear-apps-utils-validator'
 
 import { createProtectedVault } from '../api/createProtectedVault'
 import { createVault as createVaultApi } from '../api/createVault'
 import { VERSION } from '../constants/version'
-import { generateUniqueId } from '../utils/generateUniqueId'
 
 const schema = Validator.object({
   id: Validator.string().required(),

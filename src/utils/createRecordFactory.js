@@ -1,4 +1,5 @@
-import { generateUniqueId } from './generateUniqueId'
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+
 import { validateAndPrepareRecord } from './validateAndPrepareRecord'
 
 /**

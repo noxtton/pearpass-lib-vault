@@ -5,11 +5,37 @@ import { createVault } from '../actions/createVault'
 import { getVaults } from '../actions/getVaults'
 import { initializeVaults } from '../actions/initializeVaults'
 import { resetState } from '../actions/resetState'
+import { logger } from '../utils/logger'
 
-jest.mock('../actions/initializeVaults')
-jest.mock('../actions/getVaults')
-jest.mock('../actions/createVault')
-jest.mock('../actions/resetState')
+jest.mock('../actions/createVault', () => ({
+  createVault: {
+    pending: { type: 'createVault/pending' },
+    fulfilled: { type: 'createVault/fulfilled' },
+    rejected: { type: 'createVault/rejected' }
+  }
+}))
+jest.mock('../actions/getVaults', () => ({
+  getVaults: {
+    pending: { type: 'getVaults/pending' },
+    fulfilled: { type: 'getVaults/fulfilled' },
+    rejected: { type: 'getVaults/rejected' }
+  }
+}))
+jest.mock('../actions/initializeVaults', () => ({
+  initializeVaults: {
+    pending: { type: 'initializeVaults/pending' },
+    fulfilled: { type: 'initializeVaults/fulfilled' },
+    rejected: { type: 'initializeVaults/rejected' }
+  }
+}))
+jest.mock('../actions/resetState', () => ({
+  resetState: { fulfilled: { type: 'resetState/fulfilled' } }
+}))
+jest.mock('../utils/logger', () => ({
+  logger: {
+    error: jest.fn()
+  }
+}))
 
 describe('vaultsSlice', () => {
   let store
@@ -20,129 +46,123 @@ describe('vaultsSlice', () => {
         vaults: vaultsReducer
       }
     })
+    jest.clearAllMocks()
   })
 
-  describe('initial state', () => {
-    it('should have correct initial state', () => {
-      const state = store.getState().vaults
-      expect(state.isInitialized).toBe(false)
-      expect(state.isInitializing).toBe(false)
-      expect(state.isLoading).toBe(false)
-      expect(state.data).toBeNull()
-      expect(state.error).toBeNull()
+  it('should handle initial state', () => {
+    expect(store.getState().vaults).toEqual({
+      isInitialized: false,
+      isInitializing: false,
+      isLoading: false,
+      data: null,
+      error: null
     })
   })
 
   describe('initializeVaults', () => {
-    it('should set loading states when pending', () => {
+    it('should handle pending state', () => {
       store.dispatch({ type: initializeVaults.pending.type })
-      const state = store.getState().vaults
-
-      expect(state.isLoading).toBe(true)
-      expect(state.isInitializing).toBe(true)
+      expect(store.getState().vaults.isLoading).toBe(true)
+      expect(store.getState().vaults.isInitializing).toBe(true)
     })
 
-    it('should set data and reset loading states when fulfilled', () => {
-      const mockPayload = [{ id: '1', name: 'Test Vault' }]
-
+    it('should handle fulfilled state', () => {
+      const mockVaults = [{ id: '123', name: 'Vault 1' }]
       store.dispatch({
         type: initializeVaults.fulfilled.type,
-        payload: mockPayload
+        payload: mockVaults
       })
-
-      const state = store.getState().vaults
-      expect(state.data).toEqual(mockPayload)
-      expect(state.isLoading).toBe(false)
-      expect(state.isInitializing).toBe(false)
-      expect(state.isInitialized).toBe(true)
+      expect(store.getState().vaults.isLoading).toBe(false)
+      expect(store.getState().vaults.isInitializing).toBe(false)
+      expect(store.getState().vaults.isInitialized).toBe(true)
+      expect(store.getState().vaults.data).toEqual(mockVaults)
     })
 
-    it('should set error and reset loading states when rejected', () => {
+    it('should handle rejected state', () => {
       const mockError = { message: 'Failed to initialize vaults' }
-
-      store.dispatch({
-        type: initializeVaults.rejected.type,
-        error: mockError
-      })
-
-      const state = store.getState().vaults
-      expect(state.error).toEqual(mockError)
-      expect(state.isLoading).toBe(false)
-      expect(state.isInitializing).toBe(false)
+      store.dispatch({ type: initializeVaults.rejected.type, error: mockError })
+      expect(store.getState().vaults.isLoading).toBe(false)
+      expect(store.getState().vaults.isInitializing).toBe(false)
+      expect(store.getState().vaults.error).toEqual(mockError)
+      expect(logger.error).toHaveBeenCalled()
     })
   })
 
   describe('getVaults', () => {
-    it('should set loading state when pending', () => {
+    it('should handle pending state', () => {
       store.dispatch({ type: getVaults.pending.type })
-      const state = store.getState().vaults
-
-      expect(state.isLoading).toBe(true)
+      expect(store.getState().vaults.isLoading).toBe(true)
     })
 
-    it('should set data and reset loading state when fulfilled', () => {
-      const mockPayload = [{ id: '1', name: 'Test Vault' }]
-
-      store.dispatch({
-        type: getVaults.fulfilled.type,
-        payload: mockPayload
-      })
-
-      const state = store.getState().vaults
-      expect(state.data).toEqual(mockPayload)
-      expect(state.isLoading).toBe(false)
+    it('should handle fulfilled state', () => {
+      const mockVaults = [{ id: '123', name: 'Vault 1' }]
+      store.dispatch({ type: getVaults.fulfilled.type, payload: mockVaults })
+      expect(store.getState().vaults.isLoading).toBe(false)
+      expect(store.getState().vaults.data).toEqual(mockVaults)
     })
 
-    it('should set error when rejected', () => {
+    it('should handle rejected state', () => {
       const mockError = { message: 'Failed to get vaults' }
-
-      store.dispatch({
-        type: getVaults.rejected.type,
-        error: mockError
-      })
-
-      const state = store.getState().vaults
-      expect(state.error).toEqual(mockError)
+      store.dispatch({ type: getVaults.rejected.type, error: mockError })
+      expect(store.getState().vaults.error).toEqual(mockError)
+      expect(logger.error).toHaveBeenCalled()
     })
   })
 
   describe('createVault', () => {
-    it('should add new vault to data when fulfilled', () => {
-      const initialData = [{ id: '1', name: 'First Vault' }]
-      const newVault = { id: '2', name: 'New Vault' }
+    beforeEach(() => {
+      // Set initial data to empty array
+      store.dispatch({ type: initializeVaults.fulfilled.type, payload: [] })
+    })
 
+    it('should add new vault to data array', () => {
+      const newVault = { id: '456', name: 'New Vault' }
+      store.dispatch({ type: createVault.fulfilled.type, payload: newVault })
+      expect(store.getState().vaults.data).toEqual([newVault])
+    })
+
+    it('should append new vault to existing vaults', () => {
+      const existingVault = { id: '123', name: 'Existing Vault' }
+      const newVault = { id: '456', name: 'New Vault' }
+
+      // Set initial data with existing vault
       store.dispatch({
-        type: getVaults.fulfilled.type,
-        payload: initialData
+        type: initializeVaults.fulfilled.type,
+        payload: [existingVault]
       })
 
-      store.dispatch({
-        type: createVault.fulfilled.type,
-        payload: newVault
-      })
+      // Add new vault
+      store.dispatch({ type: createVault.fulfilled.type, payload: newVault })
 
-      const state = store.getState().vaults
-      expect(state.data).toEqual([...initialData, newVault])
+      expect(store.getState().vaults.data).toEqual([existingVault, newVault])
     })
   })
 
   describe('resetState', () => {
-    it('should reset state to initial values', () => {
+    beforeEach(() => {
+      // Set some non-initial state
       store.dispatch({
         type: initializeVaults.fulfilled.type,
-        payload: [{ id: '1', name: 'Test Vault' }]
+        payload: [{ id: '123', name: 'Test Vault' }]
       })
+    })
 
-      store.dispatch({
-        type: resetState.fulfilled.type
+    it('should reset state to initial values', () => {
+      // Verify state was changed
+      expect(store.getState().vaults.isInitialized).toBe(true)
+      expect(store.getState().vaults.data).not.toBeNull()
+
+      // Reset state
+      store.dispatch({ type: resetState.fulfilled.type })
+
+      // Verify state was reset
+      expect(store.getState().vaults).toEqual({
+        isInitialized: false,
+        isInitializing: false,
+        isLoading: false,
+        data: null,
+        error: null
       })
-
-      const state = store.getState().vaults
-      expect(state.isInitialized).toBe(false)
-      expect(state.isInitializing).toBe(false)
-      expect(state.isLoading).toBe(false)
-      expect(state.data).toBeNull()
-      expect(state.error).toBeNull()
     })
   })
 })
