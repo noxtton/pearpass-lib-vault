@@ -240,10 +240,7 @@ describe('useVault', () => {
   })
 
   test('addDevice should add a device to the vault', async () => {
-    const mockDevice = {
-      name: 'Test Device',
-      type: 'ios'
-    }
+    const mockDevice = 'IOS 15.6.0'
 
     useSelector.mockImplementation((selector) => {
       if (selector.name === 'selectVaults') {
@@ -265,10 +262,7 @@ describe('useVault', () => {
   })
 
   test('addDevice should throw error if adding device fails', async () => {
-    const mockDevice = {
-      name: 'Test Device',
-      type: 'ios'
-    }
+    const mockDevice = 'IOS 15.6.0'
 
     useSelector.mockImplementation((selector) => {
       if (selector.name === 'selectVaults') {

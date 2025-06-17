@@ -9,7 +9,7 @@ describe('validateAndPrepareDevice', () => {
     const mockDevice = {
       id: 'test-id-123',
       type: 'login',
-      data: { name: 'ios' },
+      name: 'ios',
       createdAt: 1234567890
     }
 
@@ -22,7 +22,7 @@ describe('validateAndPrepareDevice', () => {
     const mockDevice = {
       id: 'test-id-123',
       vaultId: 'vault-456',
-      data: { name: 'ios' },
+      name: 'ios',
       createdAt: 1234567890
     }
 
@@ -31,7 +31,7 @@ describe('validateAndPrepareDevice', () => {
     expect(result).toEqual({
       id: 'test-id-123',
       vaultId: 'vault-456',
-      data: { name: 'ios' },
+      name: 'ios',
       createdAt: 1234567890
     })
   })

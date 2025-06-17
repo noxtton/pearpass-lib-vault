@@ -20,9 +20,7 @@ describe('addDevice', () => {
   const mockVaultId = 'vault-123'
   const mockDeviceId = 'device-456'
   const mockDate = 1633000000000
-  const mockPayload = {
-    data: { name: 'ios' }
-  }
+  const mockPayload = 'ios'
 
   let dispatch
   let getState
@@ -54,7 +52,7 @@ describe('addDevice', () => {
     expect(result.payload).toEqual({
       id: mockDeviceId,
       vaultId: mockVaultId,
-      data: mockPayload.name,
+      name: mockPayload,
       createdAt: mockDate
     })
   })
@@ -66,7 +64,7 @@ describe('addDevice', () => {
     expect(addDeviceApi).toHaveBeenCalledWith({
       id: mockDeviceId,
       vaultId: mockVaultId,
-      data: mockPayload.name,
+      name: mockPayload,
       createdAt: mockDate
     })
   })

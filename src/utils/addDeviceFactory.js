@@ -17,7 +17,7 @@ export const addDeviceFactory = (payload, vaultId) => {
   const device = {
     id: generateUniqueId(),
     vaultId: vaultId,
-    data: payload.name,
+    name: payload,
     createdAt: Date.now()
   }
 

@@ -19,9 +19,7 @@ describe('addDeviceFactory', () => {
 
   it('should add a device with correct fields and call dependencies', () => {
     const mockId = '123-abc'
-    const payload = {
-      name: 'ios'
-    }
+    const payload = 'ios'
     const vaultId = 'vault-456'
 
     generateUniqueId.mockReturnValue(mockId)
@@ -34,7 +32,7 @@ describe('addDeviceFactory', () => {
       expect.objectContaining({
         id: mockId,
         vaultId,
-        data: 'ios',
+        name: 'ios',
         createdAt: 1749848117883
       })
     )
