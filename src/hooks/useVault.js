@@ -93,7 +93,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     return vault
   }
 
-  const addDevice = async (vaultId, device) => {
+  const addDevice = async (device) => {
     const { error: createError } = await dispatch(addDeviceAction(device))
 
     await refetch()
