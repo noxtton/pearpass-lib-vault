@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
+import { addDevice as addDeviceAction } from '../actions/addDevice.js'
 import { getVaultById } from '../actions/getVaultById'
 import { getVaults } from '../actions/getVaults'
 import { resetState as resetStateAction } from '../actions/resetState'
@@ -92,6 +93,18 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     return vault
   }
 
+  const addDevice = async (device) => {
+    const { error: createError } = await dispatch(addDeviceAction(device))
+
+    await refetch()
+
+    await dispatch(getVaults())
+
+    if (createError) {
+      throw new Error('Error adding device to device list in vault')
+    }
+  }
+
   const updateVault = async (vaultId, vaultUpdate) => {
     const { error: createError } = await dispatch(
       updateVaultAction({
@@ -135,6 +148,7 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
     data,
     isInitialized: isVaultInitialized,
     refetch,
+    addDevice,
     isVaultProtected,
     resetState,
     updateVault

@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+import { addDevice } from '../actions/addDevice'
 import { createFolder } from '../actions/createFolder'
 import { createRecord } from '../actions/createRecord'
 import { createVault } from '../actions/createVault'
@@ -17,6 +18,7 @@ const initialState = {
   isInitialized: false,
   isRecordLoading: false,
   isFolderLoading: false,
+  isDeviceLoading: false,
   data: null,
   error: null
 }
@@ -161,6 +163,21 @@ export const vaultSlice = createSlice({
         state.error = action.error
       })
 
+    builder
+      .addCase(addDevice.pending, (state) => {
+        state.isDeviceLoading = true
+      })
+      .addCase(addDevice.fulfilled, (state, action) => {
+        state.isDeviceLoading = false
+        state.data.devices = action?.payload ?? []
+      })
+      .addCase(addDevice.rejected, (state, action) => {
+        logger.error(`Action pair error:`, JSON.stringify(action.error))
+
+        state.isDeviceLoading = false
+        state.error = action.error
+      })
+
     builder.addCase(resetState.fulfilled, (state) => {
       state.data = initialState.data
       state.error = initialState.error
@@ -168,6 +185,7 @@ export const vaultSlice = createSlice({
       state.isInitialized = initialState.isInitialized
       state.isRecordLoading = initialState.isRecordLoading
       state.isFolderLoading = initialState.isFolderLoading
+      state.isDeviceLoading = initialState.isDeviceLoading
     })
   }
 })

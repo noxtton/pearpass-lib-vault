@@ -20,7 +20,6 @@ jest.mock('../selectors/selectVault', () => ({
 
 describe('useCreateVault', () => {
   const mockDispatch = jest.fn()
-  const mockOnCompleted = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -69,32 +68,44 @@ describe('useCreateVault', () => {
     expect(mockDispatch).toHaveBeenCalledWith('MOCKED_ACTION')
   })
 
-  it('should call onCompleted callback when vault creation succeeds', async () => {
-    const mockPayload = { vault: { id: '123', name: 'Test Vault' } }
-    mockDispatch.mockResolvedValue({ error: null, payload: mockPayload })
+  it('should return the vault payload when createVault succeeds', async () => {
+    const mockVault = { id: '123', name: 'Test Vault' }
+    mockDispatch.mockResolvedValue({
+      error: null,
+      payload: { vault: mockVault }
+    })
+    createVaultAction.mockReturnValue('MOCKED_ACTION')
 
-    const { result } = renderHook(() =>
-      useCreateVault({ onCompleted: mockOnCompleted })
-    )
+    const { result } = renderHook(() => useCreateVault())
 
+    let response
     await act(async () => {
-      await result.current.createVault({ name: 'New Vault' })
+      response = await result.current.createVault({
+        name: 'Test Vault',
+        password: 'secret'
+      })
     })
 
-    expect(mockOnCompleted).toHaveBeenCalledWith(mockPayload)
+    expect(response).toEqual({ vault: mockVault })
   })
 
-  it('should not call onCompleted callback when vault creation fails', async () => {
-    mockDispatch.mockResolvedValue({ error: 'Some error', payload: null })
-
-    const { result } = renderHook(() =>
-      useCreateVault({ onCompleted: mockOnCompleted })
-    )
-
-    await act(async () => {
-      await result.current.createVault({ name: 'New Vault' })
+  it('should throw error when createVault fails', async () => {
+    const mockError = new Error('Failed to create vault')
+    mockDispatch.mockResolvedValue({
+      error: mockError,
+      payload: null
     })
+    createVaultAction.mockReturnValue('MOCKED_ACTION')
 
-    expect(mockOnCompleted).not.toHaveBeenCalled()
+    const { result } = renderHook(() => useCreateVault())
+
+    await expect(
+      act(async () => {
+        await result.current.createVault({
+          name: 'Test Vault',
+          password: 'secret'
+        })
+      })
+    ).rejects.toThrow('Failed to create vault')
   })
 })

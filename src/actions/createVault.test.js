@@ -46,6 +46,7 @@ describe('createVault', () => {
       name: vaultName,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: mockDate,
       updatedAt: mockDate
     })
@@ -62,6 +63,7 @@ describe('createVault', () => {
       name: vaultName,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: mockDate,
       updatedAt: mockDate
     })
@@ -76,6 +78,7 @@ describe('createVault', () => {
       name: vaultName,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: mockDate,
       updatedAt: mockDate
     })

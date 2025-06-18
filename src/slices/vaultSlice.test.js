@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 
 import vaultReducer from './vaultSlice'
+import { addDevice } from '../actions/addDevice'
 import { createFolder } from '../actions/createFolder'
 import { createRecord } from '../actions/createRecord'
 import { createVault } from '../actions/createVault'
@@ -78,6 +79,13 @@ jest.mock('../actions/updateRecords', () => ({
     rejected: { type: 'updateRecords/rejected' }
   }
 }))
+jest.mock('../actions/addDevice', () => ({
+  addDevice: {
+    pending: { type: 'addDevice/pending' },
+    fulfilled: { type: 'addDevice/fulfilled' },
+    rejected: { type: 'addDevice/rejected' }
+  }
+}))
 jest.mock('../utils/logger', () => ({
   logger: {
     error: jest.fn()
@@ -102,6 +110,7 @@ describe('vaultSlice', () => {
       isInitialized: false,
       isRecordLoading: false,
       isFolderLoading: false,
+      isDeviceLoading: false,
       data: null,
       error: null
     })
@@ -362,6 +371,39 @@ describe('vaultSlice', () => {
     })
   })
 
+  describe('addDevice', () => {
+    beforeEach(() => {
+      store.dispatch({
+        type: getVaultById.fulfilled.type,
+        payload: { id: '123', records: [], devices: [] }
+      })
+    })
+
+    it('should handle pending state', () => {
+      store.dispatch({ type: addDevice.pending.type })
+      expect(store.getState().vault.isDeviceLoading).toBe(true)
+    })
+
+    it('should handle fulfilled state', () => {
+      const mockDevice = {
+        id: 'device1',
+        vaultId: '123',
+        data: 'ios',
+        createdAt: Date.now()
+      }
+      store.dispatch({ type: addDevice.fulfilled.type, payload: mockDevice })
+      expect(store.getState().vault.isDeviceLoading).toBe(false)
+      expect(store.getState().vault.data.devices).toEqual(mockDevice)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to add device' }
+      store.dispatch({ type: addDevice.rejected.type, error: mockError })
+      expect(store.getState().vault.isDeviceLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
   describe('resetState', () => {
     beforeEach(() => {
       store.dispatch({
@@ -387,6 +429,7 @@ describe('vaultSlice', () => {
         isInitialized: false,
         isRecordLoading: false,
         isFolderLoading: false,
+        isDeviceLoading: false,
         data: null,
         error: null
       })

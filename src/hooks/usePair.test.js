@@ -43,10 +43,7 @@ describe('usePair', () => {
   })
 
   test('should call pairAction and initListener when pair is called', async () => {
-    const mockOnCompleted = jest.fn()
-    const { result } = renderHook(() =>
-      usePair({ onCompleted: mockOnCompleted })
-    )
+    const { result } = renderHook(() => usePair())
 
     await act(async () => {
       await result.current.pair('invite-code')
@@ -58,29 +55,11 @@ describe('usePair', () => {
       vaultId: mockVaultId,
       onUpdate: expect.any(Function)
     })
-    expect(mockOnCompleted).toHaveBeenCalledWith(mockVaultId)
     expect(result.current.isLoading).toBe(false)
-  })
-
-  test('should call onError when pair action fails', async () => {
-    const mockError = new Error('Failed to pair')
-    mockDispatch.mockRejectedValueOnce(mockError)
-
-    const mockOnError = jest.fn()
-    const { result } = renderHook(() => usePair({ onError: mockOnError }))
-
-    await act(async () => {
-      await result.current.pair('invite-code')
-    })
-
-    expect(mockOnError).toHaveBeenCalledWith(mockError)
-    expect(result.current.isLoading).toBe(false)
-    expect(initListener).not.toHaveBeenCalled()
   })
 
   test('should handle timeout', async () => {
     jest.useFakeTimers()
-    const mockOnError = jest.fn()
 
     mockDispatch.mockImplementation(
       () =>
@@ -89,21 +68,29 @@ describe('usePair', () => {
         })
     )
 
-    const { result } = renderHook(() => usePair({ onError: mockOnError }))
+    const { result } = renderHook(() => usePair())
+
+    let error
 
     const pairPromise = act(async () => {
-      await result.current.pair('invite-code')
+      const promise = result.current.pair('invite-code')
+
+      // Advance timers past the timeout
+      jest.advanceTimersByTime(11000)
+
+      try {
+        await promise
+      } catch (e) {
+        error = e
+      }
     })
 
     jest.advanceTimersByTime(11000)
 
     await pairPromise
 
-    expect(mockOnError).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringContaining('Pairing timeout')
-      })
-    )
+    expect(error).toBeInstanceOf(Error)
+    expect(error.message).toContain('Pairing timeout')
     expect(result.current.isLoading).toBe(false)
 
     jest.useRealTimers()
