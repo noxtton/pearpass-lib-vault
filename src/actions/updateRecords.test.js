@@ -13,6 +13,11 @@ jest.mock('../api/updateRecords', () => ({
 jest.mock('../api/listRecords', () => ({
   listRecords: jest.fn()
 }))
+
+jest.mock('pear-apps-utils-generate-unique-id', () => ({
+  generateUniqueId: jest.fn(() => 'unique-id')
+}))
+
 jest.mock('../utils/validateAndPrepareRecord', () => ({
   validateAndPrepareRecord: jest.fn((record) => record)
 }))
@@ -110,11 +115,19 @@ describe('updateRecord actions', () => {
 
     expect(validateAndPrepareRecord).toHaveBeenCalledWith({
       ...payload[0],
+      data: {
+        ...payload[0].data,
+        attachments: []
+      },
       updatedAt: mockDate
     })
     expect(updateRecordApi).toHaveBeenCalledWith([
       {
         ...payload[0],
+        data: {
+          ...payload[0].data,
+          attachments: []
+        },
         updatedAt: mockDate
       }
     ])
@@ -145,8 +158,8 @@ describe('updateRecord actions', () => {
     expect(result.payload[0].folder).toBeNull()
   })
 
-  it('should dispatch updateRecord with updated folder', () => {
-    updateFolder(['record-1'], 'new-folder')(dispatch, getState)
+  it('should dispatch updateRecord with updated folder', async () => {
+    await updateFolder(['record-1'], 'new-folder')(dispatch, getState)
 
     expect(dispatch).toHaveBeenCalledWith(expect.any(Function))
     expect(updateRecordApi).toHaveBeenCalledWith([
@@ -158,8 +171,8 @@ describe('updateRecord actions', () => {
     ])
   })
 
-  it('should dispatch updateRecord with updated isFavorite', () => {
-    updateFavoriteState(['record-1'], true)(dispatch, getState)
+  it('should dispatch updateRecord with updated isFavorite', async () => {
+    await updateFavoriteState(['record-1'], true)(dispatch, getState)
 
     expect(dispatch).toHaveBeenCalledWith(expect.any(Function))
     expect(updateRecordApi).toHaveBeenCalledWith([

@@ -1,9 +1,11 @@
 import { Validator } from 'pear-apps-utils-validator'
 
+import { processFiles } from './processFiles'
 import {
   customFieldSchema,
   validateAndPrepareCustomFields
 } from './validateAndPrepareCustomFields'
+import { fileSchema } from '../schemas/fileSchema'
 
 export const identitySchema = Validator.object({
   title: Validator.string().required(),
@@ -25,14 +27,18 @@ export const identitySchema = Validator.object({
   passportNationality: Validator.string(),
   passportDob: Validator.string(),
   passportGender: Validator.string(),
+  passportPicture: Validator.array().items(fileSchema),
   idCardNumber: Validator.string(),
   idCardDateOfIssue: Validator.string(),
   idCardExpiryDate: Validator.string(),
   idCardIssuingCountry: Validator.string(),
+  idCardPicture: Validator.array().items(fileSchema),
   drivingLicenseNumber: Validator.string(),
   drivingLicenseDateOfIssue: Validator.string(),
   drivingLicenseExpiryDate: Validator.string(),
-  drivingLicenseIssuingCountry: Validator.string()
+  drivingLicenseIssuingCountry: Validator.string(),
+  drivingLicensePicture: Validator.array().items(fileSchema),
+  attachments: Validator.array().items(fileSchema)
 })
 
 export const validateAndPrepareIdentityData = (identity) => {
@@ -56,14 +62,18 @@ export const validateAndPrepareIdentityData = (identity) => {
     passportNationality: identity.passportNationality,
     passportDob: identity.passportDob,
     passportGender: identity.passportGender,
+    passportPicture: identity.passportPicture,
     idCardNumber: identity.idCardNumber,
     idCardDateOfIssue: identity.idCardDateOfIssue,
     idCardExpiryDate: identity.idCardExpiryDate,
     idCardIssuingCountry: identity.idCardIssuingCountry,
+    idCardPicture: identity.idCardPicture,
     drivingLicenseNumber: identity.drivingLicenseNumber,
     drivingLicenseDateOfIssue: identity.drivingLicenseDateOfIssue,
     drivingLicenseExpiryDate: identity.drivingLicenseExpiryDate,
-    drivingLicenseIssuingCountry: identity.drivingLicenseIssuingCountry
+    drivingLicenseIssuingCountry: identity.drivingLicenseIssuingCountry,
+    drivingLicensePicture: identity.drivingLicensePicture,
+    attachments: identity.attachments
   }
 
   const errors = identitySchema.validate(identityData)
@@ -73,4 +83,41 @@ export const validateAndPrepareIdentityData = (identity) => {
   }
 
   return identityData
+}
+
+/**
+ * @param {Object} identity
+ * @param {Array|Object} [identity.passportPicture]
+ * @param {Array|Object} [identity.drivingLicensePicture]
+ * @param {Array|Object} [identity.idCardPicture]
+ * @returns {{
+ *  identityData: Object,
+ *  buffersWithId: Array<{ id: string, buffer: Buffer }>
+ * }}
+ */
+export const prepareIdentityFiles = (identity) => {
+  const { files: passportPicture, buffersWithId: passportBuffersWithId } =
+    processFiles(identity?.passportPicture)
+
+  const {
+    files: drivingLicensePicture,
+    buffersWithId: drivingLicenseBuffersWithId
+  } = processFiles(identity?.drivingLicensePicture)
+
+  const { files: idCardPicture, buffersWithId: idCardBuffersWithId } =
+    processFiles(identity?.idCardPicture)
+
+  return {
+    identityData: {
+      ...identity,
+      passportPicture,
+      drivingLicensePicture,
+      idCardPicture
+    },
+    buffersWithId: [
+      ...passportBuffersWithId,
+      ...drivingLicenseBuffersWithId,
+      ...idCardBuffersWithId
+    ]
+  }
 }

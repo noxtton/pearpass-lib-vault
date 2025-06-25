@@ -4,6 +4,7 @@ import {
   customFieldSchema,
   validateAndPrepareCustomFields
 } from './validateAndPrepareCustomFields'
+import { fileSchema } from '../schemas/fileSchema'
 
 export const credentialSchema = Validator.object({
   authenticatorAttachment: Validator.string().required(),
@@ -34,7 +35,8 @@ export const loginSchema = Validator.object({
   credential: credentialSchema,
   note: Validator.string(),
   websites: Validator.array().items(Validator.string().required()),
-  customFields: Validator.array().items(customFieldSchema)
+  customFields: Validator.array().items(customFieldSchema),
+  attachments: Validator.array().items(fileSchema)
 })
 
 export const validateAndPrepareLoginData = (login) => {
@@ -45,7 +47,8 @@ export const validateAndPrepareLoginData = (login) => {
     credential: login.credential,
     note: login.note,
     websites: login.websites,
-    customFields: validateAndPrepareCustomFields(login.customFields)
+    customFields: validateAndPrepareCustomFields(login.customFields),
+    attachments: login.attachments
   }
 
   const errors = loginSchema.validate(loginData)

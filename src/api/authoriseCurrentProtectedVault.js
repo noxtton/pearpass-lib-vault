@@ -7,9 +7,9 @@ import { getVaultEncryption } from './getVaultEncryption'
  * @returns {Promise<void>}
  */
 export const authoriseCurrentProtectedVault = async (password) => {
-  const correntVault = await getCurrentVault()
+  const currentVault = await getCurrentVault()
 
-  const { hashedPassword, salt } = await getVaultEncryption(correntVault.id)
+  const { hashedPassword, salt } = await getVaultEncryption(currentVault.id)
 
   const currentHashedPassword = await pearpassVaultClient.getDecryptionKey({
     salt: salt,

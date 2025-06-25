@@ -11,3 +11,4 @@ export { authoriseCurrentProtectedVault } from './api/authoriseCurrentProtectedV
 export { getVaultById } from './api/getVaultById'
 export { getVaultEncryption } from './api/getVaultEncryption'
 export { listRecords } from './api/listRecords'
+export { vaultGetFile } from './api/getFile.js'

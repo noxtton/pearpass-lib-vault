@@ -254,7 +254,7 @@ describe('useVault', () => {
     const { result } = renderHook(() => useVault())
 
     await act(async () => {
-      await result.current.addDevice('vault-123', mockDevice)
+      await result.current.addDevice(mockDevice)
     })
 
     expect(addDeviceAction).toHaveBeenCalledWith(mockDevice)

@@ -6,15 +6,39 @@ import { validateAndPrepareNoteData } from './validateAndPrepareNoteData'
 import { validateAndPrepareRecord } from './validateAndPrepareRecord'
 import { VERSION } from '../constants/version'
 
-jest.mock('./validateAndPrepareCreditCardData')
-jest.mock('./validateAndPrepareCustomData')
-jest.mock('./validateAndPrepareIdentityData')
-jest.mock('./validateAndPrepareLoginData')
-jest.mock('./validateAndPrepareNoteData')
+jest.mock('./validateAndPrepareCreditCardData', () => ({
+  validateAndPrepareCreditCardData: jest.fn()
+}))
+jest.mock('./validateAndPrepareCustomData', () => ({
+  validateAndPrepareCustomData: jest.fn()
+}))
+jest.mock('./validateAndPrepareIdentityData', () => ({
+  validateAndPrepareIdentityData: jest.fn()
+}))
+jest.mock('./validateAndPrepareLoginData', () => ({
+  validateAndPrepareLoginData: jest.fn()
+}))
+jest.mock('./validateAndPrepareNoteData', () => ({
+  validateAndPrepareNoteData: jest.fn()
+}))
 
 describe('validateAndPrepareRecord', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.resetModules()
+
+    jest.doMock('pear-apps-utils-validator', () => ({
+      Validator: {
+        object: jest.fn().mockImplementation(() => ({
+          validate: jest.fn(() => ({ error: 'completely new behavior' }))
+        })),
+        string: jest.fn().mockImplementation(() => ({})),
+        number: jest.fn().mockImplementation(() => ({})),
+        boolean: jest.fn().mockImplementation(() => ({})),
+        array: jest.fn().mockImplementation(() => ({}))
+      }
+    }))
+
     validateAndPrepareCreditCardData.mockReturnValue({ mockedCreditCard: true })
     validateAndPrepareCustomData.mockReturnValue({ mockedCustom: true })
     validateAndPrepareIdentityData.mockReturnValue({ mockedIdentity: true })
@@ -136,9 +160,18 @@ describe('validateAndPrepareRecord', () => {
   })
 
   test('should throw error for invalid record', () => {
+    const { Validator } = require('pear-apps-utils-validator')
+
+    Validator.object.mockImplementationOnce(() => ({
+      validate: jest.fn(() => ({
+        errors: ['Invalid record data']
+      }))
+    }))
+
     const mockRecord = {
       id: 'test-id-123',
       type: 'login',
+
       data: { username: 'test' },
       isFavorite: false,
       createdAt: 1234567890,

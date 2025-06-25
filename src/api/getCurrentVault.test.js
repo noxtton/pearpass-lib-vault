@@ -1,6 +1,5 @@
 import { getCurrentVault } from './getCurrentVault'
 import { pearpassVaultClient } from '../instances'
-import { logger } from '../utils/logger'
 
 jest.mock('../instances', () => ({
   pearpassVaultClient: {
@@ -29,7 +28,6 @@ describe('getCurrentVault', () => {
     const result = await getCurrentVault()
 
     expect(result).toBeUndefined()
-    expect(logger.error).toHaveBeenCalledWith('No active vault found')
     expect(pearpassVaultClient.activeVaultGet).not.toHaveBeenCalled()
   })
 

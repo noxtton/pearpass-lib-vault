@@ -4,6 +4,9 @@ import { validateAndPrepareIdentityData } from './validateAndPrepareIdentityData
 jest.mock('./validateAndPrepareCustomFields', () => ({
   validateAndPrepareCustomFields: jest.fn((fields) => fields || [])
 }))
+jest.mock('./processFiles', () => ({
+  processFiles: jest.fn((files) => files || [])
+}))
 
 describe('validateAndPrepareIdentityData', () => {
   const validIdentity = {
@@ -22,6 +25,19 @@ describe('validateAndPrepareIdentityData', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.resetModules()
+
+    jest.doMock('pear-apps-utils-validator', () => ({
+      Validator: {
+        object: jest.fn().mockImplementation(() => ({
+          validate: jest.fn(() => ({ error: 'completely new behavior' }))
+        })),
+        string: jest.fn().mockImplementation(() => ({})),
+        number: jest.fn().mockImplementation(() => ({})),
+        boolean: jest.fn().mockImplementation(() => ({})),
+        array: jest.fn().mockImplementation(() => ({}))
+      }
+    }))
   })
 
   it('should validate and return valid identity data', () => {
