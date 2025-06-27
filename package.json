@@ -4,6 +4,7 @@
   "type": "module",
   "description": "A library for vault management",
   "main": "src/index.js",
+  "license": "Apache-2.0",
   "scripts": {
     "lint": "eslint --fix .",
     "test": "jest"

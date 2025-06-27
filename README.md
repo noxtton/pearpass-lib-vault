@@ -181,3 +181,7 @@ function RecordManager({ vaultId }) {
 - [pearpass-lib-vault-desktop](https://github.com/tetherto/pearpass-lib-desktop) - Client implementation for Pear desktop applications
 - [pear-apps-utils-validator](https://github.com/tetherto/pear-apps-utils-validator) - A library for validating data in Pear applications
 - [tether-dev-docs](https://github.com/tetherto/tether-dev-docs) - Documentations and guides for developers
+
+## License
+
+This project is licensed under the Apache License, Version 2.0. See the [LICENSE](./LICENSE) file for details.
