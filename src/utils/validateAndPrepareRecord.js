@@ -19,30 +19,65 @@ export const recordSchema = Validator.object({
   updatedAt: Validator.number().required()
 })
 
+/**
+ * @param {Object} record
+ * @returns {Object}
+ * @throws {Error}
+ */
+const validateRecord = (record) => {
+  if (!record || typeof record !== 'object') {
+    logger.error('Invalid record data: Record must be an object')
+
+    throw new Error('Invalid record data: Record must be an object')
+  }
+
+  const validTypes = ['creditCard', 'custom', 'identity', 'login', 'note']
+
+  if (!validTypes.includes(record.type)) {
+    logger.error(`Invalid record data: Unknown record type "${record.type}"`)
+    throw new Error(`Invalid record data: Unknown record type "${record.type}"`)
+  }
+
+  const errors = recordSchema.validate(record)
+
+  if (errors) {
+    logger.error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
+
+    throw new Error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
+  }
+
+  return record
+}
+
+/**
+ * @param {Object} record
+ * @returns {Object}
+ * @throws {Error}
+ */
 export const validateAndPrepareRecord = (record) => {
-  let recordData = record.data
+  let recordData
 
   if (record.type === 'creditCard') {
-    recordData = validateAndPrepareCreditCardData(recordData)
+    recordData = validateAndPrepareCreditCardData(record.data)
   }
 
   if (record.type === 'custom') {
-    recordData = validateAndPrepareCustomData(recordData)
+    recordData = validateAndPrepareCustomData(record.data)
   }
 
   if (record.type === 'identity') {
-    recordData = validateAndPrepareIdentityData(recordData)
+    recordData = validateAndPrepareIdentityData(record.data)
   }
 
   if (record.type === 'login') {
-    recordData = validateAndPrepareLoginData(recordData)
+    recordData = validateAndPrepareLoginData(record.data)
   }
 
   if (record.type === 'note') {
-    recordData = validateAndPrepareNoteData(recordData)
+    recordData = validateAndPrepareNoteData(record.data)
   }
 
-  const preparedRecord = {
+  return validateRecord({
     id: record.id,
     version: VERSION.v1,
     type: record.type,
@@ -52,15 +87,5 @@ export const validateAndPrepareRecord = (record) => {
     isFavorite: record.isFavorite,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt
-  }
-
-  const errors = recordSchema.validate(preparedRecord)
-
-  if (errors) {
-    logger.error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
-
-    throw new Error(`Invalid record data: ${JSON.stringify(errors, null, 2)}`)
-  }
-
-  return preparedRecord
+  })
 }
