@@ -149,19 +149,11 @@ export const vaultSlice = createSlice({
         state.error = action.error
       })
 
-    builder
-      .addCase(pair.pending, (state) => {
-        state.isLoading = true
-      })
-      .addCase(pair.fulfilled, (state) => {
-        state.isLoading = false
-      })
-      .addCase(pair.rejected, (state, action) => {
-        logger.error(`Action pair error:`, JSON.stringify(action.error))
+    builder.addCase(pair.rejected, (state, action) => {
+      logger.error(`Action pair error:`, JSON.stringify(action.error))
 
-        state.isLoading = false
-        state.error = action.error
-      })
+      state.error = action.error
+    })
 
     builder
       .addCase(addDevice.pending, (state) => {
