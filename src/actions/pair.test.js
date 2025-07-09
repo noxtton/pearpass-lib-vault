@@ -5,6 +5,10 @@ jest.mock('../api/pair', () => ({
   pair: jest.fn()
 }))
 
+jest.mock('../utils/validateInviteCode', () => ({
+  validateInviteCode: jest.fn()
+}))
+
 describe('pair', () => {
   let dispatch
   let getState
@@ -21,7 +25,7 @@ describe('pair', () => {
     const thunk = pair(inviteCode)
     await thunk(dispatch, getState)
 
-    expect(pairApi).toHaveBeenCalledWith(inviteCode, expect.any(Object))
+    expect(pairApi).toHaveBeenCalledWith(inviteCode)
   })
 
   it('should return the vault id from pairApi', async () => {

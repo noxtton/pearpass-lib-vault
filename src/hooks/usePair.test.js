@@ -21,14 +21,12 @@ jest.mock('../api/initListener', () => ({
 
 describe('usePair', () => {
   const mockDispatch = jest.fn()
+  useDispatch.mockReturnValue(mockDispatch)
   const mockVaultId = 'test-vault-id'
 
   beforeEach(() => {
     jest.clearAllMocks()
-    useDispatch.mockReturnValue(mockDispatch)
-    mockDispatch.mockImplementation(() =>
-      Promise.resolve({ payload: mockVaultId })
-    )
+
     pairAction.mockReturnValue('pair-action')
     initListener.mockResolvedValue(undefined)
   })
@@ -43,6 +41,10 @@ describe('usePair', () => {
   })
 
   test('should call pairAction and initListener when pair is called', async () => {
+    mockDispatch.mockImplementation(() =>
+      Promise.resolve({ payload: mockVaultId })
+    )
+
     const { result } = renderHook(() => usePair())
 
     await act(async () => {
@@ -75,7 +77,6 @@ describe('usePair', () => {
     const pairPromise = act(async () => {
       const promise = result.current.pair('invite-code')
 
-      // Advance timers past the timeout
       jest.advanceTimersByTime(11000)
 
       try {
@@ -97,6 +98,10 @@ describe('usePair', () => {
   })
 
   test('should dispatch getVaultById when listener is triggered', async () => {
+    mockDispatch.mockImplementation(() =>
+      Promise.resolve({ payload: mockVaultId })
+    )
+
     let onUpdateCallback
     initListener.mockImplementation(({ onUpdate }) => {
       onUpdateCallback = onUpdate

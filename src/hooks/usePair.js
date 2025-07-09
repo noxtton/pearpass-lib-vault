@@ -17,31 +17,40 @@ export const usePair = () => {
 
   const [isLoading, setIsLoading] = useState(false)
 
+  const pairPromise = async (inviteCode) => {
+    const { error, payload: vaultId } = await dispatch(pairAction(inviteCode))
+
+    if (error) {
+      throw new Error(`Pairing failed: ${error.message}`)
+    }
+
+    return vaultId
+  }
+
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      setIsLoading(false)
+      return reject(new Error('Pairing timeout after 10 seconds'))
+    }, 10000)
+  })
+
   const pair = async (inviteCode) => {
     setIsLoading(true)
 
-    const pairPromise = dispatch(pairAction(inviteCode))
-
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
-        setIsLoading(false)
-        return reject(new Error('Pairing timeout after 10 seconds'))
-      }, 10000)
-    })
-
-    const { payload: vaultId } = await Promise.race([
-      pairPromise,
+    const vaultId = await Promise.race([
+      pairPromise(inviteCode),
       timeoutPromise
     ])
 
     await initListener({
-      vaultId: vaultId,
+      vaultId,
       onUpdate: () => {
-        dispatch(getVaultById({ vaultId: vaultId }))
+        dispatch(getVaultById({ vaultId }))
       }
     })
 
     setIsLoading(false)
+
     return vaultId
   }
 
