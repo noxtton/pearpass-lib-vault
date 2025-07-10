@@ -10,11 +10,9 @@ import { getMasterEncryption } from './getMasterEncryption'
  * }>}
  */
 export const getMasterPasswordEncryption = async () => {
-  const res = await pearpassVaultClient.vaultsGetStatus()
+  const masterEncryption = await getMasterEncryption()
 
-  if (res?.status) {
-    const masterEncryption = await getMasterEncryption()
-
+  if (masterEncryption) {
     return masterEncryption
   }
 
@@ -24,8 +22,5 @@ export const getMasterPasswordEncryption = async () => {
     await pearpassVaultClient.encryptionInit()
   }
 
-  const encryptionGetRes =
-    await pearpassVaultClient.encryptionGet('masterPassword')
-
-  return encryptionGetRes
+  return pearpassVaultClient.encryptionGet('masterPassword')
 }
