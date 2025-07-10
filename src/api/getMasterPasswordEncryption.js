@@ -1,4 +1,5 @@
 import { pearpassVaultClient } from '../instances'
+import { getMasterEncryption } from './getMasterEncryption'
 
 /**
  * @returns {Promise<{
@@ -12,8 +13,7 @@ export const getMasterPasswordEncryption = async () => {
   const res = await pearpassVaultClient.vaultsGetStatus()
 
   if (res?.status) {
-    const masterEncryption =
-      await pearpassVaultClient.vaultsGet('masterEncryption')
+    const masterEncryption = await getMasterEncryption()
 
     return masterEncryption
   }
