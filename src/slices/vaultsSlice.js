@@ -52,6 +52,7 @@ export const vaultsSlice = createSlice({
         logger.error(`Action getVaults error:`, JSON.stringify(action.error))
 
         state.error = action.error
+        state.isLoading = false
       })
 
     builder.addCase(createVault.fulfilled, (state, action) => {
