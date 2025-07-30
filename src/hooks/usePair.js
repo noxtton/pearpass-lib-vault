@@ -3,14 +3,12 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 import { getVaultById } from '../actions/getVaultById'
-import { cancelPairActiveVault as cancelPairActiveVaultApi } from '../api/cancelPairActiveVault'
+import { pair as pairAction } from '../actions/pair'
 import { initListener } from '../api/initListener'
-import { pairActiveVault as pairActiveVaultApi } from '../api/pairActiveVault'
 
 /**
  * @returns {{
- *  pairActiveVault: (inviteCode: string) => Promise<string>
- *  cancelPairActiveVault: () => Promise<void>,
+ *  pair: (inviteCode: string) => Promise<string>
  *  isLoading: boolean
  *  }}
  */
@@ -19,10 +17,8 @@ export const usePair = () => {
 
   const [isLoading, setIsLoading] = useState(false)
 
-  const pairActiveVaultPromise = async (inviteCode) => {
-    const { error, payload: vaultId } = await dispatch(
-      pairActiveVaultApi(inviteCode)
-    )
+  const pairPromise = async (inviteCode) => {
+    const { error, payload: vaultId } = await dispatch(pairAction(inviteCode))
 
     if (error) {
       throw new Error(`Pairing failed: ${error.message}`)
@@ -32,18 +28,17 @@ export const usePair = () => {
   }
 
   const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(async () => {
-      await cancelPairActiveVaultApi()
+    setTimeout(() => {
       setIsLoading(false)
       return reject(new Error('Pairing timeout after 10 seconds'))
     }, 10000)
   })
 
-  const pairActiveVault = async (inviteCode) => {
+  const pair = async (inviteCode) => {
     setIsLoading(true)
 
     const vaultId = await Promise.race([
-      pairActiveVaultPromise(inviteCode),
+      pairPromise(inviteCode),
       timeoutPromise
     ])
 
@@ -59,10 +54,5 @@ export const usePair = () => {
     return vaultId
   }
 
-  const cancelPairActiveVault = async () => {
-    setIsLoading(false)
-    await cancelPairActiveVaultApi()
-  }
-
-  return { pairActiveVault, cancelPairActiveVault, isLoading }
+  return { pair, isLoading }
 }

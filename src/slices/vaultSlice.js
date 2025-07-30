@@ -7,6 +7,7 @@ import { createVault } from '../actions/createVault'
 import { deleteFolder } from '../actions/deleteFolder'
 import { deleteRecords } from '../actions/deleteRecords'
 import { getVaultById } from '../actions/getVaultById'
+import { pair } from '../actions/pair'
 import { renameFolder } from '../actions/renameFolder'
 import { resetState } from '../actions/resetState'
 import { updateRecords } from '../actions/updateRecords'
@@ -148,6 +149,12 @@ export const vaultSlice = createSlice({
         state.error = action.error
       })
 
+    builder.addCase(pair.rejected, (state, action) => {
+      logger.error(`Action pair error:`, JSON.stringify(action.error))
+
+      state.error = action.error
+    })
+
     builder
       .addCase(addDevice.pending, (state) => {
         state.isDeviceLoading = true
@@ -157,7 +164,7 @@ export const vaultSlice = createSlice({
         state.data.devices = action?.payload ?? []
       })
       .addCase(addDevice.rejected, (state, action) => {
-        logger.error(`Action addDevice error:`, JSON.stringify(action.error))
+        logger.error(`Action pair error:`, JSON.stringify(action.error))
 
         state.isDeviceLoading = false
         state.error = action.error

@@ -5,7 +5,7 @@ import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
  * @param {string} inviteCode
  * @returns {Promise<string>}
  */
-export const pairActiveVault = async (inviteCode) => {
+export const pair = async (inviteCode) => {
   const masterEncryption = await getMasterPasswordEncryption()
 
   const masterEncryptionKey = await pearpassVaultClient.decryptVaultKey({
@@ -18,8 +18,7 @@ export const pairActiveVault = async (inviteCode) => {
     throw new Error('Failed to decrypt vault key for pairing')
   }
 
-  const { vaultId, encryptionKey } =
-    await pearpassVaultClient.pairActiveVault(inviteCode)
+  const { vaultId, encryptionKey } = await pearpassVaultClient.pair(inviteCode)
 
   const { ciphertext, nonce } = await pearpassVaultClient.encryptVaultWithKey(
     masterEncryption.hashedPassword,

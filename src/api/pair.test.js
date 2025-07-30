@@ -1,11 +1,11 @@
-import { pairActiveVault } from './pairActiveVault'
+import { pair } from './pair'
 import { pearpassVaultClient } from '../instances'
 import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
 
 jest.mock('../instances', () => ({
   pearpassVaultClient: {
     decryptVaultKey: jest.fn(),
-    pairActiveVault: jest.fn(),
+    pair: jest.fn(),
     encryptVaultWithKey: jest.fn(),
     activeVaultInit: jest.fn(),
     activeVaultGet: jest.fn(),
@@ -17,7 +17,7 @@ jest.mock('./getMasterPasswordEncryption', () => ({
   getMasterPasswordEncryption: jest.fn()
 }))
 
-describe('pairActiveVault', () => {
+describe('pair', () => {
   const mockInviteCode = 'test-invite-code'
   const mockMasterEncryption = {
     hashedPassword: 'hashed-password',
@@ -40,7 +40,7 @@ describe('pairActiveVault', () => {
     pearpassVaultClient.decryptVaultKey.mockResolvedValue(
       mockMasterEncryptionKey
     )
-    pearpassVaultClient.pairActiveVaultActiveVault.mockResolvedValue({
+    pearpassVaultClient.pair.mockResolvedValue({
       vaultId: mockVaultId,
       encryptionKey: mockEncryptionKey
     })
@@ -48,8 +48,8 @@ describe('pairActiveVault', () => {
     pearpassVaultClient.activeVaultGet.mockResolvedValue(mockVault)
   })
 
-  it('should successfully pairActiveVault with invite code and return vault ID', async () => {
-    const result = await pairActiveVault(mockInviteCode)
+  it('should successfully pair with invite code and return vault ID', async () => {
+    const result = await pair(mockInviteCode)
 
     expect(getMasterPasswordEncryption).toHaveBeenCalled()
     expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalledWith({
@@ -57,9 +57,7 @@ describe('pairActiveVault', () => {
       ciphertext: mockMasterEncryption.ciphertext,
       nonce: mockMasterEncryption.nonce
     })
-    expect(pearpassVaultClient.pairActiveVaultActiveVault).toHaveBeenCalledWith(
-      mockInviteCode
-    )
+    expect(pearpassVaultClient.pair).toHaveBeenCalledWith(mockInviteCode)
     expect(pearpassVaultClient.encryptVaultWithKey).toHaveBeenCalledWith(
       mockMasterEncryption.hashedPassword,
       mockEncryptionKey
@@ -85,14 +83,12 @@ describe('pairActiveVault', () => {
   it('should throw error when vault key decryption fails', async () => {
     pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
 
-    await expect(pairActiveVault(mockInviteCode)).rejects.toThrow(
-      'Failed to decrypt vault key for pairActiveVaulting'
+    await expect(pair(mockInviteCode)).rejects.toThrow(
+      'Failed to decrypt vault key for pairing'
     )
 
     expect(getMasterPasswordEncryption).toHaveBeenCalled()
     expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalled()
-    expect(
-      pearpassVaultClient.pairActiveVaultActiveVault
-    ).not.toHaveBeenCalled()
+    expect(pearpassVaultClient.pair).not.toHaveBeenCalled()
   })
 })

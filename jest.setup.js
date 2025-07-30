@@ -22,8 +22,7 @@ const mockClient = {
   removeAllListeners: jest.fn(),
   activeVaultList: jest.fn(),
   vaultsList: jest.fn(),
-  pairActiveVault: jest.fn(),
-  cancelPairActiveVault: jest.fn(),
+  pair: jest.fn(),
   setStoragePath: jest.fn(),
   encryptionAdd: jest.fn()
 }
