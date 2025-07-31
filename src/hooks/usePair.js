@@ -19,44 +19,35 @@ export const usePair = () => {
 
   const [isLoading, setIsLoading] = useState(false)
 
-  const pairActiveVaultPromise = async (inviteCode) => {
-    const { error, payload: vaultId } = await dispatch(
-      pairActiveVaultApi(inviteCode)
-    )
-
-    if (error) {
-      throw new Error(`Pairing failed: ${error.message}`)
-    }
-
-    return vaultId
-  }
-
-  const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(async () => {
-      await cancelPairActiveVaultApi()
-      setIsLoading(false)
-      return reject(new Error('Pairing timeout after 10 seconds'))
-    }, 10000)
-  })
-
   const pairActiveVault = async (inviteCode) => {
     setIsLoading(true)
 
-    const vaultId = await Promise.race([
-      pairActiveVaultPromise(inviteCode),
-      timeoutPromise
-    ])
+    try {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out')), 10000)
+      )
 
-    await initListener({
-      vaultId,
-      onUpdate: () => {
-        dispatch(getVaultById({ vaultId }))
+      const vaultId = await Promise.race([
+        pairActiveVaultApi(inviteCode),
+        timeoutPromise
+      ])
+
+      await initListener({
+        vaultId,
+        onUpdate: () => {
+          dispatch(getVaultById({ vaultId }))
+        }
+      })
+
+      setIsLoading(false)
+      return vaultId
+    } catch (error) {
+      setIsLoading(false)
+      if (error.message === 'Request timed out') {
+        await cancelPairActiveVaultApi()
       }
-    })
-
-    setIsLoading(false)
-
-    return vaultId
+      throw error
+    }
   }
 
   const cancelPairActiveVault = async () => {
