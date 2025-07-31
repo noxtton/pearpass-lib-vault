@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux'
 
 import { usePair } from './usePair'
 import { getVaultById } from '../actions/getVaultById'
-import { pair as pairAction } from '../actions/pair'
 import { initListener } from '../api/initListener'
+import { pairActiveVault as pairActiveVaultApi } from '../api/pairActiveVault'
 
 jest.mock('react-redux', () => ({
   useDispatch: jest.fn()
@@ -12,8 +12,8 @@ jest.mock('react-redux', () => ({
 jest.mock('../actions/getVaultById', () => ({
   getVaultById: jest.fn()
 }))
-jest.mock('../actions/pair', () => ({
-  pair: jest.fn()
+jest.mock('../api/pairActiveVault', () => ({
+  pairActiveVault: jest.fn()
 }))
 jest.mock('../api/initListener', () => ({
   initListener: jest.fn()
@@ -27,20 +27,20 @@ describe('usePair', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    pairAction.mockReturnValue('pair-action')
+    pairActiveVaultApi.mockReturnValue('pairActiveVault-action')
     initListener.mockResolvedValue(undefined)
   })
 
-  test('should return pair function and isLoading state', () => {
+  test('should return pairActiveVault function and isLoading state', () => {
     const { result } = renderHook(() => usePair())
 
     expect(result.current).toEqual({
-      pair: expect.any(Function),
+      pairActiveVault: expect.any(Function),
       isLoading: false
     })
   })
 
-  test('should call pairAction and initListener when pair is called', async () => {
+  test('should call pairActiveVaultAction and initListener when pairActiveVault is called', async () => {
     mockDispatch.mockImplementation(() =>
       Promise.resolve({ payload: mockVaultId })
     )
@@ -48,11 +48,11 @@ describe('usePair', () => {
     const { result } = renderHook(() => usePair())
 
     await act(async () => {
-      await result.current.pair('invite-code')
+      await result.current.pairActiveVault('invite-code')
     })
 
-    expect(pairAction).toHaveBeenCalledWith('invite-code')
-    expect(mockDispatch).toHaveBeenCalledWith('pair-action')
+    expect(pairActiveVaultApi).toHaveBeenCalledWith('invite-code')
+    expect(mockDispatch).toHaveBeenCalledWith('pairActiveVault-action')
     expect(initListener).toHaveBeenCalledWith({
       vaultId: mockVaultId,
       onUpdate: expect.any(Function)
@@ -74,8 +74,8 @@ describe('usePair', () => {
 
     let error
 
-    const pairPromise = act(async () => {
-      const promise = result.current.pair('invite-code')
+    const pairActiveVaultPromise = act(async () => {
+      const promise = result.current.pairActiveVault('invite-code')
 
       jest.advanceTimersByTime(11000)
 
@@ -88,10 +88,10 @@ describe('usePair', () => {
 
     jest.advanceTimersByTime(11000)
 
-    await pairPromise
+    await pairActiveVaultPromise
 
     expect(error).toBeInstanceOf(Error)
-    expect(error.message).toContain('Pairing timeout')
+    expect(error.message).toContain('pairActiveVaulting timeout')
     expect(result.current.isLoading).toBe(false)
 
     jest.useRealTimers()
@@ -111,7 +111,7 @@ describe('usePair', () => {
     const { result } = renderHook(() => usePair())
 
     await act(async () => {
-      await result.current.pair('invite-code')
+      await result.current.pairActiveVault('invite-code')
     })
 
     act(() => {
