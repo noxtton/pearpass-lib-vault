@@ -40,7 +40,7 @@ describe('pairActiveVault', () => {
     pearpassVaultClient.decryptVaultKey.mockResolvedValue(
       mockMasterEncryptionKey
     )
-    pearpassVaultClient.pairActiveVaultActiveVault.mockResolvedValue({
+    pearpassVaultClient.pairActiveVault.mockResolvedValue({
       vaultId: mockVaultId,
       encryptionKey: mockEncryptionKey
     })
@@ -57,7 +57,7 @@ describe('pairActiveVault', () => {
       ciphertext: mockMasterEncryption.ciphertext,
       nonce: mockMasterEncryption.nonce
     })
-    expect(pearpassVaultClient.pairActiveVaultActiveVault).toHaveBeenCalledWith(
+    expect(pearpassVaultClient.pairActiveVault).toHaveBeenCalledWith(
       mockInviteCode
     )
     expect(pearpassVaultClient.encryptVaultWithKey).toHaveBeenCalledWith(
@@ -86,13 +86,11 @@ describe('pairActiveVault', () => {
     pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
 
     await expect(pairActiveVault(mockInviteCode)).rejects.toThrow(
-      'Failed to decrypt vault key for pairActiveVaulting'
+      'Failed to decrypt vault key for pairing'
     )
 
     expect(getMasterPasswordEncryption).toHaveBeenCalled()
     expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalled()
-    expect(
-      pearpassVaultClient.pairActiveVaultActiveVault
-    ).not.toHaveBeenCalled()
+    expect(pearpassVaultClient.pairActiveVault).not.toHaveBeenCalled()
   })
 })
