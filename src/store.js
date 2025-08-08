@@ -15,4 +15,4 @@ export const store = configureStore({
   }
 })
 
-export const VaultProvider = (props) => Provider({ store: store, ...props })
+export const VaultProvider = (props) => Provider({ store, ...props })
