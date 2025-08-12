@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-
 import { useDispatch, useSelector } from 'react-redux'
 
 import { addDevice as addDeviceAction } from '../actions/addDevice.js'
@@ -16,7 +14,6 @@ import { logger } from '../utils/logger'
 
 /**
  *  @param {{
- *      onCompleted?: (payload: any) => void
  *      shouldSkip?: boolean
  *      variables: {
  *        vaultId: string
@@ -38,14 +35,10 @@ import { logger } from '../utils/logger'
  *      resetState: () => void
  *  }}
  */
-export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
+export const useVault = ({ variables } = {}) => {
   const dispatch = useDispatch()
 
-  const {
-    isLoading: isVaultsLoading,
-    isInitialized: isVaultsInitialized,
-    isInitializing
-  } = useSelector(selectVaults)
+  const { isLoading: isVaultsLoading } = useSelector(selectVaults)
 
   const {
     isLoading: isVaultLoading,
@@ -73,8 +66,6 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
       }
     })
 
-    onCompleted?.(vault)
-
     return vault
   }
 
@@ -94,6 +85,13 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   }
 
   const addDevice = async (device) => {
+    const hasDeviceAdded = data?.devices?.some((d) => d.name === device)
+
+    if (hasDeviceAdded) {
+      logger.log('Device already added to vault')
+      return
+    }
+
     const { error: createError } = await dispatch(addDeviceAction(device))
 
     await refetch()
@@ -127,21 +125,6 @@ export const useVault = ({ onCompleted, shouldSkip, variables } = {}) => {
   const resetState = () => {
     dispatch(resetStateAction())
   }
-
-  useEffect(() => {
-    if (
-      data ||
-      shouldSkip ||
-      !variables?.vaultId ||
-      !isVaultsInitialized ||
-      isLoading ||
-      isInitializing
-    ) {
-      return
-    }
-
-    fetchVault(variables?.vaultId)
-  }, [data, variables?.vaultId, isVaultsInitialized])
 
   return {
     isLoading,

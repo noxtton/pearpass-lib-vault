@@ -70,23 +70,6 @@ describe('useVault', () => {
     expect(typeof result.current.resetState).toBe('function')
   })
 
-  test('should fetch vault when variables are provided and initialized', () => {
-    useSelector.mockImplementation((selector) => {
-      if (selector.name === 'selectVaults') {
-        return { isLoading: false, isInitialized: true, isInitializing: false }
-      }
-      return { isLoading: false, data: null }
-    })
-
-    renderHook(() => useVault({ variables: { vaultId: 'vault-123' } }))
-
-    expect(getVaultById).toHaveBeenCalledWith({
-      vaultId: 'vault-123',
-      password: undefined
-    })
-    expect(mockDispatch).toHaveBeenCalled()
-  })
-
   test('should not fetch vault when shouldSkip is true', () => {
     useSelector.mockImplementation((selector) => {
       if (selector.name === 'selectVaults') {
@@ -100,28 +83,6 @@ describe('useVault', () => {
     )
 
     expect(getVaultById).not.toHaveBeenCalled()
-  })
-
-  test('should call onCompleted when fetch completes', async () => {
-    useSelector.mockImplementation((selector) => {
-      if (selector.name === 'selectVaults') {
-        return { isLoading: false, isInitialized: true, isInitializing: false }
-      }
-      return { isLoading: false, data: null }
-    })
-
-    const mockOnCompleted = jest.fn()
-
-    renderHook(() =>
-      useVault({
-        variables: { vaultId: 'vault-123' },
-        onCompleted: mockOnCompleted
-      })
-    )
-
-    await new Promise((resolve) => setTimeout(resolve, 0))
-
-    expect(mockOnCompleted).toHaveBeenCalledWith(mockVault)
   })
 
   test('refetch should fetch vault with provided vaultId', async () => {
