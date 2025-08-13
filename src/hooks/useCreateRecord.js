@@ -9,7 +9,7 @@ import { selectVault } from '../selectors/selectVault'
  * }} options
  * @returns {{
  *  isLoading: boolean
- *  createRecord: (record: any) => void
+ *  createRecord: (record: any) => Promise<void>
  * }}
  */
 export const useCreateRecord = ({ onCompleted } = {}) => {

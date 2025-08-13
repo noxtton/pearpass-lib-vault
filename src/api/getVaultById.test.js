@@ -34,19 +34,22 @@ describe('getVaultById', () => {
 
   it('throws "Vault not found" error if vault is not in the list', async () => {
     listVaults.mockResolvedValue([{ id: 'otherVault' }])
-    await expect(getVaultById('vault1', 'password')).rejects.toThrow(
-      'Vault not found'
-    )
+    await expect(
+      getVaultById('vault1', { password: 'password' })
+    ).rejects.toThrow('Vault not found')
   })
 
   describe('when password is provided', () => {
     it('throws error if vault encryption data does not exist', async () => {
       listVaults.mockResolvedValue([{ id: 'vault1' }])
       getVaultEncryption.mockResolvedValue({})
+      getMasterPasswordEncryption.mockResolvedValue({
+        hashedPassword: 'hashedPassword'
+      })
 
-      await expect(getVaultById('vault1', 'password')).rejects.toThrow(
-        'Error decrypting vault key'
-      )
+      await expect(
+        getVaultById('vault1', { password: 'password' })
+      ).rejects.toThrow('Error decrypting vault key')
     })
 
     it('throws error if decryption fails (decryptVaultKey returns falsy)', async () => {
@@ -57,13 +60,14 @@ describe('getVaultById', () => {
         salt: 'salt'
       }
       getVaultEncryption.mockResolvedValue(vaultEncryptionRes)
-
-      pearpassVaultClient.getDecryptionKey.mockResolvedValue('hashedPassword')
+      getMasterPasswordEncryption.mockResolvedValue({
+        hashedPassword: 'hashedPassword'
+      })
       pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
 
-      await expect(getVaultById('vault1', 'password')).rejects.toThrow(
-        'Error decrypting vault key'
-      )
+      await expect(
+        getVaultById('vault1', { password: 'password' })
+      ).rejects.toThrow('Error decrypting vault key')
     })
 
     it('initializes the vault if activeVaultGetStatus returns false', async () => {
@@ -74,15 +78,16 @@ describe('getVaultById', () => {
         salt: 'salt'
       }
       getVaultEncryption.mockResolvedValue(vaultEncryptionRes)
-
-      pearpassVaultClient.getDecryptionKey.mockResolvedValue('hashedPassword')
+      getMasterPasswordEncryption.mockResolvedValue({
+        hashedPassword: 'hashedPassword'
+      })
       pearpassVaultClient.decryptVaultKey.mockResolvedValue('encryptionKey')
       pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({
         status: false
       })
       pearpassVaultClient.activeVaultGet.mockResolvedValue({ id: 'vault1' })
 
-      const result = await getVaultById('vault1', 'password')
+      const result = await getVaultById('vault1', { password: 'password' })
 
       expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
         id: 'vault1',
@@ -99,8 +104,9 @@ describe('getVaultById', () => {
         salt: 'salt'
       }
       getVaultEncryption.mockResolvedValue(vaultEncryptionRes)
-
-      pearpassVaultClient.getDecryptionKey.mockResolvedValue('hashedPassword')
+      getMasterPasswordEncryption.mockResolvedValue({
+        hashedPassword: 'hashedPassword'
+      })
       pearpassVaultClient.decryptVaultKey.mockResolvedValue('encryptionKey')
       pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({
         status: true
@@ -110,7 +116,7 @@ describe('getVaultById', () => {
         .mockResolvedValueOnce({ id: 'differentVault' })
         .mockResolvedValueOnce({ id: 'vault1' })
 
-      const result = await getVaultById('vault1', 'password')
+      const result = await getVaultById('vault1', { password: 'password' })
 
       expect(pearpassVaultClient.activeVaultClose).toHaveBeenCalled()
 
@@ -134,7 +140,7 @@ describe('getVaultById', () => {
       })
       pearpassVaultClient.activeVaultGet.mockResolvedValue({ id: 'vault1' })
 
-      const result = await getVaultById('vault1', 'password')
+      const result = await getVaultById('vault1', { password: 'password' })
       expect(result).toEqual({ id: 'vault1' })
     })
   })
@@ -142,12 +148,10 @@ describe('getVaultById', () => {
   describe('when no password is provided', () => {
     it('throws error if vault encryption data does not exist', async () => {
       listVaults.mockResolvedValue([{ id: 'vault1' }])
-      getVaultEncryption.mockResolvedValue('')
+      getVaultEncryption.mockResolvedValue({})
       getMasterPasswordEncryption.mockResolvedValue({
         hashedPassword: 'hashedPassword'
       })
-      pearpassVaultClient.getDecryptionKey.mockResolvedValue('hashedPassword')
-      pearpassVaultClient.decryptVaultKey.mockResolvedValue(undefined)
 
       await expect(getVaultById('vault1')).rejects.toThrow(
         'Error decrypting vault key'

@@ -4,6 +4,7 @@ import { createVault } from '../actions/createVault'
 import { getVaults } from '../actions/getVaults'
 import { initializeVaults } from '../actions/initializeVaults'
 import { resetState } from '../actions/resetState'
+import { logger } from '../utils/logger'
 
 const initialState = {
   isInitialized: false,
@@ -29,7 +30,7 @@ export const vaultsSlice = createSlice({
         state.isInitialized = true
       })
       .addCase(initializeVaults.rejected, (state, action) => {
-        console.error(
+        logger.error(
           `Action initializeVaults error:`,
           JSON.stringify(action.error)
         )
@@ -48,9 +49,10 @@ export const vaultsSlice = createSlice({
         state.isLoading = false
       })
       .addCase(getVaults.rejected, (state, action) => {
-        console.error(`Action getVaults error:`, JSON.stringify(action.error))
+        logger.error(`Action getVaults error:`, JSON.stringify(action.error))
 
         state.error = action.error
+        state.isLoading = false
       })
 
     builder.addCase(createVault.fulfilled, (state, action) => {

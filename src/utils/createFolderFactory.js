@@ -1,6 +1,5 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
 import { Validator } from 'pear-apps-utils-validator'
-
-import { generateUniqueId } from './generateUniqueId'
 
 export const recordSchema = Validator.object({
   id: Validator.string().required(),

@@ -1,7 +1,8 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+
 import { createVault } from './createVault'
 import { createVault as createVaultApi } from '../api/createVault'
 import { VERSION } from '../constants/version'
-import { generateUniqueId } from '../utils/generateUniqueId'
 
 jest.mock('../api/createVault', () => ({
   createVault: jest.fn()
@@ -11,7 +12,7 @@ jest.mock('../api/createProtectedVault', () => ({
   createProtectedVault: jest.fn()
 }))
 
-jest.mock('../utils/generateUniqueId', () => ({
+jest.mock('pear-apps-utils-generate-unique-id', () => ({
   generateUniqueId: jest.fn()
 }))
 
@@ -45,6 +46,7 @@ describe('createVault', () => {
       name: vaultName,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: mockDate,
       updatedAt: mockDate
     })
@@ -61,6 +63,7 @@ describe('createVault', () => {
       name: vaultName,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: mockDate,
       updatedAt: mockDate
     })
@@ -75,6 +78,7 @@ describe('createVault', () => {
       name: vaultName,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: mockDate,
       updatedAt: mockDate
     })

@@ -2,8 +2,10 @@ import { renderHook, act } from '@testing-library/react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useVault } from './useVault'
+import { addDevice as addDeviceAction } from '../actions/addDevice'
 import { getVaultById } from '../actions/getVaultById'
 import { resetState } from '../actions/resetState'
+import { updateVault } from '../actions/updateVault'
 import { checkVaultIsProtected } from '../api/checkVaultIsProtected'
 
 jest.mock('react-redux', () => ({
@@ -17,6 +19,14 @@ jest.mock('../actions/getVaultById', () => ({
 
 jest.mock('../actions/resetState', () => ({
   resetState: jest.fn()
+}))
+
+jest.mock('../actions/updateVault', () => ({
+  updateVault: jest.fn()
+}))
+
+jest.mock('../actions/addDevice', () => ({
+  addDevice: jest.fn()
 }))
 
 jest.mock('../api/getVaultEncryption', () => ({
@@ -47,7 +57,7 @@ describe('useVault', () => {
       if (selector.name === 'selectVaults') {
         return { isLoading: false, isInitialized: true, isInitializing: false }
       }
-      return { isLoading: false, data: null }
+      return { isLoading: false, data: null, isInitialized: true }
     })
 
     const { result } = renderHook(() => useVault())
@@ -125,12 +135,12 @@ describe('useVault', () => {
     const { result } = renderHook(() => useVault())
 
     await act(async () => {
-      await result.current.refetch('new-vault-id', 'password123')
+      await result.current.refetch('new-vault-id', { password: 'password123' })
     })
 
     expect(getVaultById).toHaveBeenCalledWith({
       vaultId: 'new-vault-id',
-      password: 'password123'
+      params: { password: 'password123' }
     })
   })
 
@@ -176,5 +186,98 @@ describe('useVault', () => {
 
     expect(resetState).toHaveBeenCalled()
     expect(mockDispatch).toHaveBeenCalledWith({ type: 'RESET_STATE' })
+  })
+
+  test('updateVault should update the vault with provided data', async () => {
+    const mockVaultUpdate = {
+      name: 'Updated Vault',
+      password: 'new-password',
+      currentPassword: 'current-password'
+    }
+
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: mockVault }
+    })
+
+    const { result } = renderHook(() => useVault())
+
+    await act(async () => {
+      await result.current.updateVault('vault-123', mockVaultUpdate)
+    })
+
+    expect(updateVault).toHaveBeenCalledWith({
+      vaultId: 'vault-123',
+      name: 'Updated Vault',
+      currentPassword: 'current-password',
+      newPassword: 'new-password'
+    })
+  })
+
+  test('updateVault should throw error if updateVaultAction fails', async () => {
+    const mockVaultUpdate = {
+      name: 'Updated Vault',
+      password: 'new-password',
+      currentPassword: 'current-password'
+    }
+
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: mockVault }
+    })
+
+    mockDispatch.mockResolvedValueOnce({ error: true })
+
+    const { result } = renderHook(() => useVault())
+
+    await expect(
+      result.current.updateVault('vault-123', mockVaultUpdate)
+    ).rejects.toThrow('Error updating vault')
+  })
+
+  test('addDevice should add a device to the vault', async () => {
+    const mockDevice = 'IOS 15.6.0'
+
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: mockVault }
+    })
+
+    addDeviceAction.mockReturnValue({ type: 'ADD_DEVICE' })
+
+    const { result } = renderHook(() => useVault())
+
+    await act(async () => {
+      await result.current.addDevice(mockDevice)
+    })
+
+    expect(addDeviceAction).toHaveBeenCalledWith(mockDevice)
+    expect(mockDispatch).toHaveBeenCalledWith({ type: 'ADD_DEVICE' })
+  })
+
+  test('addDevice should throw error if adding device fails', async () => {
+    const mockDevice = 'IOS 15.6.0'
+
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'selectVaults') {
+        return { isLoading: false, isInitialized: true, isInitializing: false }
+      }
+      return { isLoading: false, data: mockVault }
+    })
+
+    addDeviceAction.mockReturnValue({ type: 'ADD_DEVICE' })
+    mockDispatch.mockResolvedValueOnce({ error: true })
+
+    const { result } = renderHook(() => useVault())
+
+    await expect(
+      result.current.addDevice('vault-123', mockDevice)
+    ).rejects.toThrow('Error adding device to device list in vault')
   })
 })

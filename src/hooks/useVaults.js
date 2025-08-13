@@ -8,19 +8,20 @@ import { selectVaults } from '../selectors/selectVaults'
 /**
  *  @param {{
  *    onCompleted?: (payload: any) => void
- *   onInitialize?: (payload: any) => void
+ *    onInitialize?: (payload: any) => void
  *  }} options
  *   @returns {{
- *      isLoading: boolean
- *      data: any
- *    refetch: () => Promise<void>
+ *    isLoading: boolean
+ *    isInitialized: boolean
+ *    data: any
+ *    refetch: () => Promise<any>
  *    initVaults: ({
- *     ciphertext?: string
- *     nonce?: string
- *     salt?: string
- *     hashedPassword?: string
- *     password?: string
- *   }) => Promise<void>
+ *      ciphertext?: string
+ *      nonce?: string
+ *      salt?: string
+ *      hashedPassword?: string
+ *      password?: string
+ *    }) => Promise<void>
  *    resetState: () => void
  *  }}
  */
@@ -58,15 +59,19 @@ export const useVaults = ({ onCompleted, onInitialize } = {}) => {
     const { payload: vaults } = await dispatch(getVaults())
 
     onCompleted?.(vaults)
+
+    return vaults
   }
 
   const refetch = async () => {
-    await fetchVaults()
+    const vaults = await fetchVaults()
+
+    return vaults
   }
 
   const resetState = () => {
     dispatch(resetStateAction())
   }
 
-  return { isLoading, data, refetch, initVaults, resetState }
+  return { isLoading, isInitialized, data, refetch, initVaults, resetState }
 }

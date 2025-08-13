@@ -1,13 +1,14 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+
 import { createRecord } from './createRecord'
 import { createRecord as createRecordApi } from '../api/createRecord'
-import { generateUniqueId } from '../utils/generateUniqueId'
 import { validateAndPrepareRecord } from '../utils/validateAndPrepareRecord'
 
 jest.mock('../api/createRecord', () => ({
   createRecord: jest.fn()
 }))
 
-jest.mock('../utils/generateUniqueId', () => ({
+jest.mock('pear-apps-utils-generate-unique-id', () => ({
   generateUniqueId: jest.fn()
 }))
 
@@ -21,7 +22,7 @@ describe('createRecord', () => {
   const mockDate = 1633000000000
   const mockPayload = {
     type: 'password',
-    data: { username: 'testuser', password: 'testpass' },
+    data: { username: 'testuser', password: 'testpass', attachments: [] },
     folder: 'folder-123',
     isFavorite: true
   }

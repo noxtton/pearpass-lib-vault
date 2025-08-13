@@ -84,14 +84,12 @@ describe('useCreateFolder', () => {
   })
 
   test('should handle existing folder name', async () => {
-    useSelector.mockImplementation(() => {
-      return {
-        data: {
-          customFolders: { 'existing-folder': {} }
-        },
-        isFolderLoading: false
-      }
-    })
+    useSelector.mockImplementation(() => ({
+      data: {
+        customFolders: { 'existing-folder': {} }
+      },
+      isFolderLoading: false
+    }))
 
     const { result } = renderHook(() =>
       useCreateFolder({

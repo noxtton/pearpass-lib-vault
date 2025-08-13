@@ -6,15 +6,12 @@ import { createVault as createVaultAction } from '../actions/createVault'
 import { selectVault } from '../selectors/selectVault'
 
 /**
- * @param {{
- *  onCompleted?: (payload: {vault: any}) => void
- * }} options
  * @returns {{
  *  isLoading: boolean
  *  createVault: ({name: string, password?: string}) => Promise<void>
  *  }}
  */
-export const useCreateVault = ({ onCompleted } = {}) => {
+export const useCreateVault = () => {
   const dispatch = useDispatch()
 
   const [isCreateLoading, setIsCreateLoading] = useState(false)
@@ -30,9 +27,11 @@ export const useCreateVault = ({ onCompleted } = {}) => {
 
     setIsCreateLoading(false)
 
-    if (!error) {
-      onCompleted?.(payload)
+    if (error) {
+      throw new Error('Failed to create vault')
     }
+
+    return payload
   }
 
   return { isLoading: isCreateLoading || isVaultLoading, createVault }

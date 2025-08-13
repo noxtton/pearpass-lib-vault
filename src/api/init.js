@@ -36,6 +36,12 @@ export const init = async (params) => {
     throw new Error('Password is required')
   }
 
+  const statusRes = await pearpassVaultClient.encryptionGetStatus()
+
+  if (!statusRes?.status) {
+    await pearpassVaultClient.encryptionInit()
+  }
+
   const encryptionGetRes =
     await pearpassVaultClient.encryptionGet('masterPassword')
 

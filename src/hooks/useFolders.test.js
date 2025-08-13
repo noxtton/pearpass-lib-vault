@@ -18,6 +18,10 @@ jest.mock('../actions/updateRecords', () => ({
   updateFolder: jest.fn()
 }))
 
+jest.mock('../actions/renameFolder', () => ({
+  renameFolder: jest.fn(() => Promise.resolve())
+}))
+
 describe('useFolders', () => {
   beforeEach(() => {
     jest.clearAllMocks()

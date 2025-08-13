@@ -21,14 +21,12 @@ jest.mock('../api/initListener', () => ({
 
 describe('usePair', () => {
   const mockDispatch = jest.fn()
+  useDispatch.mockReturnValue(mockDispatch)
   const mockVaultId = 'test-vault-id'
 
   beforeEach(() => {
     jest.clearAllMocks()
-    useDispatch.mockReturnValue(mockDispatch)
-    mockDispatch.mockImplementation(() =>
-      Promise.resolve({ payload: mockVaultId })
-    )
+
     pairAction.mockReturnValue('pair-action')
     initListener.mockResolvedValue(undefined)
   })
@@ -43,10 +41,11 @@ describe('usePair', () => {
   })
 
   test('should call pairAction and initListener when pair is called', async () => {
-    const mockOnCompleted = jest.fn()
-    const { result } = renderHook(() =>
-      usePair({ onCompleted: mockOnCompleted })
+    mockDispatch.mockImplementation(() =>
+      Promise.resolve({ payload: mockVaultId })
     )
+
+    const { result } = renderHook(() => usePair())
 
     await act(async () => {
       await result.current.pair('invite-code')
@@ -58,57 +57,51 @@ describe('usePair', () => {
       vaultId: mockVaultId,
       onUpdate: expect.any(Function)
     })
-    expect(mockOnCompleted).toHaveBeenCalledWith(mockVaultId)
     expect(result.current.isLoading).toBe(false)
-  })
-
-  test('should call onError when pair action fails', async () => {
-    const mockError = new Error('Failed to pair')
-    mockDispatch.mockRejectedValueOnce(mockError)
-
-    const mockOnError = jest.fn()
-    const { result } = renderHook(() => usePair({ onError: mockOnError }))
-
-    await act(async () => {
-      await result.current.pair('invite-code')
-    })
-
-    expect(mockOnError).toHaveBeenCalledWith(mockError)
-    expect(result.current.isLoading).toBe(false)
-    expect(initListener).not.toHaveBeenCalled()
   })
 
   test('should handle timeout', async () => {
     jest.useFakeTimers()
-    const mockOnError = jest.fn()
 
-    mockDispatch.mockImplementation(() => {
-      return new Promise((resolve) => {
-        setTimeout(() => resolve({ payload: mockVaultId }), 20000)
-      })
-    })
+    mockDispatch.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve({ payload: mockVaultId }), 20000)
+        })
+    )
 
-    const { result } = renderHook(() => usePair({ onError: mockOnError }))
+    const { result } = renderHook(() => usePair())
+
+    let error
 
     const pairPromise = act(async () => {
-      await result.current.pair('invite-code')
+      const promise = result.current.pair('invite-code')
+
+      jest.advanceTimersByTime(11000)
+
+      try {
+        await promise
+      } catch (e) {
+        error = e
+      }
     })
 
     jest.advanceTimersByTime(11000)
 
     await pairPromise
 
-    expect(mockOnError).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringContaining('Pairing timeout')
-      })
-    )
+    expect(error).toBeInstanceOf(Error)
+    expect(error.message).toContain('Pairing timeout')
     expect(result.current.isLoading).toBe(false)
 
     jest.useRealTimers()
   })
 
   test('should dispatch getVaultById when listener is triggered', async () => {
+    mockDispatch.mockImplementation(() =>
+      Promise.resolve({ payload: mockVaultId })
+    )
+
     let onUpdateCallback
     initListener.mockImplementation(({ onUpdate }) => {
       onUpdateCallback = onUpdate

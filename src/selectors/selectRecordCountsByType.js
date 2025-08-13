@@ -16,6 +16,10 @@ export const selectRecordCountsByType = ({ filters } = {}) =>
     (vault) => {
       const records =
         vault.data?.records.filter((record) => {
+          if (!record) {
+            return false
+          }
+
           if (
             (filters?.folder || filters?.folder === null) &&
             record.folder !== filters?.folder

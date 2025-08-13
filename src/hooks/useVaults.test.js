@@ -59,6 +59,7 @@ describe('useVaults', () => {
 
     expect(result.current).toEqual({
       isLoading: mockVaultsState.isLoading,
+      isInitialized: mockVaultsState.isInitialized,
       data: mockVaultsState.data,
       refetch: expect.any(Function),
       initVaults: expect.any(Function),

@@ -1,16 +1,17 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
 import { Validator } from 'pear-apps-utils-validator'
 
 import { createProtectedVault } from '../api/createProtectedVault'
 import { createVault as createVaultApi } from '../api/createVault'
 import { VERSION } from '../constants/version'
-import { generateUniqueId } from '../utils/generateUniqueId'
 
 const schema = Validator.object({
   id: Validator.string().required(),
   name: Validator.string().required(),
   version: Validator.number().required(),
   records: Validator.array().required(),
+  devices: Validator.array().required(),
   createdAt: Validator.number().required(),
   updatedAt: Validator.number().required()
 })
@@ -23,6 +24,7 @@ export const createVault = createAsyncThunk(
       name: name,
       version: VERSION.v1,
       records: [],
+      devices: [],
       createdAt: Date.now(),
       updatedAt: Date.now()
     }

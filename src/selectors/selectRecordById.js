@@ -5,6 +5,6 @@ export const selectRecordById = (id) =>
     (state) => state.vault,
     (vault) => ({
       isLoading: vault.isRecordLoading,
-      data: vault.data?.records?.find((record) => record.id === id)
+      data: vault.data?.records?.find((record) => record?.id === id)
     })
   )
