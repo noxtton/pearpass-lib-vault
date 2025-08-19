@@ -10,7 +10,9 @@
     "test": "jest"
   },
   "peerDependencies": {
-    "pear-apps-utils-validator": "github:tetherto/pear-apps-utils-validator#v0.0.5",
+    "pear-apps-utils-generate-unique-id": "github:noxtton/pear-apps-utils-generate-unique-id#v0.0.3",
+    "pear-apps-utils-pattern-search": "github:noxtton/pear-apps-utils-pattern-search#v0.0.3",
+    "pear-apps-utils-validator": "github:noxtton/pear-apps-utils-validator#v0.0.6",
     "react": ">=18.3.1"
   },
   "devDependencies": {
@@ -27,8 +29,6 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "2.5.0",
-    "pear-apps-utils-generate-unique-id": "github:tetherto/pear-apps-utils-generate-unique-id#v0.0.1",
-    "pear-apps-utils-pattern-search": "github:tetherto/pear-apps-utils-pattern-search#v0.0.2",
     "react-redux": "9.1.2"
   }
 }
