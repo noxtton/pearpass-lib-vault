@@ -10,6 +10,23 @@ import { updateFolderFactory } from '../utils/updateFolderFactory'
 import { updateRecordsFactory } from '../utils/updateRecordsFactory'
 import { validateAndPrepareBuffersFromRecord } from '../utils/validateAndPrepareBuffersFromRecord.js'
 
+const withPasswordUpdatedAt = (recordWithoutBuffers, currentRecord) => {
+  const previousPassword = currentRecord?.data?.password
+  const newPassword = recordWithoutBuffers?.data?.password
+
+  if (previousPassword !== newPassword) {
+    return {
+      ...recordWithoutBuffers,
+      data: {
+        ...recordWithoutBuffers.data,
+        passwordUpdatedAt: Date.now()
+      }
+    }
+  }
+
+  return recordWithoutBuffers
+}
+
 export const updateRecords = createAsyncThunk(
   'vault/updateRecords',
   async (recordsPayload) => {
@@ -20,6 +37,10 @@ export const updateRecords = createAsyncThunk(
         (acc, record) => {
           const { recordWithoutBuffers, buffersWithId } =
             validateAndPrepareBuffersFromRecord(record)
+
+          const currentRecord = currentRecords.find(
+            (r) => r.id === recordWithoutBuffers.id
+          )
 
           acc.filesToAdd.push(
             ...buffersWithId.map(({ id, buffer }) => ({
@@ -32,16 +53,19 @@ export const updateRecords = createAsyncThunk(
           acc.filesToRemove.push(
             ...extractDeletedIdsFromRecord({
               newRecord: recordWithoutBuffers,
-              currentRecord: currentRecords.find(
-                (r) => r.id === recordWithoutBuffers.id
-              )
+              currentRecord: currentRecord
             }).map((fileId) => ({
               recordId: recordWithoutBuffers.id,
               fileId
             }))
           )
 
-          acc.recordsWithoutBuffers.push(recordWithoutBuffers)
+          const recordWithPasswordUpdatedAt = withPasswordUpdatedAt(
+            recordWithoutBuffers,
+            currentRecord
+          )
+
+          acc.recordsWithoutBuffers.push(recordWithPasswordUpdatedAt)
 
           return acc
         },

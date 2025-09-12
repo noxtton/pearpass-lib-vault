@@ -13,7 +13,14 @@ export const createRecord = createAsyncThunk(
     const { recordWithoutBuffers, buffersWithId } =
       validateAndPrepareBuffersFromRecord(payload)
 
-    const newRecord = createRecordFactory(recordWithoutBuffers, vaultId)
+    const recordWithPasswordUpdatedAt = {
+      ...recordWithoutBuffers,
+      data: {
+        ...recordWithoutBuffers.data,
+        passwordUpdatedAt: Date.now()
+      }
+    }
+    const newRecord = createRecordFactory(recordWithPasswordUpdatedAt, vaultId)
 
     await createRecordApi(newRecord)
 
