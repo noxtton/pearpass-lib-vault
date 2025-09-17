@@ -17,7 +17,8 @@ export const createRecord = createAsyncThunk(
       ...recordWithoutBuffers,
       data: {
         ...recordWithoutBuffers.data,
-        passwordUpdatedAt: Date.now()
+        passwordUpdatedAt:
+          recordWithoutBuffers.data.passwordUpdatedAt ?? Date.now()
       }
     }
     const newRecord = createRecordFactory(recordWithPasswordUpdatedAt, vaultId)
