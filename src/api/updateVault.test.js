@@ -91,13 +91,7 @@ describe('updateVault', () => {
     })
     expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
       `vault/${mockVault.id}`,
-      {
-        ...mockVault,
-        encryption: {
-          ciphertext: 'ciphertext123',
-          nonce: 'nonce123'
-        }
-      }
+      mockVault
     )
     expect(pearpassVaultClient.activeVaultAdd).toHaveBeenCalledWith(
       'vault',
