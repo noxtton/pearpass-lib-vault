@@ -54,8 +54,8 @@ export const getVaultById = async (vaultId, params) => {
 
     encryptionKey = await pearpassVaultClient.decryptVaultKey({
       hashedPassword: masterEncryption.hashedPassword,
-      ciphertext,
-      nonce
+      ciphertext: masterEncryption.ciphertext,
+      nonce: masterEncryption.nonce
     })
   } else {
     const hashedPassword = await pearpassVaultClient.getDecryptionKey({

@@ -35,13 +35,7 @@ export const createVault = async (vault) => {
     encryptionKey
   })
 
-  await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, {
-    ...vault,
-    encryption: {
-      ciphertext,
-      nonce
-    }
-  })
+  await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, vault)
 
   await pearpassVaultClient.activeVaultAdd(`vault`, vault)
 }

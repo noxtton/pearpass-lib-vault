@@ -21,22 +21,11 @@ export const pairActiveVault = async (inviteCode) => {
   const { vaultId, encryptionKey } =
     await pearpassVaultClient.pairActiveVault(inviteCode)
 
-  const { ciphertext, nonce } = await pearpassVaultClient.encryptVaultWithKey(
-    masterEncryption.hashedPassword,
-    encryptionKey
-  )
-
   await pearpassVaultClient.activeVaultInit({ id: vaultId, encryptionKey })
 
   const vault = await pearpassVaultClient.activeVaultGet(`vault`)
 
-  await pearpassVaultClient.vaultsAdd(`vault/${vaultId}`, {
-    ...vault,
-    encryption: {
-      ciphertext,
-      nonce
-    }
-  })
+  await pearpassVaultClient.vaultsAdd(`vault/${vaultId}`, vault)
 
   return vaultId
 }
