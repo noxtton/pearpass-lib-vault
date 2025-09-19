@@ -32,7 +32,7 @@ export const updateVault = createAsyncThunk(
       throw new Error(`Invalid vault data: ${JSON.stringify(errors, null, 2)}`)
     }
 
-    const isProtected = checkVaultIsProtected(vault.id)
+    const isProtected = await checkVaultIsProtected(vault.id)
 
     if (isProtected) {
       await updateProtectedVault({
