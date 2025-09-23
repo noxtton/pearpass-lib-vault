@@ -1,107 +1,68 @@
 import { init } from './init'
-import { pearpassVaultClient } from '../instances'
+import { initWithCredentials } from './initWithCredentials'
+import { initWithPassword } from './initWithPassword'
 
-jest.mock('../instances', () => ({
-  pearpassVaultClient: {
-    vaultsGetStatus: jest.fn(),
-    encryptionGet: jest.fn(),
-    decryptVaultKey: jest.fn(),
-    getDecryptionKey: jest.fn(),
-    vaultsInit: jest.fn(),
-    encryptionGetStatus: jest.fn(),
-    encryptionInit: jest.fn()
-  }
-}))
+jest.mock('./initWithCredentials')
+jest.mock('./initWithPassword')
 
 describe('init', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('should return true if vault status is already active', async () => {
-    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: true })
-
-    const result = await init({ password: 'password' })
-
-    expect(result).toBe(true)
-    expect(pearpassVaultClient.vaultsGetStatus).toHaveBeenCalled()
-    expect(pearpassVaultClient.encryptionGet).not.toHaveBeenCalled()
-  })
-
-  it('should throw error if password is not provided', async () => {
-    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: false })
-
-    await expect(init({})).rejects.toThrow('Password is required')
-    expect(pearpassVaultClient.vaultsGetStatus).toHaveBeenCalled()
-  })
-
-  it('should throw error if vault key decryption fails', async () => {
-    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: false })
-    pearpassVaultClient.encryptionGet.mockResolvedValue({
-      ciphertext: 'test',
-      nonce: 'test',
-      salt: 'test'
-    })
-
-    pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
-    pearpassVaultClient.getDecryptionKey.mockResolvedValue('decryption-key')
-
-    await expect(init({ password: 'password' })).rejects.toThrow(
-      'Error decrypting vault key'
-    )
-    expect(pearpassVaultClient.getDecryptionKey).toHaveBeenCalledWith({
-      salt: 'test',
-      password: 'password'
-    })
-    expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalledWith({
-      ciphertext: 'test',
-      nonce: 'test',
-      hashedPassword: 'decryption-key'
-    })
-  })
-
-  it('should initialize vault and return true on success', async () => {
-    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: false })
-    pearpassVaultClient.encryptionGet.mockResolvedValue({
-      ciphertext: 'test',
-      nonce: 'test',
-      salt: 'test'
-    })
-
-    pearpassVaultClient.decryptVaultKey.mockResolvedValue('decrypted-key')
-    pearpassVaultClient.vaultsInit.mockResolvedValue({})
-
-    const result = await init({ password: 'password' })
-
-    expect(result).toBe(true)
-    expect(pearpassVaultClient.vaultsInit).toHaveBeenCalledWith('decrypted-key')
-  })
-
-  it('should initialize vault with provided encryption data', async () => {
-    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: false })
-    pearpassVaultClient.decryptVaultKey.mockResolvedValue('decrypted-key')
-    pearpassVaultClient.vaultsInit.mockResolvedValue({})
-
-    const result = await init({
+  it('calls initWithCredentials when ciphertext, nonce, and hashedPassword are provided', async () => {
+    initWithCredentials.mockResolvedValue(true)
+    const params = {
       ciphertext: 'ciphertext',
       nonce: 'nonce',
-      hashedPassword: 'decryption-key'
+      hashedPassword: 'hashedPassword'
+    }
+    const result = await init(params)
+    expect(initWithCredentials).toHaveBeenCalledWith({
+      ciphertext: 'ciphertext',
+      nonce: 'nonce',
+      hashedPassword: 'hashedPassword'
     })
-
     expect(result).toBe(true)
-    expect(pearpassVaultClient.vaultsInit).toHaveBeenCalledWith('decrypted-key')
+    expect(initWithPassword).not.toHaveBeenCalled()
   })
 
-  it('should throw error if decryption fails with provided encryption data', async () => {
-    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: false })
-    pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
+  it('calls initWithPassword when only password is provided', async () => {
+    initWithPassword.mockResolvedValue(true)
+    const params = {
+      password: 'myPassword'
+    }
+    const result = await init(params)
+    expect(initWithPassword).toHaveBeenCalledWith({
+      password: 'myPassword'
+    })
+    expect(result).toBe(true)
+    expect(initWithCredentials).not.toHaveBeenCalled()
+  })
 
-    await expect(
-      init({
-        ciphertext: 'ciphertext',
-        nonce: 'nonce',
-        hashedPassword: 'decryption-key'
-      })
-    ).rejects.toThrow('Error decrypting vault key')
+  it('throws error when neither credentials nor password are provided', async () => {
+    await expect(init({})).rejects.toThrow(
+      'Either password or credentials are required'
+    )
+    expect(initWithCredentials).not.toHaveBeenCalled()
+    expect(initWithPassword).not.toHaveBeenCalled()
+  })
+
+  it('prefers credentials over password if both are provided', async () => {
+    initWithCredentials.mockResolvedValue('credResult')
+    const params = {
+      ciphertext: 'ciphertext',
+      nonce: 'nonce',
+      hashedPassword: 'hashedPassword',
+      password: 'myPassword'
+    }
+    const result = await init(params)
+    expect(initWithCredentials).toHaveBeenCalledWith({
+      ciphertext: 'ciphertext',
+      nonce: 'nonce',
+      hashedPassword: 'hashedPassword'
+    })
+    expect(result).toBe('credResult')
+    expect(initWithPassword).not.toHaveBeenCalled()
   })
 })

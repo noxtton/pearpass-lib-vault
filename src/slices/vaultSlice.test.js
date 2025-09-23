@@ -8,7 +8,6 @@ import { createVault } from '../actions/createVault'
 import { deleteFolder } from '../actions/deleteFolder'
 import { deleteRecords } from '../actions/deleteRecords'
 import { getVaultById } from '../actions/getVaultById'
-import { pair } from '../actions/pair'
 import { renameFolder } from '../actions/renameFolder'
 import { resetState } from '../actions/resetState'
 import { updateRecords } from '../actions/updateRecords'
@@ -53,13 +52,6 @@ jest.mock('../actions/getVaultById', () => ({
     pending: { type: 'getVaultById/pending' },
     fulfilled: { type: 'getVaultById/fulfilled' },
     rejected: { type: 'getVaultById/rejected' }
-  }
-}))
-jest.mock('../actions/pair', () => ({
-  pair: {
-    pending: { type: 'pair/pending' },
-    fulfilled: { type: 'pair/fulfilled' },
-    rejected: { type: 'pair/rejected' }
   }
 }))
 jest.mock('../actions/renameFolder', () => ({
@@ -348,25 +340,6 @@ describe('vaultSlice', () => {
       const mockError = { message: 'Failed to delete folder' }
       store.dispatch({ type: deleteFolder.rejected.type, error: mockError })
       expect(store.getState().vault.isFolderLoading).toBe(false)
-      expect(store.getState().vault.error).toEqual(mockError)
-    })
-  })
-
-  describe('pair', () => {
-    it('should handle pending state', () => {
-      store.dispatch({ type: pair.pending.type })
-      expect(store.getState().vault.isLoading).toBe(true)
-    })
-
-    it('should handle fulfilled state', () => {
-      store.dispatch({ type: pair.fulfilled.type })
-      expect(store.getState().vault.isLoading).toBe(false)
-    })
-
-    it('should handle rejected state', () => {
-      const mockError = { message: 'Failed to pair' }
-      store.dispatch({ type: pair.rejected.type, error: mockError })
-      expect(store.getState().vault.isLoading).toBe(false)
       expect(store.getState().vault.error).toEqual(mockError)
     })
   })

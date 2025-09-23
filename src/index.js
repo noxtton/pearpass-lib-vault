@@ -1,6 +1,17 @@
 export { RECORD_TYPES } from './constants/recordTypes'
 
-export * from './hooks'
+export { useCreateFolder } from './hooks/useCreateFolder'
+export { useCreateRecord } from './hooks/useCreateRecord'
+export { useCreateVault } from './hooks/useCreateVault'
+export { useFolders } from './hooks/useFolders'
+export { useInvite } from './hooks/useInvite.js'
+export { usePair } from './hooks/usePair'
+export { useRecordById } from './hooks/useRecordById'
+export { useRecordCountsByType } from './hooks/useRecordCountsByType'
+export { useRecords } from './hooks/useRecords'
+export { useUserData } from './hooks/useUserData'
+export { useVault } from './hooks/useVault'
+export { useVaults } from './hooks/useVaults'
 
 export { VaultProvider } from './store'
 
@@ -13,3 +24,4 @@ export { getVaultEncryption } from './api/getVaultEncryption'
 export { listRecords } from './api/listRecords'
 export { vaultGetFile } from './api/getFile.js'
 export { getMasterEncryption } from './api/getMasterEncryption.js'
+export { getDefaultFavicon } from './api/getDefaultFavicon.js'
