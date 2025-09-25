@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { vaultAddFiles as addFilesApi } from '../api/addFiles.js'
 import { createRecord as createRecordApi } from '../api/createRecord'
+import { RECORD_TYPES } from '../constants/recordTypes'
 import { createRecordFactory } from '../utils/createRecordFactory'
 import { validateAndPrepareBuffersFromRecord } from '../utils/validateAndPrepareBuffersFromRecord.js'
 
@@ -13,15 +14,12 @@ export const createRecord = createAsyncThunk(
     const { recordWithoutBuffers, buffersWithId } =
       validateAndPrepareBuffersFromRecord(payload)
 
-    const recordWithPasswordUpdatedAt = {
-      ...recordWithoutBuffers,
-      data: {
-        ...recordWithoutBuffers.data,
-        passwordUpdatedAt:
-          recordWithoutBuffers.data.passwordUpdatedAt ?? Date.now()
-      }
+    if (payload.type === RECORD_TYPES.LOGIN) {
+      recordWithoutBuffers.data.passwordUpdatedAt =
+        recordWithoutBuffers.data.passwordUpdatedAt ?? Date.now()
     }
-    const newRecord = createRecordFactory(recordWithPasswordUpdatedAt, vaultId)
+
+    const newRecord = createRecordFactory(recordWithoutBuffers, vaultId)
 
     await createRecordApi(newRecord)
 

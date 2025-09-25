@@ -4,28 +4,12 @@ import { vaultAddFiles } from '../api/addFiles.js'
 import { listRecords } from '../api/listRecords'
 import { vaultRemoveFiles } from '../api/removeFiles.js'
 import { updateRecords as updateRecordsApi } from '../api/updateRecords'
+import { RECORD_TYPES } from '../constants/recordTypes'
 import { extractDeletedIdsFromRecord } from '../utils/extractDeletedIdsFromRecord.js'
 import { logger } from '../utils/logger'
 import { updateFolderFactory } from '../utils/updateFolderFactory'
 import { updateRecordsFactory } from '../utils/updateRecordsFactory'
 import { validateAndPrepareBuffersFromRecord } from '../utils/validateAndPrepareBuffersFromRecord.js'
-
-const withPasswordUpdatedAt = (recordWithoutBuffers, currentRecord) => {
-  const previousPassword = currentRecord?.data?.password
-  const newPassword = recordWithoutBuffers?.data?.password
-
-  if (previousPassword !== newPassword) {
-    return {
-      ...recordWithoutBuffers,
-      data: {
-        ...recordWithoutBuffers.data,
-        passwordUpdatedAt: Date.now()
-      }
-    }
-  }
-
-  return recordWithoutBuffers
-}
 
 export const updateRecords = createAsyncThunk(
   'vault/updateRecords',
@@ -60,12 +44,15 @@ export const updateRecords = createAsyncThunk(
             }))
           )
 
-          const recordWithPasswordUpdatedAt = withPasswordUpdatedAt(
-            recordWithoutBuffers,
-            currentRecord
-          )
+          if (record.type === RECORD_TYPES.LOGIN) {
+            const previousPassword = currentRecord?.data?.password
+            const newPassword = recordWithoutBuffers?.data?.password
+            if (previousPassword !== newPassword) {
+              recordWithoutBuffers.data.passwordUpdatedAt = Date.now()
+            }
+          }
 
-          acc.recordsWithoutBuffers.push(recordWithPasswordUpdatedAt)
+          acc.recordsWithoutBuffers.push(recordWithoutBuffers)
 
           return acc
         },
