@@ -4,6 +4,7 @@ import { validateAndPrepareIdentityData } from './validateAndPrepareIdentityData
 import { validateAndPrepareLoginData } from './validateAndPrepareLoginData'
 import { validateAndPrepareNoteData } from './validateAndPrepareNoteData'
 import { validateAndPrepareRecord } from './validateAndPrepareRecord'
+import { validateAndPrepareWifiPasswordData } from './validateAndPrepareWifiPasswordData'
 import { VERSION } from '../constants/version'
 
 jest.mock('./validateAndPrepareCreditCardData', () => ({
@@ -20,6 +21,9 @@ jest.mock('./validateAndPrepareLoginData', () => ({
 }))
 jest.mock('./validateAndPrepareNoteData', () => ({
   validateAndPrepareNoteData: jest.fn()
+}))
+jest.mock('./validateAndPrepareWifiPasswordData', () => ({
+  validateAndPrepareWifiPasswordData: jest.fn()
 }))
 
 describe('validateAndPrepareRecord', () => {
@@ -44,6 +48,9 @@ describe('validateAndPrepareRecord', () => {
     validateAndPrepareIdentityData.mockReturnValue({ mockedIdentity: true })
     validateAndPrepareLoginData.mockReturnValue({ mockedLogin: true })
     validateAndPrepareNoteData.mockReturnValue({ mockedNote: true })
+    validateAndPrepareWifiPasswordData.mockReturnValue({
+      mockedWifiPassword: true
+    })
   })
 
   test('should validate and prepare a valid login record', () => {
@@ -141,6 +148,35 @@ describe('validateAndPrepareRecord', () => {
 
     expect(validateAndPrepareNoteData).toHaveBeenCalledWith(mockRecord.data)
     expect(result.data).toEqual({ mockedNote: true })
+  })
+
+  test('should validate and prepare a valid wifiPassword record', () => {
+    const mockRecord = {
+      id: 'test-id-123',
+      type: 'wifiPassword',
+      vaultId: 'vault-123',
+      data: { title: 'My WiFi', password: 'wifi123' },
+      isFavorite: false,
+      createdAt: 1234567890,
+      updatedAt: 1234567890
+    }
+
+    const result = validateAndPrepareRecord(mockRecord)
+
+    expect(validateAndPrepareWifiPasswordData).toHaveBeenCalledWith(
+      mockRecord.data
+    )
+    expect(result).toEqual({
+      id: 'test-id-123',
+      version: VERSION.v1,
+      type: 'wifiPassword',
+      vaultId: 'vault-123',
+      data: { mockedWifiPassword: true },
+      folder: null,
+      isFavorite: false,
+      createdAt: 1234567890,
+      updatedAt: 1234567890
+    })
   })
 
   test('should preserve folder when provided', () => {

@@ -6,7 +6,12 @@ import { validateAndPrepareCustomData } from './validateAndPrepareCustomData'
 import { validateAndPrepareIdentityData } from './validateAndPrepareIdentityData'
 import { validateAndPrepareLoginData } from './validateAndPrepareLoginData'
 import { validateAndPrepareNoteData } from './validateAndPrepareNoteData'
+import { validateAndPrepareWifiPasswordData } from './validateAndPrepareWifiPasswordData'
+import { RECORD_TYPES } from '../constants/recordTypes'
 import { VERSION } from '../constants/version'
+
+const { CREDIT_CARD, CUSTOM, IDENTITY, LOGIN, NOTE, WIFI_PASSWORD } =
+  RECORD_TYPES
 
 export const recordSchema = Validator.object({
   id: Validator.string().required(),
@@ -31,7 +36,7 @@ const validateRecord = (record) => {
     throw new Error('Invalid record data: Record must be an object')
   }
 
-  const validTypes = ['creditCard', 'custom', 'identity', 'login', 'note']
+  const validTypes = [CREDIT_CARD, CUSTOM, IDENTITY, LOGIN, NOTE, WIFI_PASSWORD]
 
   if (!validTypes.includes(record.type)) {
     logger.error(`Invalid record data: Unknown record type "${record.type}"`)
@@ -57,24 +62,27 @@ const validateRecord = (record) => {
 export const validateAndPrepareRecord = (record) => {
   let recordData
 
-  if (record.type === 'creditCard') {
+  if (record.type === CREDIT_CARD) {
     recordData = validateAndPrepareCreditCardData(record.data)
   }
 
-  if (record.type === 'custom') {
+  if (record.type === CUSTOM) {
     recordData = validateAndPrepareCustomData(record.data)
   }
 
-  if (record.type === 'identity') {
+  if (record.type === IDENTITY) {
     recordData = validateAndPrepareIdentityData(record.data)
   }
 
-  if (record.type === 'login') {
+  if (record.type === LOGIN) {
     recordData = validateAndPrepareLoginData(record.data)
   }
 
-  if (record.type === 'note') {
+  if (record.type === NOTE) {
     recordData = validateAndPrepareNoteData(record.data)
+  }
+  if (record.type === WIFI_PASSWORD) {
+    recordData = validateAndPrepareWifiPasswordData(record.data)
   }
 
   return validateRecord({
