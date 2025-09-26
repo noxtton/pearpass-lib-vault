@@ -4,5 +4,6 @@ export const RECORD_TYPES = Object.freeze({
   CUSTOM: 'custom',
   IDENTITY: 'identity',
   LOGIN: 'login',
-  WIFI_PASSWORD: 'wifiPassword'
+  WIFI_PASSWORD: 'wifiPassword',
+  PASS_PHRASE: 'passPhrase'
 })

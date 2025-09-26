@@ -55,7 +55,8 @@ export const selectRecordCountsByType = ({ filters } = {}) =>
           [RECORD_TYPES.CUSTOM]: 0,
           [RECORD_TYPES.IDENTITY]: 0,
           [RECORD_TYPES.LOGIN]: 0,
-          [RECORD_TYPES.WIFI_PASSWORD]: 0
+          [RECORD_TYPES.WIFI_PASSWORD]: 0,
+          [RECORD_TYPES.PASS_PHRASE]: 0
         }
       )
 

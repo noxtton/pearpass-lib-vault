@@ -6,12 +6,20 @@ import { validateAndPrepareCustomData } from './validateAndPrepareCustomData'
 import { validateAndPrepareIdentityData } from './validateAndPrepareIdentityData'
 import { validateAndPrepareLoginData } from './validateAndPrepareLoginData'
 import { validateAndPrepareNoteData } from './validateAndPrepareNoteData'
+import { validateAndPreparePassPhraseData } from './validateAndPreparePassPhraseData'
 import { validateAndPrepareWifiPasswordData } from './validateAndPrepareWifiPasswordData'
 import { RECORD_TYPES } from '../constants/recordTypes'
 import { VERSION } from '../constants/version'
 
-const { CREDIT_CARD, CUSTOM, IDENTITY, LOGIN, NOTE, WIFI_PASSWORD } =
-  RECORD_TYPES
+const {
+  CREDIT_CARD,
+  CUSTOM,
+  IDENTITY,
+  LOGIN,
+  NOTE,
+  WIFI_PASSWORD,
+  PASS_PHRASE
+} = RECORD_TYPES
 
 export const recordSchema = Validator.object({
   id: Validator.string().required(),
@@ -36,7 +44,15 @@ const validateRecord = (record) => {
     throw new Error('Invalid record data: Record must be an object')
   }
 
-  const validTypes = [CREDIT_CARD, CUSTOM, IDENTITY, LOGIN, NOTE, WIFI_PASSWORD]
+  const validTypes = [
+    CREDIT_CARD,
+    CUSTOM,
+    IDENTITY,
+    LOGIN,
+    NOTE,
+    WIFI_PASSWORD,
+    PASS_PHRASE
+  ]
 
   if (!validTypes.includes(record.type)) {
     logger.error(`Invalid record data: Unknown record type "${record.type}"`)
@@ -83,6 +99,9 @@ export const validateAndPrepareRecord = (record) => {
   }
   if (record.type === WIFI_PASSWORD) {
     recordData = validateAndPrepareWifiPasswordData(record.data)
+  }
+  if (record.type === PASS_PHRASE) {
+    recordData = validateAndPreparePassPhraseData(record.data)
   }
 
   return validateRecord({
