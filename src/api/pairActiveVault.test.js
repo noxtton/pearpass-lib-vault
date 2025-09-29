@@ -60,10 +60,6 @@ describe('pairActiveVault', () => {
     expect(pearpassVaultClient.pairActiveVault).toHaveBeenCalledWith(
       mockInviteCode
     )
-    expect(pearpassVaultClient.encryptVaultWithKey).toHaveBeenCalledWith(
-      mockMasterEncryption.hashedPassword,
-      mockEncryptionKey
-    )
     expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
       id: mockVaultId,
       encryptionKey: mockEncryptionKey
@@ -71,13 +67,7 @@ describe('pairActiveVault', () => {
     expect(pearpassVaultClient.activeVaultGet).toHaveBeenCalledWith('vault')
     expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
       `vault/${mockVaultId}`,
-      {
-        ...mockVault,
-        encryption: {
-          ciphertext: mockEncryptResult.ciphertext,
-          nonce: mockEncryptResult.nonce
-        }
-      }
+      mockVault
     )
     expect(result).toBe(mockVaultId)
   })

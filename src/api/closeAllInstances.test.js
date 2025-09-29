@@ -3,7 +3,7 @@ import { closeAllInstances } from './closeAllInstances'
 
 jest.mock('../instances', () => ({
   pearpassVaultClient: {
-    close: jest.fn()
+    closeAllInstances: jest.fn()
   }
 }))
 
@@ -12,20 +12,22 @@ describe('closeAllInstances', () => {
     jest.clearAllMocks()
   })
 
-  it('should call pearpassVaultClient.close once', async () => {
+  it('should call pearpassVaultClient.closeAllInstances once', async () => {
     await closeAllInstances()
 
-    expect(pearpassVaultClient.close).toHaveBeenCalledTimes(1)
+    expect(pearpassVaultClient.closeAllInstances).toHaveBeenCalledTimes(1)
   })
 
   it('should resolve without errors', async () => {
-    pearpassVaultClient.close.mockResolvedValueOnce()
+    pearpassVaultClient.closeAllInstances.mockResolvedValueOnce()
 
     await expect(closeAllInstances()).resolves.toBeUndefined()
   })
 
-  it('should handle errors from close method', async () => {
-    pearpassVaultClient.close.mockRejectedValueOnce(new Error('Close failed'))
+  it('should handle errors from closeAllInstances method', async () => {
+    pearpassVaultClient.closeAllInstances.mockRejectedValueOnce(
+      new Error('Close failed')
+    )
 
     await expect(closeAllInstances()).rejects.toThrow('Close failed')
   })

@@ -4,9 +4,9 @@ import { listVaults } from './listVaults'
  * Get the vault encryption data
  * @param {string} vaultId
  * @returns {Promise<{
- *  salt: string
- *  ciphertext: string
- *  nonce: string
+ *  salt?: string
+ *  ciphertext?: string
+ *  nonce?: string
  *  hashedPassword?: string
  * }>}
  */
@@ -19,5 +19,5 @@ export const getVaultEncryption = async (vaultId) => {
     throw new Error('Vault not found')
   }
 
-  return vault.encryption
+  return vault.encryption || {}
 }

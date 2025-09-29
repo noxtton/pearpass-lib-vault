@@ -45,13 +45,7 @@ describe('createVault', () => {
     expect(pearpassVaultClient.activeVaultClose).toHaveBeenCalled()
     expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
       `vault/${vault.id}`,
-      {
-        ...vault,
-        encryption: {
-          ciphertext: 'v-ciphertext',
-          nonce: 'v-nonce'
-        }
-      }
+      vault
     )
     expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
       id: vault.id,
@@ -87,13 +81,7 @@ describe('createVault', () => {
     expect(pearpassVaultClient.activeVaultClose).not.toHaveBeenCalled()
     expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
       `vault/${vault.id}`,
-      {
-        ...vault,
-        encryption: {
-          ciphertext: 'v-ciphertext',
-          nonce: 'v-nonce'
-        }
-      }
+      vault
     )
     expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
       id: vault.id,
@@ -128,13 +116,7 @@ describe('createVault', () => {
 
     expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
       `vault/${vault.id}`,
-      {
-        ...vault,
-        encryption: {
-          ciphertext: 'v-ciphertext',
-          nonce: 'v-nonce'
-        }
-      }
+      vault
     )
   })
 

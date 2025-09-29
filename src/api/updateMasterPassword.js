@@ -1,6 +1,5 @@
 import { pearpassVaultClient } from '../instances'
 import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
-import { listVaults } from './listVaults'
 
 /**
  * @param {{password: string, currentPassword: string}} porps
@@ -21,34 +20,29 @@ export const updateMasterPassword = async ({
     await pearpassVaultClient.encryptionInit()
   }
 
-  const vaults = await listVaults()
+  const decryptVaultKeyRes = await checkCurrentPassword(currentPassword)
 
   const { hashedPassword, salt } =
     await pearpassVaultClient.hashPassword(newPassword)
 
-  const currentEncription = await getMasterPasswordEncryption()
-
-  const currentHashedPassword = await pearpassVaultClient.getDecryptionKey({
-    salt: currentEncription.salt,
-    password: currentPassword
-  })
-
-  if (currentEncription?.hashedPassword !== currentHashedPassword) {
-    throw new Error('Invalid password')
-  }
-
-  const { ciphertext, nonce } =
-    await pearpassVaultClient.encryptVaultKeyWithHashedPassword(hashedPassword)
+  const { ciphertext, nonce } = await pearpassVaultClient.encryptVaultWithKey(
+    hashedPassword,
+    decryptVaultKeyRes
+  )
 
   const vaultsGetRes = await pearpassVaultClient.vaultsGetStatus()
 
-  if (!vaultsGetRes?.status) {
-    const decryptVaultKeyRes = await pearpassVaultClient.decryptVaultKey({
-      ciphertext,
-      nonce,
-      hashedPassword
-    })
+  const newDecryptVaultKeyRes = await pearpassVaultClient.decryptVaultKey({
+    ciphertext,
+    nonce,
+    hashedPassword
+  })
 
+  if (newDecryptVaultKeyRes !== decryptVaultKeyRes) {
+    throw new Error('Failed to verify new password encryption')
+  }
+
+  if (!vaultsGetRes?.status) {
     await pearpassVaultClient.vaultsInit(decryptVaultKeyRes)
   }
 
@@ -59,37 +53,6 @@ export const updateMasterPassword = async ({
     hashedPassword
   })
 
-  const unProtectedvaults = vaults.filter(
-    (vault) => !vault?.encryption?.hashedPassword && !vault?.encryption?.salt
-  )
-
-  if (unProtectedvaults.length > 0) {
-    const decryptVaultKeyRes = await pearpassVaultClient.decryptVaultKey({
-      ciphertext,
-      nonce,
-      hashedPassword
-    })
-
-    for (const vault of unProtectedvaults) {
-      await pearpassVaultClient.activeVaultClose()
-
-      await pearpassVaultClient.activeVaultInit({
-        id: vault.id,
-        encryptionKey: decryptVaultKeyRes
-      })
-
-      await pearpassVaultClient.activeVaultAdd(`vault`, vault)
-
-      await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, {
-        ...vault,
-        encryption: {
-          ciphertext,
-          nonce
-        }
-      })
-    }
-  }
-
   await pearpassVaultClient.encryptionAdd(`masterPassword`, {
     ciphertext,
     nonce,
@@ -97,4 +60,29 @@ export const updateMasterPassword = async ({
   })
 
   return { hashedPassword, salt, ciphertext, nonce }
+}
+
+/**
+ * @param {string} currentPassword
+ * @returns {Promise<string>}
+ * @throws {Error} If the current password is invalid
+ */
+const checkCurrentPassword = async (currentPassword) => {
+  const { ciphertext, nonce, hashedPassword, salt } =
+    await getMasterPasswordEncryption()
+
+  const currentHashedPassword = await pearpassVaultClient.getDecryptionKey({
+    salt,
+    password: currentPassword
+  })
+
+  if (hashedPassword !== currentHashedPassword) {
+    throw new Error('Invalid password')
+  }
+
+  return pearpassVaultClient.decryptVaultKey({
+    ciphertext,
+    nonce,
+    hashedPassword
+  })
 }
