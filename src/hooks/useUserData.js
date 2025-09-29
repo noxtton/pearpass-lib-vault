@@ -54,21 +54,14 @@ export const useUserData = () => {
   const { isLoading, isInitialized, data: userData } = useSelector(selectUser)
   const dispatch = useDispatch()
 
-  const logIn = async ({
-    ciphertext,
-    nonce,
-    salt,
-    hashedPassword,
-    password
-  }) => {
-    await init({
+  const logIn = async ({ ciphertext, nonce, salt, hashedPassword, password }) =>
+    init({
       ciphertext,
       nonce,
       salt,
       hashedPassword,
       password
     })
-  }
 
   const createMasterPassword = async (password) => {
     const result = await createMasterPasswordApi(password)
