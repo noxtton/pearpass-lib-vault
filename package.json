@@ -10,9 +10,9 @@
     "test": "jest"
   },
   "peerDependencies": {
-    "pear-apps-utils-generate-unique-id": "github:noxtton/pear-apps-utils-generate-unique-id#v0.0.3",
-    "pear-apps-utils-pattern-search": "github:noxtton/pear-apps-utils-pattern-search#v0.0.3",
-    "pear-apps-utils-validator": "github:noxtton/pear-apps-utils-validator#v0.0.6",
+    "pear-apps-utils-generate-unique-id": "0.0.x",
+    "pear-apps-utils-pattern-search": "0.0.x",
+    "pear-apps-utils-validator": "0.0.x",
     "react": ">=18.3.1",
     "tether-dev-docs": "0.0.x"
   },
