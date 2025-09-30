@@ -22,7 +22,12 @@ describe('createRecord', () => {
   const mockDate = 1633000000000
   const mockPayload = {
     type: 'password',
-    data: { username: 'testuser', password: 'testpass', attachments: [] },
+    data: {
+      username: 'testuser',
+      password: 'testpass',
+      attachments: [],
+      passwordUpdatedAt: mockDate
+    },
     folder: 'folder-123',
     isFavorite: true
   }

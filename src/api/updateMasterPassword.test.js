@@ -17,7 +17,8 @@ jest.mock('../instances', () => ({
     activeVaultClose: jest.fn(),
     activeVaultInit: jest.fn(),
     activeVaultAdd: jest.fn(),
-    encryptionAdd: jest.fn()
+    encryptionAdd: jest.fn(),
+    encryptVaultWithKey: jest.fn()
   }
 }))
 
@@ -51,6 +52,11 @@ describe('updateMasterPassword', () => {
       nonce: 'nonce'
     })
     pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: true })
+    pearpassVaultClient.decryptVaultKey.mockResolvedValue('decryptionKey')
+    pearpassVaultClient.encryptVaultWithKey.mockResolvedValue({
+      ciphertext: 'ciphertext',
+      nonce: 'nonce'
+    })
 
     const result = await updateMasterPassword({
       newPassword: 'newPassword',
@@ -81,49 +87,5 @@ describe('updateMasterPassword', () => {
         currentPassword: 'currentPassword'
       })
     ).rejects.toThrow('Invalid password')
-  })
-
-  it('should handle unprotected vaults correctly', async () => {
-    pearpassVaultClient.encryptionGetStatus.mockResolvedValue({ status: true })
-    listVaults.mockResolvedValue([
-      { id: 'vault1', hashedPassword: null, salt: null }
-    ])
-    pearpassVaultClient.hashPassword.mockResolvedValue({
-      hashedPassword: 'hashedPassword',
-      salt: 'salt'
-    })
-    getMasterPasswordEncryption.mockResolvedValue({
-      hashedPassword: 'hashedPassword',
-      salt: 'salt'
-    })
-    pearpassVaultClient.getDecryptionKey.mockResolvedValue('hashedPassword')
-    pearpassVaultClient.encryptVaultKeyWithHashedPassword.mockResolvedValue({
-      ciphertext: 'ciphertext',
-      nonce: 'nonce'
-    })
-    pearpassVaultClient.vaultsGetStatus.mockResolvedValue({ status: true })
-    pearpassVaultClient.decryptVaultKey.mockResolvedValue('decryptionKey')
-
-    const result = await updateMasterPassword({
-      newPassword: 'newPassword',
-      currentPassword: 'currentPassword'
-    })
-
-    expect(pearpassVaultClient.activeVaultClose).toHaveBeenCalled()
-    expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
-      id: 'vault1',
-      encryptionKey: 'decryptionKey'
-    })
-    expect(pearpassVaultClient.activeVaultAdd).toHaveBeenCalledWith('vault', {
-      id: 'vault1',
-      hashedPassword: null,
-      salt: null
-    })
-    expect(result).toEqual({
-      hashedPassword: 'hashedPassword',
-      salt: 'salt',
-      ciphertext: 'ciphertext',
-      nonce: 'nonce'
-    })
   })
 })

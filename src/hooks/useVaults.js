@@ -42,7 +42,7 @@ export const useVaults = ({ onCompleted, onInitialize } = {}) => {
       return
     }
 
-    const { payload: vaults } = await dispatch(
+    const { payload: vaults, error } = await dispatch(
       initializeVaults({
         ciphertext,
         nonce,
@@ -51,6 +51,10 @@ export const useVaults = ({ onCompleted, onInitialize } = {}) => {
         password
       })
     )
+
+    if (error) {
+      throw new Error('Failed to initialize vaults')
+    }
 
     onInitialize?.(vaults)
   }

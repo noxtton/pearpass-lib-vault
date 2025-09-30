@@ -13,25 +13,6 @@ export const initWithCredentials = async (params) => {
     throw new Error('Missing required parameters')
   }
 
-  const res = await pearpassVaultClient.vaultsGetStatus()
-
-  if (res?.status) {
-    const encryptionGetRes =
-      await pearpassVaultClient.vaultsGet('masterEncryption')
-
-    if (
-      encryptionGetRes.ciphertext !== params.ciphertext ||
-      encryptionGetRes.nonce !== params.nonce ||
-      encryptionGetRes.hashedPassword !== params.hashedPassword
-    ) {
-      throw new Error(
-        'Provided credentials do not match existing master encryption'
-      )
-    }
-
-    return true
-  }
-
   const decryptVaultKeyRes = await pearpassVaultClient.decryptVaultKey({
     ciphertext: params.ciphertext,
     nonce: params.nonce,

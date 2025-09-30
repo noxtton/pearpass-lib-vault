@@ -33,7 +33,9 @@ describe('selectRecordCountsByType', () => {
       [RECORD_TYPES.NOTE]: 1,
       [RECORD_TYPES.CREDIT_CARD]: 1,
       [RECORD_TYPES.IDENTITY]: 1,
-      [RECORD_TYPES.CUSTOM]: 1
+      [RECORD_TYPES.CUSTOM]: 1,
+      [RECORD_TYPES.WIFI_PASSWORD]: 0,
+      [RECORD_TYPES.PASS_PHRASE]: 0
     })
   })
 
@@ -49,7 +51,9 @@ describe('selectRecordCountsByType', () => {
       [RECORD_TYPES.NOTE]: 1,
       [RECORD_TYPES.CREDIT_CARD]: 0,
       [RECORD_TYPES.IDENTITY]: 0,
-      [RECORD_TYPES.CUSTOM]: 0
+      [RECORD_TYPES.CUSTOM]: 0,
+      [RECORD_TYPES.WIFI_PASSWORD]: 0,
+      [RECORD_TYPES.PASS_PHRASE]: 0
     })
   })
 
@@ -83,7 +87,9 @@ describe('selectRecordCountsByType', () => {
       [RECORD_TYPES.NOTE]: 0,
       [RECORD_TYPES.CREDIT_CARD]: 1,
       [RECORD_TYPES.IDENTITY]: 1,
-      [RECORD_TYPES.CUSTOM]: 0
+      [RECORD_TYPES.CUSTOM]: 0,
+      [RECORD_TYPES.WIFI_PASSWORD]: 0,
+      [RECORD_TYPES.PASS_PHRASE]: 0
     })
   })
 
@@ -99,7 +105,9 @@ describe('selectRecordCountsByType', () => {
       [RECORD_TYPES.NOTE]: 0,
       [RECORD_TYPES.CREDIT_CARD]: 0,
       [RECORD_TYPES.IDENTITY]: 0,
-      [RECORD_TYPES.CUSTOM]: 0
+      [RECORD_TYPES.CUSTOM]: 0,
+      [RECORD_TYPES.WIFI_PASSWORD]: 0,
+      [RECORD_TYPES.PASS_PHRASE]: 0
     })
   })
 
@@ -114,7 +122,9 @@ describe('selectRecordCountsByType', () => {
       [RECORD_TYPES.NOTE]: 0,
       [RECORD_TYPES.CREDIT_CARD]: 0,
       [RECORD_TYPES.IDENTITY]: 0,
-      [RECORD_TYPES.CUSTOM]: 0
+      [RECORD_TYPES.CUSTOM]: 0,
+      [RECORD_TYPES.WIFI_PASSWORD]: 0,
+      [RECORD_TYPES.PASS_PHRASE]: 0
     })
   })
 
