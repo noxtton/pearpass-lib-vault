@@ -5,13 +5,15 @@ import inviteReducer from './slices/inviteSlice'
 import userReducer from './slices/userSlice'
 import vaultReducer from './slices/vaultSlice'
 import vaultsReducer from './slices/vaultsSlice'
+import blindMirrorsReducer from './slices/blindMirrorsSlice'
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
     vaults: vaultsReducer,
     vault: vaultReducer,
-    invite: inviteReducer
+    invite: inviteReducer,
+    blindMirrors: blindMirrorsReducer
   }
 })
 
