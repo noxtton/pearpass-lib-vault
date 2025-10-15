@@ -1,5 +1,8 @@
 import { pearpassVaultClient } from '../instances'
+import { checkVaultIsProtected } from './checkVaultIsProtected'
+import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
 import { getVaultEncryption } from './getVaultEncryption'
+import { initActiveVaultWithCredentials } from './initActiveVaultWithCredentials'
 
 /**
  * @param {{
@@ -18,28 +21,27 @@ export const updateProtectedVault = async ({
     throw new Error('Vault id is required')
   }
 
-  const activeVaultRes = await pearpassVaultClient.activeVaultGetStatus()
+  let currentVault
 
-  if (activeVaultRes.status) {
+  const masterEncryption = await getMasterPasswordEncryption()
+
+  const res = await pearpassVaultClient.activeVaultGetStatus()
+
+  if (res?.status) {
+    currentVault = await pearpassVaultClient.activeVaultGet(`vault`)
     await pearpassVaultClient.activeVaultClose()
   }
 
-  const currentEncription = await getVaultEncryption(vault.id)
+  const updatingVaultEncryption = await getVaultEncryption(vault.id)
 
-  const currentHashedPassword = await pearpassVaultClient.getDecryptionKey({
-    salt: currentEncription.salt,
-    password: currentPassword
-  })
+  const updatingVaultHashedPassword =
+    await pearpassVaultClient.getDecryptionKey({
+      salt: updatingVaultEncryption.salt,
+      password: currentPassword
+    })
 
-  if (currentEncription?.hashedPassword !== currentHashedPassword) {
+  if (updatingVaultEncryption?.hashedPassword !== updatingVaultHashedPassword) {
     throw new Error('Invalid password')
-  }
-
-  const encryption = {
-    ciphertext: currentEncription.ciphertext,
-    nonce: currentEncription.nonce,
-    salt: currentEncription.salt,
-    hashedPassword: currentEncription.hashedPassword
   }
 
   if (newPassword?.length) {
@@ -51,26 +53,21 @@ export const updateProtectedVault = async ({
         hashedPassword
       )
 
-    encryption.ciphertext = ciphertext
-    encryption.nonce = nonce
-    encryption.salt = salt
-    encryption.hashedPassword = hashedPassword
+    updatingVaultEncryption.ciphertext = ciphertext
+    updatingVaultEncryption.nonce = nonce
+    updatingVaultEncryption.salt = salt
+    updatingVaultEncryption.hashedPassword = hashedPassword
   }
 
   const encryptionKey = await pearpassVaultClient.decryptVaultKey({
-    hashedPassword: encryption.hashedPassword,
-    ciphertext: encryption.ciphertext,
-    nonce: encryption.nonce
+    hashedPassword: updatingVaultEncryption.hashedPassword,
+    ciphertext: updatingVaultEncryption.ciphertext,
+    nonce: updatingVaultEncryption.nonce
   })
 
   await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, {
     ...vault,
-    encryption: {
-      ciphertext: encryption.ciphertext,
-      nonce: encryption.nonce,
-      salt: encryption.salt,
-      hashedPassword: encryption.hashedPassword
-    }
+    encryption: updatingVaultEncryption
   })
 
   await pearpassVaultClient.activeVaultInit({
@@ -79,4 +76,10 @@ export const updateProtectedVault = async ({
   })
 
   await pearpassVaultClient.activeVaultAdd(`vault`, vault)
+
+  const currentEncryption = (await checkVaultIsProtected(currentVault.id))
+    ? currentVault.encryption
+    : masterEncryption
+
+  await initActiveVaultWithCredentials(currentVault.id, currentEncryption)
 }
