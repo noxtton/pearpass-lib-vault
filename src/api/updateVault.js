@@ -4,11 +4,10 @@ import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
 import { initActiveVaultWithCredentials } from './initActiveVaultWithCredentials'
 
 /**
- * @param {{
- *  id: string
- *  name: string
- * }} vault
- * @returns {Promise<void>}
+ * @param {Object} vault
+ * @param {string} vault.id
+ * @param {Object} [vault.encryption]
+ * @param {string} [newPassword]
  */
 export const updateVault = async (vault, newPassword) => {
   if (!vault?.id) {

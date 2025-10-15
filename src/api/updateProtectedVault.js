@@ -5,12 +5,11 @@ import { getVaultEncryption } from './getVaultEncryption'
 import { initActiveVaultWithCredentials } from './initActiveVaultWithCredentials'
 
 /**
- * @param {{
- *  id: string
- *  name: string
- * }} vault
- * @param {string} password
- * @returns {Promise<void>}
+ * @param {Object} params
+ * @param {Object} params.vault
+ * @param {string} [params.newPassword]
+ * @param {string} params.currentPassword
+ * @throws {Error}
  */
 export const updateProtectedVault = async ({
   vault,

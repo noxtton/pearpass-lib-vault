@@ -1,11 +1,12 @@
 import { pearpassVaultClient } from '../instances'
 
 /**
- * @param {{
- *   ciphertext: string
- *   nonce: string
- *   hashedPassword: string
- * }} params
+ * @async
+ * @param {string} vaultId
+ * @param {Object} encryption
+ * @param {string} encryption.ciphertext
+ * @param {string} encryption.nonce
+ * @param {string} encryption.hashedPassword
  * @returns {Promise<boolean>}
  */
 export const initActiveVaultWithCredentials = async (vaultId, encryption) => {
