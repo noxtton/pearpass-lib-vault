@@ -57,7 +57,19 @@ export const updateVault = async (vault, newPassword) => {
     })
   }
 
-  await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, vault)
+  if (newPassword && vault.encryption) {
+    await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, {
+      ...vault,
+      encryption: {
+        ciphertext: vault.encryption?.ciphertext,
+        nonce: vault.encryption?.nonce,
+        salt: vault.encryption?.salt,
+        hashedPassword: vault.encryption?.hashedPassword
+      }
+    })
+  } else {
+    await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, vault)
+  }
 
   await pearpassVaultClient.activeVaultInit({
     id: vault.id,

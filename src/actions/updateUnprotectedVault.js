@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { Validator } from 'pear-apps-utils-validator'
 
-import { getUnprotectedVaultById } from '../api/getUnprotectedVaultById'
+import { getVaultByIdAndClose } from '../api/getVaultByIdAndClose'
 import { updateVault as updateVaultApi } from '../api/updateVault'
 
 const schema = Validator.object({
@@ -15,7 +15,7 @@ const schema = Validator.object({
 export const updateUnprotectedVault = createAsyncThunk(
   'vault/updateVault',
   async ({ vaultId, name, newPassword }) => {
-    const vault = await getUnprotectedVaultById(vaultId)
+    const vault = await getVaultByIdAndClose(vaultId)
 
     const newVault = {
       ...vault,

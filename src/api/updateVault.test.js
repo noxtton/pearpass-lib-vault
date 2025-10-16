@@ -1,13 +1,7 @@
-const { pearpassVaultClient } = require('../instances')
-const { checkVaultIsProtected } = require('./checkVaultIsProtected')
-const { getMasterPasswordEncryption } = require('./getMasterPasswordEncryption')
-const {
-  initActiveVaultWithCredentials
-} = require('./initActiveVaultWithCredentials')
-const { updateVault } = require('./updateVault')
+// cspell:words ndolidze noxtton pearpass ciphertext
 
-jest.mock('../instances', () => {
-  const fns = {
+jest.mock('../instances', () => ({
+  pearpassVaultClient: {
     activeVaultGetStatus: jest.fn(),
     activeVaultGet: jest.fn(),
     activeVaultClose: jest.fn(),
@@ -18,9 +12,7 @@ jest.mock('../instances', () => {
     activeVaultInit: jest.fn(),
     activeVaultAdd: jest.fn()
   }
-  return { pearpassVaultClient: fns }
-})
-
+}))
 jest.mock('./checkVaultIsProtected', () => ({
   checkVaultIsProtected: jest.fn()
 }))
@@ -31,155 +23,169 @@ jest.mock('./initActiveVaultWithCredentials', () => ({
   initActiveVaultWithCredentials: jest.fn()
 }))
 
+const { pearpassVaultClient: mockClient } = require('../instances')
+const {
+  checkVaultIsProtected: mockCheckVaultIsProtected
+} = require('./checkVaultIsProtected')
+const {
+  getMasterPasswordEncryption: mockGetMasterPasswordEncryption
+} = require('./getMasterPasswordEncryption')
+const {
+  initActiveVaultWithCredentials: mockInitActiveVaultWithCredentials
+} = require('./initActiveVaultWithCredentials')
+const { updateVault } = require('./updateVault')
+
+beforeEach(() => {
+  jest.clearAllMocks()
+})
+
 describe('updateVault', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
+  test('throws if vault id is missing', async () => {
+    await expect(updateVault({}, 'pwd')).rejects.toThrow('Vault id is required')
+    expect(mockClient.activeVaultGetStatus).not.toHaveBeenCalled()
   })
 
-  it('throws when vault id is missing', async () => {
-    await expect(updateVault({})).rejects.toThrow('Vault id is required')
-    await expect(updateVault(undefined)).rejects.toThrow('Vault id is required')
-  })
-
-  it('updates vault with new password and restores previous vault using its own encryption when protected', async () => {
+  test('updates vault with new password and uses current vault encryption when protected', async () => {
+    const masterEnc = {
+      hashedPassword: 'hp-master',
+      ciphertext: 'ct-master',
+      nonce: 'nonce-master'
+    }
+    mockGetMasterPasswordEncryption.mockResolvedValue(masterEnc)
+    mockClient.activeVaultGetStatus.mockResolvedValue({ status: true })
     const currentVault = {
-      id: 'currentId',
+      id: 'curr-id',
       encryption: {
-        ciphertext: 'curCT',
-        nonce: 'curNonce',
-        salt: 'curSalt',
-        hashedPassword: 'curHash'
+        ciphertext: 'ct-cur',
+        nonce: 'nonce-cur',
+        salt: 'salt-cur',
+        hashedPassword: 'hp-cur'
       }
     }
-    pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({ status: true })
-    pearpassVaultClient.activeVaultGet.mockResolvedValue(currentVault)
-    pearpassVaultClient.activeVaultClose.mockResolvedValue(undefined)
+    mockClient.activeVaultGet.mockResolvedValue(currentVault)
+    mockClient.activeVaultClose.mockResolvedValue()
 
-    getMasterPasswordEncryption.mockResolvedValue({
-      hashedPassword: 'masterHash',
-      ciphertext: 'masterCT',
-      nonce: 'masterNonce'
+    mockClient.hashPassword.mockResolvedValue({
+      hashedPassword: 'hp-new',
+      salt: 'salt-new'
     })
-
-    pearpassVaultClient.hashPassword.mockResolvedValue({
-      hashedPassword: 'newHash',
-      salt: 'newSalt'
+    mockClient.encryptVaultKeyWithHashedPassword.mockResolvedValue({
+      ciphertext: 'ct-new',
+      nonce: 'nonce-new'
     })
-    pearpassVaultClient.encryptVaultKeyWithHashedPassword.mockResolvedValue({
-      ciphertext: 'encCT',
-      nonce: 'encNonce'
-    })
-    pearpassVaultClient.decryptVaultKey.mockResolvedValue('key123')
-    pearpassVaultClient.vaultsAdd.mockResolvedValue(undefined)
-    pearpassVaultClient.activeVaultInit.mockResolvedValue(undefined)
-    pearpassVaultClient.activeVaultAdd.mockResolvedValue(undefined)
+    mockClient.decryptVaultKey.mockResolvedValue('enc-key-new')
 
-    checkVaultIsProtected.mockResolvedValue(true)
-    initActiveVaultWithCredentials.mockResolvedValue(undefined)
+    mockClient.vaultsAdd.mockResolvedValue()
+    mockClient.activeVaultInit.mockResolvedValue()
+    mockClient.activeVaultAdd.mockResolvedValue()
 
-    await updateVault({ id: 'vault123' }, 'newPass')
+    mockCheckVaultIsProtected.mockResolvedValue(true)
+    mockInitActiveVaultWithCredentials.mockResolvedValue()
 
-    expect(pearpassVaultClient.activeVaultGetStatus).toHaveBeenCalled()
-    expect(pearpassVaultClient.activeVaultGet).toHaveBeenCalledWith('vault')
-    expect(pearpassVaultClient.activeVaultClose).toHaveBeenCalled()
+    const inputVault = { id: 'new-id', name: 'VaultName' }
+    await updateVault(inputVault, 'new-pass')
 
-    expect(pearpassVaultClient.hashPassword).toHaveBeenCalledWith('newPass')
-    expect(
-      pearpassVaultClient.encryptVaultKeyWithHashedPassword
-    ).toHaveBeenCalledWith('newHash')
-    expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalledWith({
-      hashedPassword: 'newHash',
-      ciphertext: 'encCT',
-      nonce: 'encNonce'
-    })
+    expect(mockClient.activeVaultGetStatus).toHaveBeenCalled()
+    expect(mockClient.activeVaultGet).toHaveBeenCalledWith('vault')
+    expect(mockClient.activeVaultClose).toHaveBeenCalled()
 
-    expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
-      'vault/vault123',
-      expect.objectContaining({
-        id: 'vault123',
-        encryption: expect.objectContaining({
-          ciphertext: 'encCT',
-          nonce: 'encNonce',
-          salt: 'newSalt',
-          hashedPassword: 'newHash'
-        })
-      })
+    expect(mockClient.hashPassword).toHaveBeenCalledWith('new-pass')
+    expect(mockClient.encryptVaultKeyWithHashedPassword).toHaveBeenCalledWith(
+      'hp-new'
     )
-    expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
-      id: 'vault123',
-      encryptionKey: 'key123'
+    expect(mockClient.decryptVaultKey).toHaveBeenCalledWith({
+      hashedPassword: 'hp-new',
+      ciphertext: 'ct-new',
+      nonce: 'nonce-new'
     })
-    expect(pearpassVaultClient.activeVaultAdd).toHaveBeenCalledWith(
-      'vault',
-      expect.objectContaining({
-        id: 'vault123',
-        encryption: expect.objectContaining({
-          ciphertext: 'encCT',
-          nonce: 'encNonce',
-          salt: 'newSalt',
-          hashedPassword: 'newHash'
-        })
-      })
-    )
 
-    expect(checkVaultIsProtected).toHaveBeenCalledWith('currentId')
-    expect(initActiveVaultWithCredentials).toHaveBeenCalledWith(
-      'currentId',
+    expect(mockClient.vaultsAdd).toHaveBeenCalledWith('vault/new-id', {
+      id: 'new-id',
+      name: 'VaultName',
+      encryption: {
+        ciphertext: 'ct-new',
+        nonce: 'nonce-new',
+        salt: 'salt-new',
+        hashedPassword: 'hp-new'
+      }
+    })
+
+    expect(mockClient.activeVaultInit).toHaveBeenCalledWith({
+      id: 'new-id',
+      encryptionKey: 'enc-key-new'
+    })
+    expect(mockClient.activeVaultAdd).toHaveBeenCalledWith('vault', {
+      id: 'new-id',
+      name: 'VaultName',
+      encryption: {
+        ciphertext: 'ct-new',
+        nonce: 'nonce-new',
+        salt: 'salt-new',
+        hashedPassword: 'hp-new'
+      }
+    })
+
+    expect(mockCheckVaultIsProtected).toHaveBeenCalledWith('curr-id')
+    expect(mockInitActiveVaultWithCredentials).toHaveBeenCalledWith(
+      'curr-id',
       currentVault.encryption
     )
   })
 
-  it('updates vault without new password and restores previous vault using master encryption when not protected', async () => {
-    const currentVault = { id: 'currentId' }
-
-    pearpassVaultClient.activeVaultGetStatus.mockResolvedValue({ status: true })
-    pearpassVaultClient.activeVaultGet.mockResolvedValue(currentVault)
-    pearpassVaultClient.activeVaultClose.mockResolvedValue(undefined)
-
+  test('updates vault without new password and uses master encryption when not protected', async () => {
     const masterEnc = {
-      hashedPassword: 'masterHash',
-      ciphertext: 'masterCT',
-      nonce: 'masterNonce'
+      hashedPassword: 'hp-master',
+      ciphertext: 'ct-master',
+      nonce: 'nonce-master'
     }
-    getMasterPasswordEncryption.mockResolvedValue(masterEnc)
+    mockGetMasterPasswordEncryption.mockResolvedValue(masterEnc)
+    mockClient.activeVaultGetStatus.mockResolvedValue({ status: true })
+    const currentVault = {
+      id: 'curr-id',
+      encryption: {
+        ciphertext: 'x',
+        nonce: 'y',
+        salt: 'z',
+        hashedPassword: 'w'
+      }
+    }
+    mockClient.activeVaultGet.mockResolvedValue(currentVault)
+    mockClient.activeVaultClose.mockResolvedValue()
 
-    pearpassVaultClient.decryptVaultKey.mockResolvedValue('keyABC')
-    pearpassVaultClient.vaultsAdd.mockResolvedValue(undefined)
-    pearpassVaultClient.activeVaultInit.mockResolvedValue(undefined)
-    pearpassVaultClient.activeVaultAdd.mockResolvedValue(undefined)
+    mockClient.decryptVaultKey.mockResolvedValue('enc-key-master')
 
-    checkVaultIsProtected.mockResolvedValue(false)
-    initActiveVaultWithCredentials.mockResolvedValue(undefined)
+    mockClient.vaultsAdd.mockResolvedValue()
+    mockClient.activeVaultInit.mockResolvedValue()
+    mockClient.activeVaultAdd.mockResolvedValue()
 
-    await updateVault({ id: 'vault456' })
+    mockCheckVaultIsProtected.mockResolvedValue(false)
+    mockInitActiveVaultWithCredentials.mockResolvedValue()
 
-    expect(pearpassVaultClient.hashPassword).not.toHaveBeenCalled()
-    expect(
-      pearpassVaultClient.encryptVaultKeyWithHashedPassword
-    ).not.toHaveBeenCalled()
+    const inputVault = {
+      id: 'id2',
+      title: 'Existing',
+      encryption: { keep: 'as-is' }
+    }
+    await updateVault(inputVault)
 
-    expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalledWith({
-      hashedPassword: 'masterHash',
-      ciphertext: 'masterCT',
-      nonce: 'masterNonce'
+    expect(mockClient.hashPassword).not.toHaveBeenCalled()
+    expect(mockClient.encryptVaultKeyWithHashedPassword).not.toHaveBeenCalled()
+    expect(mockClient.decryptVaultKey).toHaveBeenCalledWith({
+      hashedPassword: 'hp-master',
+      ciphertext: 'ct-master',
+      nonce: 'nonce-master'
     })
 
-    expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
-      'vault/vault456',
-      expect.objectContaining({ id: 'vault456' })
-    )
-    expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
-      id: 'vault456',
-      encryptionKey: 'keyABC'
+    expect(mockClient.vaultsAdd).toHaveBeenCalledWith('vault/id2', inputVault)
+    expect(mockClient.activeVaultInit).toHaveBeenCalledWith({
+      id: 'id2',
+      encryptionKey: 'enc-key-master'
     })
-    expect(pearpassVaultClient.activeVaultAdd).toHaveBeenCalledWith(
-      'vault',
-      expect.objectContaining({ id: 'vault456' })
-    )
+    expect(mockClient.activeVaultAdd).toHaveBeenCalledWith('vault', inputVault)
 
-    expect(checkVaultIsProtected).toHaveBeenCalledWith('currentId')
-    expect(initActiveVaultWithCredentials).toHaveBeenCalledWith(
-      'currentId',
+    expect(mockCheckVaultIsProtected).toHaveBeenCalledWith('curr-id')
+    expect(mockInitActiveVaultWithCredentials).toHaveBeenCalledWith(
+      'curr-id',
       masterEnc
     )
   })

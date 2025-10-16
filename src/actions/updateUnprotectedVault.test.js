@@ -1,128 +1,153 @@
-describe('updateUnprotectedVault', () => {
-  const setup = (options = {}) => {
-    jest.resetModules()
+const { __getLastValidated } = require('pear-apps-utils-validator')
 
-    const validateReturns = options.validateReturns ?? null
-    let validateMock
+const { updateUnprotectedVault } = require('./updateUnprotectedVault')
+const { getVaultByIdAndClose } = require('../api/getVaultByIdAndClose')
+const { updateVault: updateVaultApi } = require('../api/updateVault')
 
-    jest.doMock('pear-apps-utils-validator', () => {
-      validateMock = jest.fn().mockReturnValue(validateReturns)
-      const chain = { required: jest.fn().mockReturnThis() }
-      return {
-        Validator: {
-          object: jest.fn(() => ({ validate: validateMock })),
-          string: jest.fn(() => chain),
-          number: jest.fn(() => chain)
+jest.mock('pear-apps-utils-validator', () => {
+  let lastValidated = null
+  return {
+    __getLastValidated: () => lastValidated,
+    Validator: {
+      object: (schema) => ({
+        validate: (val) => {
+          lastValidated = val
+          const required = Object.keys(schema || {})
+          const missing = required.filter(
+            (k) => val[k] === undefined || val[k] === null
+          )
+          return missing.length
+            ? missing.map((k) => ({ field: k, message: 'required' }))
+            : undefined
         }
-      }
-    })
-
-    const getUnprotectedVaultByIdMock = jest.fn()
-    const updateVaultApiMock = jest.fn()
-
-    jest.doMock('../api/getUnprotectedVaultById', () => ({
-      getUnprotectedVaultById: getUnprotectedVaultByIdMock
-    }))
-    jest.doMock('../api/updateVault', () => ({
-      updateVault: updateVaultApiMock
-    }))
-
-    jest.doMock('@reduxjs/toolkit', () => ({
-      createAsyncThunk:
-        (type, payloadCreator) => (arg) => async (dispatch, getState, extra) =>
-          payloadCreator(arg, { dispatch, getState, extra })
-    }))
-
-    let updateUnprotectedVault
-    jest.isolateModules(() => {
-      updateUnprotectedVault =
-        require('./updateUnprotectedVault').updateUnprotectedVault
-    })
-
-    return {
-      updateUnprotectedVault,
-      getUnprotectedVaultByIdMock: require('../api/getUnprotectedVaultById')
-        .getUnprotectedVaultById,
-      updateVaultApiMock: require('../api/updateVault').updateVault,
-      validateMock
+      }),
+      string: () => ({ required: () => ({}) }),
+      number: () => ({ required: () => ({}) })
     }
   }
+})
+
+jest.mock('../api/getVaultByIdAndClose', () => ({
+  getVaultByIdAndClose: jest.fn()
+}))
+
+jest.mock('../api/updateVault', () => ({
+  updateVault: jest.fn()
+}))
+
+describe('updateUnprotectedVault', () => {
+  const fixedNow = 1700000000000
+  let dateSpy
+
+  const validVault = {
+    id: 'old-id',
+    name: 'Old Name',
+    version: 1,
+    createdAt: 111,
+    updatedAt: 222
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    dateSpy = jest.spyOn(Date, 'now').mockReturnValue(fixedNow)
+  })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    dateSpy.mockRestore()
   })
 
-  it('calls updateVault API with merged vault data and new password', async () => {
-    const {
-      updateUnprotectedVault,
-      getUnprotectedVaultByIdMock,
-      updateVaultApiMock
-    } = setup({ validateReturns: null })
-
-    const baseVault = {
-      id: 'old-id',
-      name: 'Old Name',
-      version: 2,
-      createdAt: 1000,
-      updatedAt: 2000
-    }
-    getUnprotectedVaultByIdMock.mockResolvedValue(baseVault)
-
-    const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(987654321)
-
-    const dispatch = jest.fn()
+  const runThunk = async (payload) => {
+    const dispatch = jest.fn((action) => action)
     const getState = jest.fn()
+    const resultAction = await updateUnprotectedVault(payload)(
+      dispatch,
+      getState,
+      undefined
+    )
+    return { dispatch, getState, resultAction }
+  }
 
-    await updateUnprotectedVault({
-      vaultId: 'v123',
+  test('calls APIs and passes validated new vault with overridden fields', async () => {
+    getVaultByIdAndClose.mockResolvedValue(validVault)
+    updateVaultApi.mockResolvedValue(undefined)
+
+    const payload = {
+      vaultId: 'new-id',
       name: 'New Name',
       newPassword: 'secret'
-    })(dispatch, getState)
+    }
+    const { dispatch, resultAction } = await runThunk(payload)
 
-    expect(getUnprotectedVaultByIdMock).toHaveBeenCalledWith('v123')
-    expect(updateVaultApiMock).toHaveBeenCalledTimes(1)
-    expect(updateVaultApiMock).toHaveBeenCalledWith(
-      {
-        id: 'v123',
-        name: 'New Name',
-        version: 2,
-        createdAt: 1000,
-        updatedAt: 987654321
-      },
-      'secret'
+    expect(getVaultByIdAndClose).toHaveBeenCalledTimes(1)
+    expect(getVaultByIdAndClose).toHaveBeenCalledWith('new-id')
+
+    const expectedNewVault = {
+      id: 'new-id',
+      name: 'New Name',
+      version: 1,
+      createdAt: 111,
+      updatedAt: fixedNow
+    }
+
+    expect(updateVaultApi).toHaveBeenCalledTimes(1)
+    expect(updateVaultApi).toHaveBeenCalledWith(expectedNewVault, 'secret')
+
+    // Validator received the correct object
+    expect(__getLastValidated()).toEqual(expectedNewVault)
+
+    // Dispatch flow: pending -> fulfilled
+    expect(dispatch).toHaveBeenCalled()
+    expect(dispatch.mock.calls[0][0].type).toBe('vault/updateVault/pending')
+    expect(dispatch.mock.calls[dispatch.mock.calls.length - 1][0].type).toBe(
+      'vault/updateVault/fulfilled'
     )
-
-    nowSpy.mockRestore()
+    expect(resultAction.type).toBe('vault/updateVault/fulfilled')
   })
 
-  it('throws when schema validation fails and does not call updateVault API', async () => {
-    const {
-      updateUnprotectedVault,
-      getUnprotectedVaultByIdMock,
-      updateVaultApiMock
-    } = setup({
-      validateReturns: [{ path: 'name', message: 'required' }]
+  test('rejects when validation fails and does not call updateVault API', async () => {
+    // Missing "version" will cause validation error in our mock
+    getVaultByIdAndClose.mockResolvedValue({
+      id: 'anything',
+      name: 'Old Name',
+      createdAt: 111,
+      updatedAt: 222
     })
 
-    getUnprotectedVaultByIdMock.mockResolvedValue({
-      id: 'any',
-      name: 'Any',
-      version: 1,
-      createdAt: 1,
-      updatedAt: 1
-    })
+    const payload = { vaultId: 'some-id', name: 'Name', newPassword: 'pwd' }
+    const { dispatch, resultAction } = await runThunk(payload)
 
-    jest.spyOn(Date, 'now').mockReturnValue(123)
+    expect(updateVaultApi).not.toHaveBeenCalled()
 
-    const thunk = updateUnprotectedVault({
-      vaultId: 'x',
-      name: 'bad',
-      newPassword: 'pw'
-    })
-
-    await expect(thunk(jest.fn(), jest.fn())).rejects.toThrow(
-      /Invalid vault data:/
+    // Dispatch flow: pending -> rejected
+    expect(dispatch.mock.calls[0][0].type).toBe('vault/updateVault/pending')
+    expect(dispatch.mock.calls[dispatch.mock.calls.length - 1][0].type).toBe(
+      'vault/updateVault/rejected'
     )
-    expect(updateVaultApiMock).not.toHaveBeenCalled()
+    expect(resultAction.type).toBe('vault/updateVault/rejected')
+
+    // Error message contains validation details
+    expect(resultAction.error && resultAction.error.message).toMatch(
+      /Invalid vault data/
+    )
+    expect(resultAction.error && resultAction.error.message).toMatch(/version/)
+
+    // Even on validation, the constructed object passed to validate has overridden fields
+    const validated = __getLastValidated()
+    expect(validated.id).toBe('some-id')
+    expect(validated.name).toBe('Name')
+    expect(validated.updatedAt).toBe(fixedNow)
+  })
+
+  test('rejects when updateVault API fails', async () => {
+    getVaultByIdAndClose.mockResolvedValue(validVault)
+    updateVaultApi.mockRejectedValue(new Error('network error'))
+
+    const payload = { vaultId: 'v-123', name: 'X', newPassword: 'pwd' }
+    const { resultAction } = await runThunk(payload)
+
+    expect(resultAction.type).toBe('vault/updateVault/rejected')
+    expect(resultAction.error && resultAction.error.message).toBe(
+      'network error'
+    )
   })
 })

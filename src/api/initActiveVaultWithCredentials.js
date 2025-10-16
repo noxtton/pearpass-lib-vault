@@ -27,6 +27,8 @@ export const initActiveVaultWithCredentials = async (vaultId, encryption) => {
     if (currentVault && vaultId === currentVault.id) {
       return true
     }
+
+    await pearpassVaultClient.activeVaultClose()
   }
 
   const encryptionKey = await pearpassVaultClient.decryptVaultKey({
@@ -38,8 +40,6 @@ export const initActiveVaultWithCredentials = async (vaultId, encryption) => {
   if (!encryptionKey) {
     throw new Error('Error decrypting vault key')
   }
-
-  await pearpassVaultClient.activeVaultClose()
 
   await pearpassVaultClient.activeVaultInit({
     id: vaultId,

@@ -66,7 +66,12 @@ export const updateProtectedVault = async ({
 
   await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, {
     ...vault,
-    encryption: updatingVaultEncryption
+    encryption: {
+      ciphertext: updatingVaultEncryption.ciphertext,
+      nonce: updatingVaultEncryption.nonce,
+      salt: updatingVaultEncryption.salt,
+      hashedPassword: updatingVaultEncryption.hashedPassword
+    }
   })
 
   await pearpassVaultClient.activeVaultInit({

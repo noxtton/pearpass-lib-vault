@@ -88,7 +88,6 @@ describe('initActiveVaultWithCredentials', () => {
       nonce: encryption.nonce,
       hashedPassword: encryption.hashedPassword
     })
-    expect(pearpassVaultClient.activeVaultClose).toHaveBeenCalled()
     expect(pearpassVaultClient.activeVaultInit).toHaveBeenCalledWith({
       id: vaultId,
       encryptionKey: 'decrypted-key'
