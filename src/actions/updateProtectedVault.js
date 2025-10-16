@@ -13,7 +13,7 @@ const schema = Validator.object({
 })
 
 export const updateProtectedVault = createAsyncThunk(
-  'vault/updateVault',
+  'vault/updateProtectedVault',
   async ({ vaultId, name, currentPassword, newPassword }) => {
     const vault = await getVaultByIdAndClose(vaultId, {
       password: currentPassword

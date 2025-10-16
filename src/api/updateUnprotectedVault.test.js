@@ -1,5 +1,3 @@
-// cspell:words ndolidze noxtton pearpass ciphertext
-
 jest.mock('../instances', () => ({
   pearpassVaultClient: {
     activeVaultGetStatus: jest.fn(),

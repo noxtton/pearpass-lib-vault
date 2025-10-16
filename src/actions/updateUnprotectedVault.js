@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import { Validator } from 'pear-apps-utils-validator'
 
 import { getVaultByIdAndClose } from '../api/getVaultByIdAndClose'
-import { updateVault as updateVaultApi } from '../api/updateVault'
+import { updateUnprotectedVault as updateUnprotectedVaultApi } from '../api/updateUnprotectedVault'
 
 const schema = Validator.object({
   id: Validator.string().required(),
@@ -13,7 +13,7 @@ const schema = Validator.object({
 })
 
 export const updateUnprotectedVault = createAsyncThunk(
-  'vault/updateVault',
+  'vault/updateUnprotectedVault',
   async ({ vaultId, name, newPassword }) => {
     const vault = await getVaultByIdAndClose(vaultId)
 
@@ -30,6 +30,6 @@ export const updateUnprotectedVault = createAsyncThunk(
       throw new Error(`Invalid vault data: ${JSON.stringify(errors, null, 2)}`)
     }
 
-    await updateVaultApi(newVault, newPassword)
+    await updateUnprotectedVaultApi(newVault, newPassword)
   }
 )

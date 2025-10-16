@@ -9,7 +9,7 @@ import { initActiveVaultWithCredentials } from './initActiveVaultWithCredentials
  * @param {Object} [vault.encryption]
  * @param {string} [newPassword]
  */
-export const updateVault = async (vault, newPassword) => {
+export const updateUnprotectedVault = async (vault, newPassword) => {
   if (!vault?.id) {
     throw new Error('Vault id is required')
   }
