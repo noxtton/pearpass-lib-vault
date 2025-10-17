@@ -1,9 +1,8 @@
 import reducer from './blindMirrorsSlice'
-
-import { getBlindMirrors } from '../actions/getBlindMirrors'
 import { addBlindMirrors } from '../actions/addBlindMirrors'
-import { removeBlindMirror } from '../actions/removeBlindMirror'
+import { getBlindMirrors } from '../actions/getBlindMirrors'
 import { removeAllBlindMirrors } from '../actions/removeAllBlindMirrors'
+import { removeBlindMirror } from '../actions/removeBlindMirror'
 
 const baseState = { isLoading: false, error: null, data: [] }
 

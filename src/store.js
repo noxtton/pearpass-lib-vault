@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { Provider } from 'react-redux'
 
+import blindMirrorsReducer from './slices/blindMirrorsSlice'
 import inviteReducer from './slices/inviteSlice'
 import userReducer from './slices/userSlice'
 import vaultReducer from './slices/vaultSlice'
 import vaultsReducer from './slices/vaultsSlice'
-import blindMirrorsReducer from './slices/blindMirrorsSlice'
 
 export const store = configureStore({
   reducer: {
