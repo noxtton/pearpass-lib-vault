@@ -4,7 +4,8 @@ import { addDevice as addDeviceAction } from '../actions/addDevice.js'
 import { getVaultById } from '../actions/getVaultById'
 import { getVaults } from '../actions/getVaults'
 import { resetState as resetStateAction } from '../actions/resetState'
-import { updateVault as updateVaultAction } from '../actions/updateVault'
+import { updateProtectedVault as updateProtectedVaultAction } from '../actions/updateProtectedVault'
+import { updateUnprotectedVault as updateUnprotectedVaultAction } from '../actions/updateUnprotectedVault'
 import { checkVaultIsProtected } from '../api/checkVaultIsProtected'
 import { getCurrentVault } from '../api/getCurrentVault'
 import { initListener } from '../api/initListener'
@@ -70,9 +71,9 @@ export const useVault = ({ variables } = {}) => {
   }
 
   const refetch = async (vaultId, params) => {
-    const correntVault = await getCurrentVault()
+    const currentVault = await getCurrentVault()
 
-    const id = vaultId || variables?.vaultId || correntVault?.id
+    const id = vaultId || variables?.vaultId || currentVault?.id
 
     if (!id) {
       logger.error('refetch: Vault ID is required')
@@ -103,9 +104,27 @@ export const useVault = ({ variables } = {}) => {
     }
   }
 
-  const updateVault = async (vaultId, vaultUpdate) => {
+  const updateUnprotectedVault = async (vaultId, vaultUpdate) => {
     const { error: createError } = await dispatch(
-      updateVaultAction({
+      updateUnprotectedVaultAction({
+        vaultId: vaultId,
+        name: vaultUpdate.name,
+        newPassword: vaultUpdate.password
+      })
+    )
+
+    await refetch()
+
+    await dispatch(getVaults())
+
+    if (createError) {
+      throw new Error('Error updating vault')
+    }
+  }
+
+  const updateProtectedVault = async (vaultId, vaultUpdate) => {
+    const { error: createError } = await dispatch(
+      updateProtectedVaultAction({
         vaultId: vaultId,
         name: vaultUpdate.name,
         newPassword: vaultUpdate.password,
@@ -134,6 +153,7 @@ export const useVault = ({ variables } = {}) => {
     addDevice,
     isVaultProtected,
     resetState,
-    updateVault
+    updateUnprotectedVault,
+    updateProtectedVault
   }
 }
