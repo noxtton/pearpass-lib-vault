@@ -58,19 +58,21 @@ export const updateProtectedVault = async ({
     updatingVaultEncryption.hashedPassword = hashedPassword
   }
 
+  const { hashedPassword, ciphertext, nonce, salt } = updatingVaultEncryption
+
   const encryptionKey = await pearpassVaultClient.decryptVaultKey({
-    hashedPassword: updatingVaultEncryption.hashedPassword,
-    ciphertext: updatingVaultEncryption.ciphertext,
-    nonce: updatingVaultEncryption.nonce
+    hashedPassword,
+    ciphertext,
+    nonce
   })
 
   await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, {
     ...vault,
     encryption: {
-      ciphertext: updatingVaultEncryption.ciphertext,
-      nonce: updatingVaultEncryption.nonce,
-      salt: updatingVaultEncryption.salt,
-      hashedPassword: updatingVaultEncryption.hashedPassword
+      ciphertext,
+      nonce,
+      salt,
+      hashedPassword
     }
   })
 
