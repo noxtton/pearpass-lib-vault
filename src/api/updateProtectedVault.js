@@ -39,7 +39,12 @@ export const updateProtectedVault = async ({
       password: currentPassword
     })
 
+  const currentEncryption = (await checkVaultIsProtected(currentVault.id))
+    ? currentVault.encryption
+    : masterEncryption
+
   if (updatingVaultEncryption?.hashedPassword !== updatingVaultHashedPassword) {
+    await initActiveVaultWithCredentials(currentVault.id, currentEncryption)
     throw new Error('Invalid password')
   }
 
@@ -81,10 +86,6 @@ export const updateProtectedVault = async ({
   })
 
   await pearpassVaultClient.activeVaultAdd(`vault`, vault)
-
-  const currentEncryption = (await checkVaultIsProtected(currentVault.id))
-    ? currentVault.encryption
-    : masterEncryption
 
   await initActiveVaultWithCredentials(currentVault.id, currentEncryption)
 }
