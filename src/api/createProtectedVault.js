@@ -36,8 +36,7 @@ export const createProtectedVault = async (vault, password) => {
     encryption: {
       ciphertext,
       nonce,
-      salt,
-      hashedPassword
+      salt
     }
   })
 

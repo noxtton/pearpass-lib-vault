@@ -12,7 +12,7 @@ export { useRecords } from './hooks/useRecords'
 export { useUserData } from './hooks/useUserData'
 export { useVault } from './hooks/useVault'
 export { useVaults } from './hooks/useVaults'
-
+export { useBlindMirrors } from './hooks/useBlindMirrors'
 export { VaultProvider } from './store'
 
 export { closeAllInstances } from './api/closeAllInstances'
