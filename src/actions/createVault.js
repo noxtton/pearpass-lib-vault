@@ -3,7 +3,7 @@ import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
 import { Validator } from 'pear-apps-utils-validator'
 
 import { createProtectedVault } from '../api/createProtectedVault'
-import { createVault as createVaultApi } from '../api/createVault'
+import { createUnprotectedVault as createUnprotectedVaultApi } from '../api/createUnprotectedVault'
 import { VERSION } from '../constants/version'
 
 const schema = Validator.object({
@@ -38,7 +38,7 @@ export const createVault = createAsyncThunk(
     if (password?.length) {
       await createProtectedVault(vault, password)
     } else {
-      await createVaultApi(vault)
+      await createUnprotectedVaultApi(vault)
     }
 
     return vault

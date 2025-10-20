@@ -1,9 +1,9 @@
-import { getVaultEncryption } from './getVaultEncryption'
+import { getProtectedVaultEncryption } from './getProtectedVaultEncryption'
 import { listVaults } from './listVaults'
 
 jest.mock('./listVaults')
 
-describe('getVaultEncryption', () => {
+describe('getProtectedVaultEncryption', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -25,7 +25,7 @@ describe('getVaultEncryption', () => {
 
     listVaults.mockResolvedValue(mockVaults)
 
-    const result = await getVaultEncryption('vault-1')
+    const result = await getProtectedVaultEncryption('vault-1')
 
     expect(listVaults).toHaveBeenCalledTimes(1)
     expect(result).toEqual(mockEncryption)
@@ -39,9 +39,9 @@ describe('getVaultEncryption', () => {
       }
     ])
 
-    await expect(getVaultEncryption('non-existent-vault')).rejects.toThrow(
-      'Vault not found'
-    )
+    await expect(
+      getProtectedVaultEncryption('non-existent-vault')
+    ).rejects.toThrow('Vault not found')
 
     expect(listVaults).toHaveBeenCalledTimes(1)
   })

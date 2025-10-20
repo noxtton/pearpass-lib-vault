@@ -1,6 +1,5 @@
 import { pearpassVaultClient } from '../instances'
 import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
-import { getVaultEncryption } from './getVaultEncryption'
 import { listVaults } from './listVaults'
 
 /**
@@ -56,7 +55,13 @@ export const getVaultById = async (vaultId, params) => {
       nonce: masterEncryption.nonce
     })
   } else {
-    const { ciphertext, nonce, salt } = await getVaultEncryption(vaultId)
+    const vault = vaults.find((vault) => vault.id === vaultId)
+
+    if (!vault) {
+      throw new Error('Vault not found')
+    }
+
+    const { ciphertext, nonce, salt } = vault.encryption || {}
 
     const hashedPassword = await pearpassVaultClient.getDecryptionKey({
       password: params?.password,

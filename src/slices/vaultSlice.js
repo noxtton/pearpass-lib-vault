@@ -9,7 +9,9 @@ import { deleteRecords } from '../actions/deleteRecords'
 import { getVaultById } from '../actions/getVaultById'
 import { renameFolder } from '../actions/renameFolder'
 import { resetState } from '../actions/resetState'
+import { updateProtectedVault } from '../actions/updateProtectedVault'
 import { updateRecords } from '../actions/updateRecords'
+import { updateUnprotectedVault } from '../actions/updateUnprotectedVault'
 import { logger } from '../utils/logger'
 
 const initialState = {
@@ -160,6 +162,40 @@ export const vaultSlice = createSlice({
         logger.error(`Action addDevice error:`, JSON.stringify(action.error))
 
         state.isDeviceLoading = false
+        state.error = action.error
+      })
+
+    builder
+      .addCase(updateProtectedVault.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(updateProtectedVault.fulfilled, (state) => {
+        state.isLoading = false
+      })
+      .addCase(updateProtectedVault.rejected, (state, action) => {
+        logger.error(
+          `Action updateProtectedVault error:`,
+          JSON.stringify(action.error)
+        )
+
+        state.isLoading = false
+        state.error = action.error
+      })
+
+    builder
+      .addCase(updateUnprotectedVault.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(updateUnprotectedVault.fulfilled, (state) => {
+        state.isLoading = false
+      })
+      .addCase(updateUnprotectedVault.rejected, (state, action) => {
+        logger.error(
+          `Action updateUnprotectedVault error:`,
+          JSON.stringify(action.error)
+        )
+
+        state.isLoading = false
         state.error = action.error
       })
 
