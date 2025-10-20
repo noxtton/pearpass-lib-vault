@@ -14,7 +14,7 @@ export const checkVaultIsProtected = async (vaultId) => {
     throw new Error('Vault not found')
   }
 
-  const { ciphertext, nonce, hashedPassword, salt } = vault?.encryption || {}
+  const { ciphertext, nonce, salt } = vault?.encryption || {}
 
-  return !!(ciphertext && nonce && hashedPassword && salt)
+  return !!(ciphertext && nonce && salt)
 }
