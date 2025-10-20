@@ -71,8 +71,7 @@ export const updateProtectedVault = async ({
     encryption: {
       ciphertext,
       nonce,
-      salt,
-      hashedPassword
+      salt
     }
   })
 
