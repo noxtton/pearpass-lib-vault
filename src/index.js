@@ -20,7 +20,7 @@ export { setPearpassVaultClient, setStoragePath } from './instances'
 
 export { authoriseCurrentProtectedVault } from './api/authoriseCurrentProtectedVault'
 export { getVaultById } from './api/getVaultById'
-export { getVaultEncryption } from './api/getVaultEncryption'
+export { getCurrentProtectedVaultEncryption } from './api/getCurrentProtectedVaultEncryption'
 export { listRecords } from './api/listRecords'
 export { vaultGetFile } from './api/getFile.js'
 export { getMasterEncryption } from './api/getMasterEncryption.js'

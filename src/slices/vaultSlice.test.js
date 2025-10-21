@@ -10,7 +10,9 @@ import { deleteRecords } from '../actions/deleteRecords'
 import { getVaultById } from '../actions/getVaultById'
 import { renameFolder } from '../actions/renameFolder'
 import { resetState } from '../actions/resetState'
+import { updateProtectedVault } from '../actions/updateProtectedVault'
 import { updateRecords } from '../actions/updateRecords'
+import { updateUnprotectedVault } from '../actions/updateUnprotectedVault'
 
 jest.mock('../actions/createFolder', () => ({
   createFolder: {
@@ -81,6 +83,20 @@ jest.mock('../actions/addDevice', () => ({
 jest.mock('../utils/logger', () => ({
   logger: {
     error: jest.fn()
+  }
+}))
+jest.mock('../actions/updateProtectedVault', () => ({
+  updateProtectedVault: {
+    pending: { type: 'updateProtectedVault/pending' },
+    fulfilled: { type: 'updateProtectedVault/fulfilled' },
+    rejected: { type: 'updateProtectedVault/rejected' }
+  }
+}))
+jest.mock('../actions/updateUnprotectedVault', () => ({
+  updateUnprotectedVault: {
+    pending: { type: 'updateUnprotectedVault/pending' },
+    fulfilled: { type: 'updateUnprotectedVault/fulfilled' },
+    rejected: { type: 'updateUnprotectedVault/rejected' }
   }
 }))
 
@@ -373,6 +389,50 @@ describe('vaultSlice', () => {
       const mockError = { message: 'Failed to add device' }
       store.dispatch({ type: addDevice.rejected.type, error: mockError })
       expect(store.getState().vault.isDeviceLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
+  describe('updateProtectedVault', () => {
+    it('should handle pending state', () => {
+      store.dispatch({ type: updateProtectedVault.pending.type })
+      expect(store.getState().vault.isLoading).toBe(true)
+    })
+
+    it('should handle fulfilled state', () => {
+      store.dispatch({ type: updateProtectedVault.fulfilled.type })
+      expect(store.getState().vault.isLoading).toBe(false)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to update protected vault' }
+      store.dispatch({
+        type: updateProtectedVault.rejected.type,
+        error: mockError
+      })
+      expect(store.getState().vault.isLoading).toBe(false)
+      expect(store.getState().vault.error).toEqual(mockError)
+    })
+  })
+
+  describe('updateUnprotectedVault', () => {
+    it('should handle pending state', () => {
+      store.dispatch({ type: updateUnprotectedVault.pending.type })
+      expect(store.getState().vault.isLoading).toBe(true)
+    })
+
+    it('should handle fulfilled state', () => {
+      store.dispatch({ type: updateUnprotectedVault.fulfilled.type })
+      expect(store.getState().vault.isLoading).toBe(false)
+    })
+
+    it('should handle rejected state', () => {
+      const mockError = { message: 'Failed to update unprotected vault' }
+      store.dispatch({
+        type: updateUnprotectedVault.rejected.type,
+        error: mockError
+      })
+      expect(store.getState().vault.isLoading).toBe(false)
       expect(store.getState().vault.error).toEqual(mockError)
     })
   })

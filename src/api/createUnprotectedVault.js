@@ -8,7 +8,7 @@ import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
  * }} vault
  * @returns {Promise<void>}
  */
-export const createVault = async (vault) => {
+export const createUnprotectedVault = async (vault) => {
   if (!vault?.id) {
     throw new Error('Vault id is required')
   }

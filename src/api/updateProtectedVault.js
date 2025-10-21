@@ -1,8 +1,8 @@
 import { pearpassVaultClient } from '../instances'
-import { checkVaultIsProtected } from './checkVaultIsProtected'
 import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
-import { getVaultEncryption } from './getVaultEncryption'
+import { updateVaultPassword } from './helpers/updateVaultPassword'
 import { initActiveVaultWithCredentials } from './initActiveVaultWithCredentials'
+import { listVaults } from './listVaults'
 
 /**
  * @param {Object} params
@@ -13,79 +13,121 @@ import { initActiveVaultWithCredentials } from './initActiveVaultWithCredentials
  */
 export const updateProtectedVault = async ({
   vault,
-  newPassword,
-  currentPassword
+  currentPassword,
+  newPassword
 }) => {
   if (!vault?.id) {
     throw new Error('Vault id is required')
   }
 
-  let currentVault
+  const activeVault = await pearpassVaultClient.activeVaultGet(`vault`)
 
-  const masterEncryption = await getMasterPasswordEncryption()
-
-  const res = await pearpassVaultClient.activeVaultGetStatus()
-
-  if (res?.status) {
-    currentVault = await pearpassVaultClient.activeVaultGet(`vault`)
-    await pearpassVaultClient.activeVaultClose()
+  if (activeVault && vault.id === activeVault.id) {
+    return updateActiveProtectedVault({
+      activeVault,
+      vault,
+      newPassword,
+      currentPassword
+    })
   }
 
-  const updatingVaultEncryption = await getVaultEncryption(vault.id)
+  return updateInactiveProtectedVault({
+    vault,
+    activeVault,
+    newPassword,
+    currentPassword
+  })
+}
 
-  const updatingVaultHashedPassword =
-    await pearpassVaultClient.getDecryptionKey({
-      salt: updatingVaultEncryption.salt,
-      password: currentPassword
-    })
+/**
+ * Updates the active protected vault with a new password or vault data.
+ *
+ * @async
+ * @function updateActiveProtectedVault
+ * @param {Object} params - The parameters for updating the vault.
+ * @param {Object} params.activeVault - The currently active vault object.
+ * @param {Object} params.vault - The vault object to update.
+ * @param {string} params.newPassword - The new password to set for the vault (optional).
+ * @param {string} params.currentPassword - The current password for authentication.
+ * @throws {Error} Throws an error if the current password is invalid.
+ * @returns {Promise<void|*>} Returns the result of updating the vault password if a new password is provided, otherwise resolves when the vault is updated.
+ */
+const updateActiveProtectedVault = async ({
+  activeVault,
+  vault,
+  newPassword,
+  currentPassword
+}) => {
+  const currentHashedPassword = await pearpassVaultClient.getDecryptionKey({
+    salt: activeVault.encryption.salt,
+    password: currentPassword
+  })
 
-  const currentEncryption = (await checkVaultIsProtected(currentVault.id))
-    ? currentVault.encryption
-    : masterEncryption
-
-  if (updatingVaultEncryption?.hashedPassword !== updatingVaultHashedPassword) {
-    await initActiveVaultWithCredentials(currentVault.id, currentEncryption)
+  if (activeVault.encryption.hashedPassword !== currentHashedPassword) {
     throw new Error('Invalid password')
   }
 
   if (newPassword?.length) {
-    const { hashedPassword, salt } =
-      await pearpassVaultClient.hashPassword(newPassword)
-
-    const { ciphertext, nonce } =
-      await pearpassVaultClient.encryptVaultKeyWithHashedPassword(
-        hashedPassword
-      )
-
-    updatingVaultEncryption.ciphertext = ciphertext
-    updatingVaultEncryption.nonce = nonce
-    updatingVaultEncryption.salt = salt
-    updatingVaultEncryption.hashedPassword = hashedPassword
+    return updateVaultPassword(newPassword, vault)
   }
 
-  const { hashedPassword, ciphertext, nonce, salt } = updatingVaultEncryption
-
-  const encryptionKey = await pearpassVaultClient.decryptVaultKey({
-    hashedPassword,
-    ciphertext,
-    nonce
-  })
-
-  await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, {
-    ...vault,
-    encryption: {
-      ciphertext,
-      nonce,
-      salt
-    }
-  })
-
-  await pearpassVaultClient.activeVaultInit({
-    id: vault.id,
-    encryptionKey
-  })
-
   await pearpassVaultClient.activeVaultAdd(`vault`, vault)
+  await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, vault)
+}
 
-  await initActiveVaultWithCredentials(currentVault.id, currentEncryption)
+/**
+ * Updates an inactive protected vault with new credentials or password.
+ *
+ *
+ * @async
+ * @function
+ * @param {Object} params - The parameters for updating the vault.
+ * @param {Object} params.vault - The vault object to update.
+ * @param {Object} params.activeVault - The currently active vault object.
+ * @param {string} [params.newPassword] - The new password to set for the vault (optional).
+ * @param {string} params.currentPassword - The current password for decrypting the vault.
+ * @throws Will throw an error if initialization of the inactive vault fails.
+ * @returns {Promise<void>} Resolves when the vault update process is complete.
+ */
+const updateInactiveProtectedVault = async ({
+  vault,
+  activeVault,
+  newPassword,
+  currentPassword
+}) => {
+  const vaults = await listVaults()
+  const { ciphertext, nonce, salt } =
+    vaults.find((v) => v.id === vault.id)?.encryption || {}
+
+  const currentHashedPassword = await pearpassVaultClient.getDecryptionKey({
+    salt: salt,
+    password: currentPassword
+  })
+
+  const masterEncryption = await getMasterPasswordEncryption()
+
+  const activeVaultEncryption = activeVault?.encryption
+    ? activeVault.encryption
+    : masterEncryption
+
+  try {
+    await initActiveVaultWithCredentials(vault.id, {
+      ciphertext: ciphertext,
+      nonce: nonce,
+      salt: salt,
+      hashedPassword: currentHashedPassword
+    })
+  } catch (error) {
+    await initActiveVaultWithCredentials(activeVault.id, activeVaultEncryption)
+    throw error
+  }
+
+  if (newPassword?.length) {
+    await updateVaultPassword(newPassword, vault)
+  } else {
+    await pearpassVaultClient.activeVaultAdd(`vault`, vault)
+    await pearpassVaultClient.vaultsAdd(`vault/${vault.id}`, vault)
+  }
+
+  await initActiveVaultWithCredentials(activeVault.id, activeVaultEncryption)
 }
