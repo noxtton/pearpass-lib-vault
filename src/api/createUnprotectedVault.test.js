@@ -1,4 +1,4 @@
-import { createVault } from './createVault'
+import { createUnprotectedVault } from './createUnprotectedVault'
 import { pearpassVaultClient } from '../instances'
 import { getMasterPasswordEncryption } from './getMasterPasswordEncryption'
 
@@ -18,7 +18,7 @@ jest.mock('../instances', () => ({
   }
 }))
 
-describe('createVault', () => {
+describe('createUnprotectedVault', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -39,7 +39,7 @@ describe('createVault', () => {
 
     const vault = { id: 'test-vault-id' }
 
-    await createVault(vault)
+    await createUnprotectedVault(vault)
 
     expect(pearpassVaultClient.activeVaultGetStatus).toHaveBeenCalled()
     expect(pearpassVaultClient.activeVaultClose).toHaveBeenCalled()
@@ -75,7 +75,7 @@ describe('createVault', () => {
 
     const vault = { id: 'test-vault-id' }
 
-    await createVault(vault)
+    await createUnprotectedVault(vault)
 
     expect(pearpassVaultClient.activeVaultGetStatus).toHaveBeenCalled()
     expect(pearpassVaultClient.activeVaultClose).not.toHaveBeenCalled()
@@ -112,7 +112,7 @@ describe('createVault', () => {
 
     const vault = { id: 'complex-vault-id', name: 'Test Vault' }
 
-    await createVault(vault)
+    await createUnprotectedVault(vault)
 
     expect(pearpassVaultClient.vaultsAdd).toHaveBeenCalledWith(
       `vault/${vault.id}`,
@@ -145,7 +145,7 @@ describe('createVault', () => {
 
     const vault = { id: 'test-vault-id', password: 'test-password' }
 
-    await createVault(vault)
+    await createUnprotectedVault(vault)
 
     expect(pearpassVaultClient.decryptVaultKey).toHaveBeenCalledWith({
       ciphertext: encryptVaultKeyResult.ciphertext,
