@@ -15,12 +15,12 @@ export class Logger {
   }
 }
 
-const isProduction =
-  (typeof Pear !== 'undefined' && !!Pear.config?.key) ||
-  (typeof process !== 'undefined' &&
-    process.env &&
-    process.env.NODE_ENV === 'production')
+// const isProduction =
+//   (typeof Pear !== 'undefined' && !!Pear.config?.key) ||
+//   (typeof process !== 'undefined' &&
+//     process.env &&
+//     process.env.NODE_ENV === 'production')
 
 export const logger = new Logger({
-  debugMode: !isProduction
+  debugMode: false
 })
