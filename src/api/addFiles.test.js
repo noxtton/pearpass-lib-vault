@@ -22,8 +22,18 @@ describe('addFiles', () => {
 
   it('should call pearpassVaultClient.addFile for each file', async () => {
     const files = [
-      { recordId: 'rec1', fileId: 'file1', buffer: new ArrayBuffer(8) },
-      { recordId: 'rec2', fileId: 'file2', buffer: new ArrayBuffer(16) }
+      {
+        recordId: 'rec1',
+        fileId: 'file1',
+        buffer: new ArrayBuffer(8),
+        name: 'file1.txt'
+      },
+      {
+        recordId: 'rec2',
+        fileId: 'file2',
+        buffer: new ArrayBuffer(16),
+        name: 'file2.txt'
+      }
     ]
     pearpassVaultClient.activeVaultAddFile.mockResolvedValue({})
 
@@ -32,17 +42,24 @@ describe('addFiles', () => {
     expect(pearpassVaultClient.activeVaultAddFile).toHaveBeenCalledTimes(2)
     expect(pearpassVaultClient.activeVaultAddFile).toHaveBeenCalledWith(
       'record/rec1/file/file1',
-      files[0].buffer
+      files[0].buffer,
+      'file1.txt'
     )
     expect(pearpassVaultClient.activeVaultAddFile).toHaveBeenCalledWith(
       'record/rec2/file/file2',
-      files[1].buffer
+      files[1].buffer,
+      'file2.txt'
     )
   })
 
   it('should propagate errors from pearpassVaultClient.activeVaultAddFile', async () => {
     const files = [
-      { recordId: 'rec1', fileId: 'file1', buffer: new ArrayBuffer(8) }
+      {
+        recordId: 'rec1',
+        fileId: 'file1',
+        buffer: new ArrayBuffer(8),
+        name: 'file1.txt'
+      }
     ]
     pearpassVaultClient.activeVaultAddFile.mockRejectedValue(
       new Error('Upload failed')

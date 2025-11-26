@@ -21,17 +21,17 @@ export const createRecord = createAsyncThunk(
 
     const newRecord = createRecordFactory(recordWithoutBuffers, vaultId)
 
-    await createRecordApi(newRecord)
-
     if (buffersWithId.length) {
       await addFilesApi(
-        buffersWithId.map(({ id, buffer }) => ({
+        buffersWithId.map(({ id, buffer, name }) => ({
           recordId: newRecord.id,
           fileId: id,
-          buffer
+          buffer,
+          name
         }))
       )
     }
+    await createRecordApi(newRecord)
 
     return newRecord
   }

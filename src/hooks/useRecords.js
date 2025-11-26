@@ -11,6 +11,7 @@ import {
 } from '../actions/updateRecords'
 import { selectRecords } from '../selectors/selectRecords'
 import { selectVault } from '../selectors/selectVault'
+import { handleErrorIfExists } from '../utils/handleError'
 
 /**
  * @param {{
@@ -73,8 +74,9 @@ export const useRecords = ({ onCompleted, shouldSkip, variables } = {}) => {
     fetchVault(vaultId || providedVaultId)
   }
 
-  const updateRecords = async (records) => {
+  const updateRecords = async (records, onError) => {
     const { error, payload } = await dispatch(updateRecordsAction(records))
+    handleErrorIfExists(error, onError, 'Failed to update records')
 
     if (!error) {
       onCompleted?.(payload)
