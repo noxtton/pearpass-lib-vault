@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 import { initializeUser } from '../actions/initializeUser'
+import { fetchMasterPasswordStatus } from '../actions/fetchMasterPasswordStatus'
 import { resetState } from '../actions/resetState'
 import { logger } from '../utils/logger'
 
@@ -11,7 +12,8 @@ const initialState = {
   data: {
     hasPasswordSet: false,
     isLoggedIn: false,
-    isVaultOpen: false
+    isVaultOpen: false,
+    masterPasswordStatus: null
   }
 }
 
@@ -33,7 +35,8 @@ export const userSlice = createSlice({
           ...state.data,
           isLoggedIn: action.payload.isLoggedIn,
           isVaultOpen: action.payload.isVaultOpen,
-          hasPasswordSet: action.payload.hasPasswordSet
+          hasPasswordSet: action.payload.hasPasswordSet,
+          masterPasswordStatus: action.payload.masterPasswordStatus
         }
         state.isLoading = false
         state.isInitialized = true
@@ -44,6 +47,9 @@ export const userSlice = createSlice({
 
         state.isLoading = false
         state.error = action.error
+      })
+      .addCase(fetchMasterPasswordStatus.fulfilled, (state, action) => {
+        state.data.masterPasswordStatus = action.payload
       })
 
     builder.addCase(resetState.fulfilled, (state) => {

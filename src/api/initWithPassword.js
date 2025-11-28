@@ -54,6 +54,7 @@ export const initWithPassword = async (params) => {
   })
 
   if (!decryptVaultKeyRes) {
+    await pearpassVaultClient.recordFailedMasterPassword()
     throw new Error('Error decrypting vault key')
   }
 
