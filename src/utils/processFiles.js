@@ -19,7 +19,11 @@ export const processFiles = (files = []) =>
       } else {
         const fileId = generateUniqueId()
 
-        acc.buffersWithId.push({ id: fileId, buffer: file.buffer })
+        acc.buffersWithId.push({
+          id: fileId,
+          buffer: file.buffer,
+          name: file.name
+        })
         acc.files.push({ id: fileId, name: file.name || `file-${fileId}` })
       }
       return acc

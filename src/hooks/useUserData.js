@@ -4,6 +4,7 @@ import { initializeUser } from '../actions/initializeUser'
 import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
 import { init } from '../api/init'
 import { updateMasterPassword as updateMasterPasswordApi } from '../api/updateMasterPassword'
+import { fetchMasterPasswordStatus } from '../actions/fetchMasterPasswordStatus'
 import { selectUser } from '../selectors/selectUser'
 
 /**
@@ -21,6 +22,11 @@ import { selectUser } from '../selectors/selectUser'
  *    isVaultOpen: boolean
  *  }
  *  hasPasswordSet: boolean
+ *  masterPasswordStatus: {
+ *    isLocked: boolean
+ *    lockoutRemainingMs: number
+ *    remainingAttempts: number
+ *  }
  *  logIn: ({
  *    ciphertext?: string
  *    nonce?: string
@@ -47,6 +53,11 @@ import { selectUser } from '../selectors/selectUser'
  *    hasPasswordSet: boolean
  *    isLoggedIn: boolean
  *    isVaultOpen: boolean
+ *  }>
+ *  refreshMasterPasswordStatus: () => Promise<{
+ *    isLocked: boolean
+ *    lockoutRemainingMs: number
+ *    remainingAttempts: number
  *  }>
  *  }}
  */
@@ -84,14 +95,22 @@ export const useUserData = () => {
     return payload
   }
 
+  const refreshMasterPasswordStatus = async () => {
+    const { payload } = await dispatch(fetchMasterPasswordStatus())
+    return payload
+  }
+
   return {
     data: userData,
     isInitialized: isInitialized,
     hasPasswordSet: userData.hasPasswordSet,
+    masterPasswordStatus: userData.masterPasswordStatus,
     isLoading,
     logIn,
     createMasterPassword,
     updateMasterPassword,
-    refetch
+    updateMasterPassword,
+    refetch,
+    refreshMasterPasswordStatus
   }
 }

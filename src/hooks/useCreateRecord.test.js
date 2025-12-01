@@ -83,7 +83,9 @@ describe('useCreateRecord', () => {
     const { result } = renderHook(() => useCreateRecord({ onCompleted }))
 
     await act(async () => {
-      await result.current.createRecord(record)
+      await expect(result.current.createRecord(record)).rejects.toThrow(
+        'Failed to create record'
+      )
     })
 
     expect(onCompleted).not.toHaveBeenCalled()

@@ -27,10 +27,11 @@ export const updateRecords = createAsyncThunk(
           )
 
           acc.filesToAdd.push(
-            ...buffersWithId.map(({ id, buffer }) => ({
+            ...buffersWithId.map(({ id, buffer, name }) => ({
               recordId: recordWithoutBuffers.id,
               fileId: id,
-              buffer
+              buffer,
+              name
             }))
           )
 
