@@ -3,9 +3,6 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import { pearpassVaultClient } from '../instances'
 
 export const fetchMasterPasswordStatus = createAsyncThunk(
-    'user/fetchMasterPasswordStatus',
-    async () => {
-        const masterPasswordStatus = await pearpassVaultClient.getMasterPasswordStatus()
-        return masterPasswordStatus
-    }
+  'user/fetchMasterPasswordStatus',
+  async () => pearpassVaultClient.getMasterPasswordStatus()
 )
