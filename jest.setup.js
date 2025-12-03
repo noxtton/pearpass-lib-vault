@@ -1,12 +1,12 @@
-import { setPearpassVaultClient } from './src/instances'
-
 // Polyfill TextEncoder/TextDecoder for jsdom environment
-import util from 'util'
+const util = require('util')
 
 if (typeof globalThis.TextEncoder === 'undefined') {
   globalThis.TextEncoder = util.TextEncoder
   globalThis.TextDecoder = util.TextDecoder
 }
+
+import { setPearpassVaultClient } from './src/instances'
 
 const mockClient = {
   activeVaultGetStatus: jest.fn(),
