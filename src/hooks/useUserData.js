@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux'
 
+import { fetchMasterPasswordStatus } from '../actions/fetchMasterPasswordStatus'
 import { initializeUser } from '../actions/initializeUser'
 import { createMasterPassword as createMasterPasswordApi } from '../api/createMasterPassword'
 import { init } from '../api/init'
 import { updateMasterPassword as updateMasterPasswordApi } from '../api/updateMasterPassword'
-import { fetchMasterPasswordStatus } from '../actions/fetchMasterPasswordStatus'
 import { selectUser } from '../selectors/selectUser'
 
 /**

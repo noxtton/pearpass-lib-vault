@@ -13,7 +13,8 @@ export const initializeUser = createAsyncThunk(
         pearpassVaultClient.activeVaultGetStatus()
       ])
 
-    const masterPasswordStatus = await pearpassVaultClient.getMasterPasswordStatus();
+    const masterPasswordStatus =
+      await pearpassVaultClient.getMasterPasswordStatus()
     const { ciphertext, nonce, salt } = masterPasswordEncryption || {}
 
     return {

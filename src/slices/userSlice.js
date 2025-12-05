@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { initializeUser } from '../actions/initializeUser'
 import { fetchMasterPasswordStatus } from '../actions/fetchMasterPasswordStatus'
+import { initializeUser } from '../actions/initializeUser'
 import { resetState } from '../actions/resetState'
 import { logger } from '../utils/logger'
 
