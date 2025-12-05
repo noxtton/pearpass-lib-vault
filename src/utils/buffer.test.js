@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 // TextEncoder polyfill for test environment
 import util from 'util'
 if (typeof globalThis.TextEncoder === 'undefined') {
@@ -71,76 +75,87 @@ describe('buffer utilities', () => {
       const buffer = stringToBuffer('test')
       expect(Array.from(buffer).some((byte) => byte !== 0)).toBe(true)
 
-      clearBuffer(buffer)
-      expect(Array.from(buffer).every((byte) => byte === 0)).toBe(true)
+      // Note: Can't check after clearBuffer as sodium_free invalidates the buffer
+      expect(() => clearBuffer(buffer)).not.toThrow()
     })
 
-    it('should handle null gracefully', () => {
-      expect(() => clearBuffer(null)).not.toThrow()
+    it('should throw TypeError for null', () => {
+      expect(() => clearBuffer(null)).toThrow(TypeError)
+      expect(() => clearBuffer(null)).toThrow('clearBuffer() requires a valid Buffer')
     })
 
-    it('should handle undefined gracefully', () => {
-      expect(() => clearBuffer(undefined)).not.toThrow()
+    it('should throw TypeError for undefined', () => {
+      expect(() => clearBuffer(undefined)).toThrow(TypeError)
+      expect(() => clearBuffer(undefined)).toThrow('clearBuffer() requires a valid Buffer')
     })
 
     it('should work with empty buffer', () => {
-      const buffer = new Uint8Array(0)
+      const buffer = Buffer.alloc(0)
       expect(() => clearBuffer(buffer)).not.toThrow()
     })
+
   })
 
   describe('withBuffer', () => {
     it('should execute callback and clear buffer', async () => {
       const buffer = stringToBuffer('test')
-      let capturedBuffer
+      let dataWasPresent = false
 
       const result = await withBuffer(buffer, async (buf) => {
-        capturedBuffer = buf
-        expect(Array.from(buf).some((byte) => byte !== 0)).toBe(true)
+        dataWasPresent = Array.from(buf).some((byte) => byte !== 0)
         return 'success'
       })
 
       expect(result).toBe('success')
-      expect(Array.from(capturedBuffer).every((byte) => byte === 0)).toBe(true)
+      expect(dataWasPresent).toBe(true)
+      // Note: Cannot check buffer after clearBuffer as sodium_free detaches it
     })
 
     it('should clear buffer even if callback throws', async () => {
       const buffer = stringToBuffer('test')
-      let capturedBuffer
+      let dataWasPresent = false
 
       await expect(
         withBuffer(buffer, async (buf) => {
-          capturedBuffer = buf
+          dataWasPresent = Array.from(buf).some((byte) => byte !== 0)
           throw new Error('Test error')
         })
       ).rejects.toThrow('Test error')
 
-      expect(Array.from(capturedBuffer).every((byte) => byte === 0)).toBe(true)
+      expect(dataWasPresent).toBe(true)
+      // Note: Cannot check buffer after clearBuffer as sodium_free detaches it
     })
   })
+
 
   describe('compareBuffers', () => {
     it('should return true for identical buffers', () => {
       const a = stringToBuffer('test')
       const b = stringToBuffer('test')
       expect(compareBuffers(a, b)).toBe(true)
+      clearBuffer(a)
+      clearBuffer(b)
     })
 
     it('should return false for different buffers', () => {
       const a = stringToBuffer('test1')
       const b = stringToBuffer('test2')
       expect(compareBuffers(a, b)).toBe(false)
+      clearBuffer(a)
+      clearBuffer(b)
     })
 
     it('should return false for different lengths', () => {
       const a = stringToBuffer('short')
       const b = stringToBuffer('muchlonger')
       expect(compareBuffers(a, b)).toBe(false)
+      clearBuffer(a)
+      clearBuffer(b)
     })
 
     it('should return true for empty buffers', () => {
-      const a = new Uint8Array(0)
-      const b = new Uint8Array(0)
+      const a = Buffer.alloc(0)
+      const b = Buffer.alloc(0)
       expect(compareBuffers(a, b)).toBe(true)
     })
 
@@ -148,6 +163,7 @@ describe('buffer utilities', () => {
       const buffer = stringToBuffer('test')
       expect(() => compareBuffers('not buffer', buffer)).toThrow(TypeError)
       expect(() => compareBuffers(buffer, null)).toThrow(TypeError)
+      clearBuffer(buffer)
     })
   })
 
@@ -159,7 +175,7 @@ describe('buffer utilities', () => {
       expect(bufferToString(buffer)).toBe(original)
 
       clearBuffer(buffer)
-      expect(Array.from(buffer).every((byte) => byte === 0)).toBe(true)
+      // Note: After sodium_free, buffer is invalid, so we can't check its contents
     })
   })
 })

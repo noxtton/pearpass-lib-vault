@@ -1,53 +1,72 @@
 /**
  * Generic buffer utilities for string/buffer conversions and secure clearing
+ * Uses sodium-native for cryptographically secure memory operations with
+ * protected memory allocation
  */
 
+import sodium from 'sodium-native'
+
 /**
- * Convert string to UTF-8 encoded Uint8Array
+ * Convert string to UTF-8 encoded buffer in secure memory
  * @param {string} str
- * @returns {Uint8Array}
+ * @returns {Buffer}
  */
 export const stringToBuffer = (str) => {
   if (typeof str !== 'string') {
     throw new TypeError('Input must be a string')
   }
 
-  const encoder = new TextEncoder()
-  return encoder.encode(str)
+  // Use Buffer.from for UTF-8 encoding, then copy to secure memory
+  const tempBuffer = Buffer.from(str, 'utf8')
+  
+  // Allocate secure buffer and copy data into it
+  const secureBuffer = sodium.sodium_malloc(tempBuffer.length)
+  tempBuffer.copy(secureBuffer)
+  
+  // Clear the temporary buffer
+  tempBuffer.fill(0)
+  
+  return secureBuffer
 }
 
 /**
- * Convert Uint8Array to UTF-8 string
- * @param {Uint8Array} buffer
+ * Convert Buffer to UTF-8 string
+ * @param {Buffer} buffer
  * @returns {string}
  */
 export const bufferToString = (buffer) => {
-  const decoder = new TextDecoder()
-  return decoder.decode(buffer)
+  return buffer.toString('utf8')
 }
 
 /**
- * Clear buffer by overwriting with zeros
- * @param {Uint8Array} buffer
+ * Clear buffer by overwriting with zeros using sodium_memzero
+ * This is resistant to compiler optimizations that might skip zeroing
+ * Frees secure buffers allocated with sodium_malloc
+ * 
+ * Only meant to be used with sodium-allocated buffers
+ * 
+ * @param {Buffer} buffer - Must be a sodium-allocated buffer
+ * @throws {TypeError} If buffer is not a valid Buffer
  */
 export const clearBuffer = (buffer) => {
-  if (buffer && typeof buffer === 'object' && typeof buffer.length === 'number') {
-    if (typeof buffer.fill === 'function') {
-      buffer.fill(0)
-    } else {
-      // Fallback for arrays without fill()
-      for (let i = 0; i < buffer.length; i++) {
-        buffer[i] = 0
-      }
-    }
+  if (!buffer || typeof buffer !== 'object' || typeof buffer.length !== 'number') {
+    throw new TypeError('clearBuffer() requires a valid Buffer')
   }
+  
+  if (buffer.length === 0) {
+    return // Empty buffer, nothing to clear
+  }
+
+  // Clear and free the secure buffer
+  sodium.sodium_memzero(buffer)
+  sodium.sodium_free(buffer)
 }
 
 /**
  * Execute callback with buffer, then clear it automatically
  * @template T
- * @param {Uint8Array} buffer
- * @param {(buffer: Uint8Array) => Promise<T>} callback
+ * @param {Buffer} buffer
+ * @param {(buffer: Buffer) => Promise<T>} callback
  * @returns {Promise<T>}
  */
 export const withBuffer = async (buffer, callback) => {
@@ -59,31 +78,26 @@ export const withBuffer = async (buffer, callback) => {
 }
 
 /**
- * Compare two buffers in constant time
- * @param {Uint8Array} a
- * @param {Uint8Array} b
+ * Compare two buffers in constant time using sodium_memcmp
+ * Resistant to timing attacks
+ * @param {Buffer} a
+ * @param {Buffer} b
  * @returns {boolean}
  */
 export const compareBuffers = (a, b) => {
-  const isUint8ArrayLike = (obj) =>
+  const isBufferLike = (obj) =>
     obj &&
     typeof obj === 'object' &&
-    typeof obj.length === 'number' &&
-    typeof obj.buffer !== 'undefined'
+    typeof obj.length === 'number'
 
-  if (!isUint8ArrayLike(a) || !isUint8ArrayLike(b)) {
-    throw new TypeError('Both arguments must be Uint8Array')
+  if (!isBufferLike(a) || !isBufferLike(b)) {
+    throw new TypeError('Both arguments must be Buffer')
   }
 
   if (a.length !== b.length) {
     return false
   }
 
-  // Constant-time comparison using bitwise XOR
-  let result = 0
-  for (let i = 0; i < a.length; i++) {
-    result |= a[i] ^ b[i]
-  }
-
-  return result === 0
+  return sodium.sodium_memcmp(a, b)
 }
+
