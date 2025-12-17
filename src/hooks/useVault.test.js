@@ -6,7 +6,6 @@ import { addDevice as addDeviceAction } from '../actions/addDevice'
 import { getVaultById } from '../actions/getVaultById'
 import { resetState } from '../actions/resetState'
 import { updateProtectedVault } from '../actions/updateProtectedVault'
-import { updateUnprotectedVault } from '../actions/updateUnprotectedVault'
 import { checkVaultIsProtected } from '../api/checkVaultIsProtected'
 
 jest.mock('react-redux', () => ({
@@ -24,10 +23,6 @@ jest.mock('../actions/resetState', () => ({
 
 jest.mock('../actions/updateProtectedVault', () => ({
   updateProtectedVault: jest.fn()
-}))
-
-jest.mock('../actions/updateUnprotectedVault', () => ({
-  updateUnprotectedVault: jest.fn()
 }))
 
 jest.mock('../actions/addDevice', () => ({
