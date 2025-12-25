@@ -65,9 +65,9 @@ describe('createMasterPassword', () => {
     })
     pearpassVaultClient.encryptionGet.mockResolvedValue({ existingData: true })
 
-    await expect(createMasterPassword(stringToBuffer('testPassword'))).rejects.toThrow(
-      'Master password already exists'
-    )
+    await expect(
+      createMasterPassword(stringToBuffer('testPassword'))
+    ).rejects.toThrow('Master password already exists')
 
     expect(pearpassVaultClient.hashPassword).not.toHaveBeenCalled()
   })

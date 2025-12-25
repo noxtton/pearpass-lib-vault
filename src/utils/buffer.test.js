@@ -81,19 +81,22 @@ describe('buffer utilities', () => {
 
     it('should throw TypeError for null', () => {
       expect(() => clearBuffer(null)).toThrow(TypeError)
-      expect(() => clearBuffer(null)).toThrow('clearBuffer() requires a valid Buffer')
+      expect(() => clearBuffer(null)).toThrow(
+        'clearBuffer() requires a valid Buffer'
+      )
     })
 
     it('should throw TypeError for undefined', () => {
       expect(() => clearBuffer(undefined)).toThrow(TypeError)
-      expect(() => clearBuffer(undefined)).toThrow('clearBuffer() requires a valid Buffer')
+      expect(() => clearBuffer(undefined)).toThrow(
+        'clearBuffer() requires a valid Buffer'
+      )
     })
 
     it('should work with empty buffer', () => {
       const buffer = Buffer.alloc(0)
       expect(() => clearBuffer(buffer)).not.toThrow()
     })
-
   })
 
   describe('withBuffer', () => {
@@ -126,7 +129,6 @@ describe('buffer utilities', () => {
       // Note: Cannot check buffer after clearBuffer as sodium_free detaches it
     })
   })
-
 
   describe('compareBuffers', () => {
     it('should return true for identical buffers', () => {

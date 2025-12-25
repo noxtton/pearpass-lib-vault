@@ -54,7 +54,9 @@ describe('initWithPassword', () => {
     })
     pearpassVaultClient.getDecryptionKey.mockResolvedValue('wrong')
 
-    await expect(initWithPassword({ password: stringToBuffer('pass') })).rejects.toThrow(
+    await expect(
+      initWithPassword({ password: stringToBuffer('pass') })
+    ).rejects.toThrow(
       'Provided credentials do not match existing master encryption'
     )
   })
@@ -89,8 +91,8 @@ describe('initWithPassword', () => {
     pearpassVaultClient.getDecryptionKey.mockResolvedValue('hashed')
     pearpassVaultClient.decryptVaultKey.mockResolvedValue(null)
 
-    await expect(initWithPassword({ password: stringToBuffer('pass') })).rejects.toThrow(
-      'Error decrypting vault key'
-    )
+    await expect(
+      initWithPassword({ password: stringToBuffer('pass') })
+    ).rejects.toThrow('Error decrypting vault key')
   })
 })

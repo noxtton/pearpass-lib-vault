@@ -18,14 +18,14 @@ export const stringToBuffer = (str) => {
 
   // Use Buffer.from for UTF-8 encoding, then copy to secure memory
   const tempBuffer = Buffer.from(str, 'utf8')
-  
+
   // Allocate secure buffer and copy data into it
   const secureBuffer = sodium.sodium_malloc(tempBuffer.length)
   tempBuffer.copy(secureBuffer)
-  
+
   // Clear the temporary buffer
   tempBuffer.fill(0)
-  
+
   return secureBuffer
 }
 
@@ -34,25 +34,27 @@ export const stringToBuffer = (str) => {
  * @param {Buffer} buffer
  * @returns {string}
  */
-export const bufferToString = (buffer) => {
-  return buffer.toString('utf8')
-}
+export const bufferToString = (buffer) => buffer.toString('utf8')
 
 /**
  * Clear buffer by overwriting with zeros using sodium_memzero
  * This is resistant to compiler optimizations that might skip zeroing
  * Frees secure buffers allocated with sodium_malloc
- * 
+ *
  * Only meant to be used with sodium-allocated buffers
- * 
+ *
  * @param {Buffer} buffer - Must be a sodium-allocated buffer
  * @throws {TypeError} If buffer is not a valid Buffer
  */
 export const clearBuffer = (buffer) => {
-  if (!buffer || typeof buffer !== 'object' || typeof buffer.length !== 'number') {
+  if (
+    !buffer ||
+    typeof buffer !== 'object' ||
+    typeof buffer.length !== 'number'
+  ) {
     throw new TypeError('clearBuffer() requires a valid Buffer')
   }
-  
+
   if (buffer.length === 0) {
     return // Empty buffer, nothing to clear
   }
@@ -86,9 +88,7 @@ export const withBuffer = async (buffer, callback) => {
  */
 export const compareBuffers = (a, b) => {
   const isBufferLike = (obj) =>
-    obj &&
-    typeof obj === 'object' &&
-    typeof obj.length === 'number'
+    obj && typeof obj === 'object' && typeof obj.length === 'number'
 
   if (!isBufferLike(a) || !isBufferLike(b)) {
     throw new TypeError('Both arguments must be Buffer')
@@ -100,4 +100,3 @@ export const compareBuffers = (a, b) => {
 
   return sodium.sodium_memcmp(a, b)
 }
-

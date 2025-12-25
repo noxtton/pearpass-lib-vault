@@ -66,9 +66,8 @@ export const useUserData = () => {
   const { isLoading, isInitialized, data: userData } = useSelector(selectUser)
   const dispatch = useDispatch()
 
-  const logIn = async ({ ciphertext, nonce, salt, hashedPassword, password }) => {
-    return init({ ciphertext, nonce, hashedPassword, password })
-  }
+  const logIn = async ({ ciphertext, nonce, hashedPassword, password }) =>
+    init({ ciphertext, nonce, hashedPassword, password })
 
   const createMasterPassword = async (password) => {
     try {
