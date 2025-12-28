@@ -1,13 +1,10 @@
 /**
  * Generic buffer utilities for string/buffer conversions and secure clearing
- * Uses sodium-native for cryptographically secure memory operations with
- * protected memory allocation
+ * This runs in the renderer process where sodium-native bindings are not available.
  */
 
-import sodium from 'sodium-native'
-
 /**
- * Convert string to UTF-8 encoded buffer in secure memory
+ * Convert string to UTF-8 encoded buffer
  * @param {string} str
  * @returns {Buffer}
  */
@@ -16,17 +13,7 @@ export const stringToBuffer = (str) => {
     throw new TypeError('Input must be a string')
   }
 
-  // Use Buffer.from for UTF-8 encoding, then copy to secure memory
-  const tempBuffer = Buffer.from(str, 'utf8')
-
-  // Allocate secure buffer and copy data into it
-  const secureBuffer = sodium.sodium_malloc(tempBuffer.length)
-  tempBuffer.copy(secureBuffer)
-
-  // Clear the temporary buffer
-  tempBuffer.fill(0)
-
-  return secureBuffer
+  return Buffer.from(str, 'utf8')
 }
 
 /**
@@ -37,13 +24,8 @@ export const stringToBuffer = (str) => {
 export const bufferToString = (buffer) => buffer.toString('utf8')
 
 /**
- * Clear buffer by overwriting with zeros using sodium_memzero
- * This is resistant to compiler optimizations that might skip zeroing
- * Frees secure buffers allocated with sodium_malloc
- *
- * Only meant to be used with sodium-allocated buffers
- *
- * @param {Buffer} buffer - Must be a sodium-allocated buffer
+ * Clear buffer by overwriting with zeros
+ * @param {Buffer} buffer
  * @throws {TypeError} If buffer is not a valid Buffer
  */
 export const clearBuffer = (buffer) => {
@@ -59,9 +41,8 @@ export const clearBuffer = (buffer) => {
     return // Empty buffer, nothing to clear
   }
 
-  // Clear and free the secure buffer
-  sodium.sodium_memzero(buffer)
-  sodium.sodium_free(buffer)
+  // Overwrite buffer with zeros
+  buffer.fill(0)
 }
 
 /**
@@ -80,8 +61,7 @@ export const withBuffer = async (buffer, callback) => {
 }
 
 /**
- * Compare two buffers in constant time using sodium_memcmp
- * Resistant to timing attacks
+ * Compare two buffers in constant time
  * @param {Buffer} a
  * @param {Buffer} b
  * @returns {boolean}
@@ -98,5 +78,5 @@ export const compareBuffers = (a, b) => {
     return false
   }
 
-  return sodium.sodium_memcmp(a, b)
+  return Buffer.compare(a, b) === 0
 }
